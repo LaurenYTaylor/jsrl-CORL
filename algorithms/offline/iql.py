@@ -30,7 +30,7 @@ LOG_STD_MAX = 2.0
 @dataclass
 class TrainConfig:
     # wandb project name
-    project: str = "CORL"
+    project: str = "jsrl-CORL"
     # wandb group name
     group: str = "IQL-D4RL"
     # wandb run name
