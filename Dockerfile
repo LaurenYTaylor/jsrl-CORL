@@ -1,4 +1,5 @@
-FROM nvidia/cuda:11.3.0-runtime-ubuntu20.04
+FROM nvidia/cuda:11.3.1-runtime-ubuntu20.04
+#FROM ubuntu:22.04
 WORKDIR /workspace
 
 # python, dependencies for mujoco-py, from https://github.com/openai/mujoco-py
@@ -34,6 +35,7 @@ ENV LD_LIBRARY_PATH /root/.mujoco/mujoco210/bin:${LD_LIBRARY_PATH}
 # installing poetry & env setup, mujoco_py compilation
 COPY requirements/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN python -c "import mujoco_py"
+RUN pip install "cython<3"
+RUN ["python", "-c", "import mujoco_py"]
 
 COPY . /workspace/CORL/
