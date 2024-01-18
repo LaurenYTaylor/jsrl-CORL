@@ -323,6 +323,10 @@ def train(config: JsrlTrainConfig):
         # Evaluate episode
         if (t + 1) % config.eval_freq == 0:
             print(f"Time steps: {t + 1}")
+            if guide is None:
+                curriculum_stage = np.inf
+            else:
+                curriculum_stage = config.jsrl["curriculum_stage"]
             (
                 eval_scores,
                 success_rate,
@@ -335,7 +339,7 @@ def train(config: JsrlTrainConfig):
                 config.device,
                 config.n_episodes,
                 config.seed,
-                config.jsrl_config["curriculum_stage"],
+                curriculum_stage,
             )
 
             eval_score = eval_scores.mean()
