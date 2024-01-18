@@ -39,6 +39,6 @@ build_and_run_finetune_test:
 	-e WANDB_API_KEY=$(WANDB_API_KEY) \
 	-it \
 	--rm \
-	jsrl-corl python $(RUN_FILE) --device cpu --group IQL-D4RL-finetune_test --offline_iterations 5
+	jsrl-corl python $(RUN_FILE) --group IQL-D4RL-finetune_test --offline_iterations 5
 
 	echo "running $(RUN_FILE)"
