@@ -38,4 +38,4 @@ RUN pip install -r requirements.txt
 RUN pip install "cython<3"
 RUN ["python", "-c", "import mujoco_py"]
 
-COPY . /workspace/CORL/
+COPY . /workspace/jsrl-CORL/
