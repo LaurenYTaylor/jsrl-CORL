@@ -1,5 +1,4 @@
 FROM nvcr.io/nvidia/cuda:11.7.0-runtime-ubuntu22.04
-#FROM ubuntu:22.04
 WORKDIR /workspace
 
 # python, dependencies for mujoco-py, from https://github.com/openai/mujoco-py

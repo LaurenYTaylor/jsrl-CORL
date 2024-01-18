@@ -230,6 +230,8 @@ def train(config: JsrlTrainConfig):
             env, guide, kwargs["device"], 100, seed, np.inf
         )
         config = jsrl.prepare_finetuning(init_horizon, config, config.jsrl)
+    else:
+        guide = None
 
     print("Offline pretraining")
     for t in range(int(config.offline_iterations) + int(config.online_iterations)):
@@ -339,12 +341,14 @@ def train(config: JsrlTrainConfig):
             eval_score = eval_scores.mean()
             eval_log = {}
             normalized = eval_env.get_normalized_score(eval_score)
-            config.jsrl = jsrl.horizon_update_callback(config.jsrl, normalized)
+
             # Valid only for envs with goal, e.g. AntMaze, Adroit
             if t >= config.offline_iterations and is_env_with_goal:
                 eval_successes.append(success_rate)
                 eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
                 eval_log["eval/success_rate"] = success_rate
+
+                config.jsrl = jsrl.horizon_update_callback(config.jsrl, normalized)
                 eval_log = jsrl.add_jsrl_metrics(eval_log, config.jsrl)
 
             normalized_eval_score = normalized * 100.0
