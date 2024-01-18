@@ -1,10 +1,8 @@
 # source: https://github.com/gwthomas/IQL-PyTorch
 # https://arxiv.org/pdf/2110.06169.pdf
 import os
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from pathlib import Path
-import argparse
-from typing import Union, Optional
 
 import d4rl
 import gym
@@ -13,8 +11,29 @@ import pyrallis
 import torch
 import torch.nn.functional as F
 import wandb
-from iql import *
+from iql import (
+    DeterministicPolicy,
+    ENVS_WITH_GOAL,
+    GaussianPolicy,
+    ImplicitQLearning,
+    ReplayBuffer,
+    TrainConfig,
+    Tuple,
+    TwinQ,
+    ValueFunction,
+    compute_mean_std,
+    is_goal_reached,
+    modify_reward,
+    modify_reward_online,
+    nn,
+    normalize_states,
+    set_env_seed,
+    set_seed,
+    wandb_init,
+    wrap_env,
+)
 import jsrl_utils as jsrl
+
 
 @dataclass(kw_only=True)
 class JsrlTrainConfig(TrainConfig):
@@ -23,22 +42,30 @@ class JsrlTrainConfig(TrainConfig):
     rolling_mean_n: int = 5
     pretrained_policy_path: str = None
     horizon_fn: str = "time_step"
-    
+
     def __post_init__(self):
         super().__post_init__()
         self.jsrl = {}
-        for att in ["n_curriculum_stages",
-                   "tolerance",
-                   "rolling_mean_n",
-                   "pretrained_policy_path",
-                   "horizon_fn"]:
+        for att in [
+            "n_curriculum_stages",
+            "tolerance",
+            "rolling_mean_n",
+            "pretrained_policy_path",
+            "horizon_fn",
+        ]:
             self.jsrl[att] = self.__dict__[att]
             delattr(self, att)
-    
+
 
 @torch.no_grad()
 def eval_actor(
-    env: gym.Env, learner: nn.Module, guide: nn.Module, device: str, n_episodes: int, seed: int, curriculum_stage: float
+    env: gym.Env,
+    learner: nn.Module,
+    guide: nn.Module,
+    device: str,
+    n_episodes: int,
+    seed: int,
+    curriculum_stage: float,
 ) -> Tuple[np.ndarray, np.ndarray]:
     env.seed(seed)
     learner.eval()
@@ -54,7 +81,9 @@ def eval_actor(
         ep_agent_types = []
         goal_achieved = False
         while not done:
-            action, use_learner, horizon = jsrl.learner_or_guide_action(state, t, learner, guide, curriculum_stage, device)
+            action, use_learner, horizon = jsrl.learner_or_guide_action(
+                state, t, learner, guide, curriculum_stage, device
+            )
             episode_horizons.append(horizon)
             if use_learner:
                 action = learner.act(state, device)
@@ -74,11 +103,16 @@ def eval_actor(
         agent_types.append(np.mean(ep_agent_types))
 
     learner.train()
-    return np.asarray(episode_rewards), np.mean(successes), np.mean(horizons_reached), np.mean(agent_types)
+    return (
+        np.asarray(episode_rewards),
+        np.mean(successes),
+        np.mean(horizons_reached),
+        np.mean(agent_types),
+    )
+
 
 @pyrallis.wrap()
 def train(config: JsrlTrainConfig):
-    
     env = gym.make(config.env)
     eval_env = gym.make(config.env)
 
@@ -184,18 +218,25 @@ def train(config: JsrlTrainConfig):
 
     eval_successes = []
     train_successes = []
-        
+
     jsrl.horizon_str = config.jsrl["horizon_fn"]
-    
+
     if config.jsrl["pretrained_policy_path"] is not None:
         guide_trainer = ImplicitQLearning(**kwargs)
-        guide = jsrl.load_guide(guide_trainer, Path(config.jsrl["pretrained_policy_path"]))
-        _, _, init_horizon, _= eval_actor(env, guide, kwargs["device"], 100, seed, np.inf)
+        guide = jsrl.load_guide(
+            guide_trainer, Path(config.jsrl["pretrained_policy_path"])
+        )
+        _, _, init_horizon, _ = eval_actor(
+            env, guide, kwargs["device"], 100, seed, np.inf
+        )
         config = jsrl.prepare_finetuning(init_horizon, config, config.jsrl)
 
     print("Offline pretraining")
     for t in range(int(config.offline_iterations) + int(config.online_iterations)):
-        if t == config.offline_iterations and config.jsrl["pretrained_policy_path"] is None:
+        if (
+            t == config.offline_iterations
+            and config.jsrl["pretrained_policy_path"] is None
+        ):
             print("Online tuning")
             guide = trainer.actor
             guide_trainer = trainer
@@ -210,15 +251,24 @@ def train(config: JsrlTrainConfig):
                     state_dim, action_dim, max_action, dropout=config.actor_dropout
                 )
             ).to(config.device)
-            _, _, init_horizon, _ = eval_actor(env, actor, guide, kwargs["device"], config.n_episodes, seed, np.inf)
+            _, _, init_horizon, _ = eval_actor(
+                env, actor, guide, kwargs["device"], config.n_episodes, seed, np.inf
+            )
             config = jsrl.prepare_finetuning(init_horizon, config, config.jsrl)
-            
+
         online_log = {}
         if t >= config.offline_iterations:
             episode_step += 1
-                        
-            action, _, _ = jsrl.learner_or_guide_action(state, episode_step, actor, guide, config.jsrl["curriculum_stage"], kwargs["device"])
-            
+
+            action, _, _ = jsrl.learner_or_guide_action(
+                state,
+                episode_step,
+                actor,
+                guide,
+                config.jsrl["curriculum_stage"],
+                kwargs["device"],
+            )
+
             if not config.iql_deterministic:
                 action = action.sample()
             else:
@@ -260,7 +310,6 @@ def train(config: JsrlTrainConfig):
                 episode_step = 0
                 goal_achieved = False
 
-        print("train: ")
         batch = replay_buffer.sample(config.batch_size)
         batch = [b.to(config.device) for b in batch]
         log_dict = trainer.train(batch)
@@ -272,19 +321,21 @@ def train(config: JsrlTrainConfig):
         # Evaluate episode
         if (t + 1) % config.eval_freq == 0:
             print(f"Time steps: {t + 1}")
-            (eval_scores,
-            success_rate,
-            config.jsrl["mean_horizon_reached"],
-            config.jsrl["mean_agent_type"]) = eval_actor(
+            (
+                eval_scores,
+                success_rate,
+                config.jsrl["mean_horizon_reached"],
+                config.jsrl["mean_agent_type"],
+            ) = eval_actor(
                 eval_env,
                 actor,
                 guide,
                 config.device,
                 config.n_episodes,
                 config.seed,
-                config.jsrl_config["curriculum_stage"]
+                config.jsrl_config["curriculum_stage"],
             )
-            
+
             eval_score = eval_scores.mean()
             eval_log = {}
             normalized = eval_env.get_normalized_score(eval_score)
@@ -295,7 +346,7 @@ def train(config: JsrlTrainConfig):
                 eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
                 eval_log["eval/success_rate"] = success_rate
                 eval_log = jsrl.add_jsrl_metrics(eval_log, config.jsrl)
-                
+
             normalized_eval_score = normalized * 100.0
             evaluations.append(normalized_eval_score)
             eval_log["eval/d4rl_normalized_score"] = normalized_eval_score
@@ -311,6 +362,7 @@ def train(config: JsrlTrainConfig):
                     os.path.join(config.checkpoints_path, f"checkpoint_{t}.pt"),
                 )
             wandb.log(eval_log, step=trainer.total_it)
-            
+
+
 if __name__ == "__main__":
     train()
