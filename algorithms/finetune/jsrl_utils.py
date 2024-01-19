@@ -58,15 +58,19 @@ def prepare_finetuning(init_horizon, config, jsrl_config):
     return config
 
 
-def timestep_horizon(step, _, curriculum_stage):
+def timestep_horizon(step, _s, _e, curriculum_stage):
     use_learner = False
     if step >= curriculum_stage:
         use_learner = True
     return use_learner, step
 
 
-def goal_distance_horizon(step, _, curriculum_stage):
-    pass
+def goal_distance_horizon(_t, _s, env, curriculum_stage):
+    use_learner = False
+    goal_dist = np.linalg.norm(np.array(env.target_goal) - np.array(env.get_xy()))
+    if goal_dist < curriculum_stage:
+        use_learner = True
+    return use_learner, goal_dist
 
 
 def max_accumulator(v):
@@ -78,7 +82,11 @@ def mean_accumulator(v):
 
 
 HORIZON_FNS = {
-    "time_step": {"horizon_fn": timestep_horizon, "accumulator_fn": max_accumulator}
+    "time_step": {"horizon_fn": timestep_horizon, "accumulator_fn": max_accumulator},
+    "goal_dist": {
+        "horizon_fn": goal_distance_horizon,
+        "accumulator_fn": mean_accumulator,
+    },
 }
 
 
@@ -86,13 +94,13 @@ def accumulate(vals):
     return HORIZON_FNS[horizon_str]["accumulator_fn"](vals)
 
 
-def learner_or_guide_action(state, step, learner, guide, curriculum_stage, device):
+def learner_or_guide_action(state, step, env, learner, guide, curriculum_stage, device):
     if guide is None:
         use_learner = True
         horizon = -1
     else:
         use_learner, horizon = HORIZON_FNS[horizon_str]["horizon_fn"](
-            step, state, curriculum_stage
+            step, state, env, curriculum_stage
         )
 
     if use_learner:

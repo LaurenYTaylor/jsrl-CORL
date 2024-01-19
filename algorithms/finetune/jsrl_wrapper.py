@@ -82,7 +82,7 @@ def eval_actor(
         goal_achieved = False
         while not done:
             action, use_learner, horizon = jsrl.learner_or_guide_action(
-                state, t, learner, guide, curriculum_stage, device
+                state, t, env, learner, guide, curriculum_stage, device
             )
             episode_horizons.append(horizon)
             if use_learner:
@@ -227,7 +227,7 @@ def train(config: JsrlTrainConfig):
             guide_trainer, Path(config.jsrl["pretrained_policy_path"])
         )
         _, _, init_horizon, _ = eval_actor(
-            env, guide, kwargs["device"], 100, seed, np.inf
+            env, guide, None, kwargs["device"], 100, seed, np.nan
         )
         config = jsrl.prepare_finetuning(init_horizon, config, config.jsrl)
     else:
@@ -240,6 +240,9 @@ def train(config: JsrlTrainConfig):
             and config.jsrl["pretrained_policy_path"] is None
         ):
             print("Online tuning")
+            _, _, init_horizon, _ = eval_actor(
+                env, actor, guide, kwargs["device"], config.n_episodes, seed, np.nan
+            )
             guide = trainer.actor
             guide_trainer = trainer
             guide.eval()
@@ -253,9 +256,7 @@ def train(config: JsrlTrainConfig):
                     state_dim, action_dim, max_action, dropout=config.actor_dropout
                 )
             ).to(config.device)
-            _, _, init_horizon, _ = eval_actor(
-                env, actor, guide, kwargs["device"], config.n_episodes, seed, np.inf
-            )
+
             config = jsrl.prepare_finetuning(init_horizon, config, config.jsrl)
 
         online_log = {}
@@ -265,6 +266,7 @@ def train(config: JsrlTrainConfig):
             action, _, _ = jsrl.learner_or_guide_action(
                 state,
                 episode_step,
+                env,
                 actor,
                 guide,
                 config.jsrl["curriculum_stage"],
@@ -324,7 +326,7 @@ def train(config: JsrlTrainConfig):
         if (t + 1) % config.eval_freq == 0:
             print(f"Time steps: {t + 1}")
             if guide is None:
-                curriculum_stage = np.inf
+                curriculum_stage = np.nan
             else:
                 curriculum_stage = config.jsrl["curriculum_stage"]
             (
