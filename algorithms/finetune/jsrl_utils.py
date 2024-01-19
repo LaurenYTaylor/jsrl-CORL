@@ -59,11 +59,10 @@ def prepare_finetuning(init_horizon, config, jsrl_config):
 
 
 def timestep_horizon(step, _, curriculum_stage):
-    action_policy = "guide"
+    use_learner = False
     if step >= curriculum_stage:
-        action_policy = "learning"
-    print(action_policy)
-    return action_policy, step
+        use_learner = True
+    return use_learner, step
 
 
 def goal_distance_horizon(step, _, curriculum_stage):
@@ -88,7 +87,6 @@ def accumulate(vals):
 
 
 def learner_or_guide_action(state, step, learner, guide, curriculum_stage, device):
-    print(guide)
     if guide is None:
         use_learner = True
         horizon = -1
