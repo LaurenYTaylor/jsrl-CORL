@@ -43,19 +43,6 @@ class JsrlTrainConfig(TrainConfig):
     pretrained_policy_path: str = None
     horizon_fn: str = "time_step"
 
-    def __post_init__(self):
-        super().__post_init__()
-        self.jsrl = {}
-        for att in [
-            "n_curriculum_stages",
-            "tolerance",
-            "rolling_mean_n",
-            "pretrained_policy_path",
-            "horizon_fn",
-        ]:
-            self.jsrl[att] = self.__dict__[att]
-            delattr(self, att)
-
 
 @torch.no_grad()
 def eval_actor(
@@ -75,14 +62,14 @@ def eval_actor(
     agent_types = []
     for _ in range(n_episodes):
         state, done = env.reset(), False
-        t = 0
+        ts = 0
         episode_reward = 0.0
         episode_horizons = []
         ep_agent_types = []
         goal_achieved = False
         while not done:
             action, use_learner, horizon = jsrl.learner_or_guide_action(
-                state, t, env, learner, guide, curriculum_stage, device
+                state, ts, env, learner, guide, curriculum_stage, device
             )
             episode_horizons.append(horizon)
             if use_learner:
@@ -93,7 +80,7 @@ def eval_actor(
                 ep_agent_types.append(0)
             state, reward, done, env_infos = env.step(action)
             episode_reward += reward
-            t += 1
+            ts += 1
             if not goal_achieved:
                 goal_achieved = is_goal_reached(reward, env_infos)
         # Valid only for environments with goal
@@ -219,26 +206,21 @@ def train(config: JsrlTrainConfig):
     eval_successes = []
     train_successes = []
 
-    jsrl.horizon_str = config.jsrl["horizon_fn"]
+    jsrl.horizon_str = config.horizon_fn
 
-    if config.jsrl["pretrained_policy_path"] is not None:
+    if config.pretrained_policy_path is not None:
         guide_trainer = ImplicitQLearning(**kwargs)
-        guide = jsrl.load_guide(
-            guide_trainer, Path(config.jsrl["pretrained_policy_path"])
-        )
+        guide = jsrl.load_guide(guide_trainer, Path(config.pretrained_policy_path))
         _, _, init_horizon, _ = eval_actor(
             env, guide, None, kwargs["device"], 100, seed, np.nan
         )
-        config = jsrl.prepare_finetuning(init_horizon, config, config.jsrl)
+        config = jsrl.prepare_finetuning(init_horizon, config)
     else:
         guide = None
 
     print("Offline pretraining")
     for t in range(int(config.offline_iterations) + int(config.online_iterations)):
-        if (
-            t == config.offline_iterations
-            and config.jsrl["pretrained_policy_path"] is None
-        ):
+        if t == config.offline_iterations and config.pretrained_policy_path is None:
             print("Online tuning")
             _, _, init_horizon, _ = eval_actor(
                 env, actor, guide, kwargs["device"], config.n_episodes, seed, np.nan
@@ -257,7 +239,7 @@ def train(config: JsrlTrainConfig):
                 )
             ).to(config.device)
 
-            config = jsrl.prepare_finetuning(init_horizon, config, config.jsrl)
+            config = jsrl.prepare_finetuning(init_horizon, config)
 
         online_log = {}
         if t >= config.offline_iterations:
@@ -269,7 +251,7 @@ def train(config: JsrlTrainConfig):
                 env,
                 actor,
                 guide,
-                config.jsrl["curriculum_stage"],
+                config.curriculum_stage,
                 kwargs["device"],
             )
 
@@ -328,12 +310,12 @@ def train(config: JsrlTrainConfig):
             if guide is None:
                 curriculum_stage = np.nan
             else:
-                curriculum_stage = config.jsrl["curriculum_stage"]
+                curriculum_stage = config.curriculum_stage
             (
                 eval_scores,
                 success_rate,
-                config.jsrl["mean_horizon_reached"],
-                config.jsrl["mean_agent_type"],
+                config.mean_horizon_reached,
+                config.mean_agent_type,
             ) = eval_actor(
                 eval_env,
                 actor,
@@ -354,8 +336,8 @@ def train(config: JsrlTrainConfig):
                 eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
                 eval_log["eval/success_rate"] = success_rate
 
-                config.jsrl = jsrl.horizon_update_callback(config.jsrl, normalized)
-                eval_log = jsrl.add_jsrl_metrics(eval_log, config.jsrl)
+                config = jsrl.horizon_update_callback(config, normalized)
+                eval_log = jsrl.add_jsrl_metrics(eval_log, config)
 
             normalized_eval_score = normalized * 100.0
             evaluations.append(normalized_eval_score)
