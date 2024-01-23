@@ -11,6 +11,7 @@ import pyrallis
 import torch
 import torch.nn.functional as F
 import wandb
+import h5py
 from iql import (
     DeterministicPolicy,
     ENVS_WITH_GOAL,
@@ -42,6 +43,7 @@ class JsrlTrainConfig(TrainConfig):
     rolling_mean_n: int = 5
     pretrained_policy_path: str = None
     horizon_fn: str = "time_step"
+    downloaded_dataset: str = None
 
 
 @torch.no_grad()
@@ -110,7 +112,14 @@ def train(config: JsrlTrainConfig):
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
 
-    dataset = d4rl.qlearning_dataset(env)
+    if config.downloaded_dataset:
+        downloaded_data = {}
+        with h5py.File(config.downloaded_dataset, "r") as f:
+            for k in f.keys():
+                downloaded_data[k] = f[k][()]
+        dataset = d4rl.qlearning_dataset(env, dataset=downloaded_data)
+    else:
+        dataset = d4rl.qlearning_dataset(env)
 
     reward_mod_dict = {}
     if config.normalize_reward:
@@ -302,6 +311,11 @@ def train(config: JsrlTrainConfig):
         log_dict["offline_iter" if t < config.offline_iterations else "online_iter"] = (
             t if t < config.offline_iterations else t - config.offline_iterations
         )
+        print(log_dict)
+        print(trainer.total_it)
+        import pdb
+
+        pdb.set_trace()
         log_dict.update(online_log)
         wandb.log(log_dict, step=trainer.total_it)
         # Evaluate episode
