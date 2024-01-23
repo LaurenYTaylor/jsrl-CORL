@@ -19,6 +19,8 @@ build:
 	.
 
 build_and_run:
+	yes | sudo docker container prune
+
 	sudo docker build \
 	-f $(DF) \
 	-t jsrl-corl \
@@ -29,7 +31,6 @@ build_and_run:
 	-it \
 	$(NUM_GPUS) \
 	$(DETACH) \
-	--rm \
 	jsrl-corl python $(RUN_FILE)
 
 build_and_run_finetune_test:
@@ -43,6 +44,6 @@ build_and_run_finetune_test:
 	-it \
 	--gpus all \
 	--rm \
-	jsrl-corl python $(RUN_FILE) --group IQL-D4RL-finetune_test --offline_iterations 5
+	jsrl-corl python $(RUN_FILE) --group IQL-D4RL-finetune_test --offline_iterations 5 --checkpoints_path checkpoints
 
 	echo "running $(RUN_FILE)"

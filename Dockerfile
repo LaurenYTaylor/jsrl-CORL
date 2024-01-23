@@ -35,6 +35,8 @@ ENV LD_LIBRARY_PATH /root/.mujoco/mujoco210/bin:${LD_LIBRARY_PATH}
 COPY requirements/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN pip install "cython<3"
+RUN pip install h5py
 RUN ["python", "-c", "import mujoco_py"]
 
 COPY . /workspace/jsrl-CORL/
+ENV WANDB_DIR=jsrl-CORL/algorithms/finetune/wandb
