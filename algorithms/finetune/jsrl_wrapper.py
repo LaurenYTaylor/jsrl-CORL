@@ -12,6 +12,7 @@ import torch
 import torch.nn.functional as F
 import wandb
 import h5py
+
 from iql import (
     DeterministicPolicy,
     ENVS_WITH_GOAL,
@@ -100,7 +101,6 @@ def eval_actor(
     )
 
 
-@pyrallis.wrap()
 def train(config: JsrlTrainConfig):
     env = gym.make(config.env)
     eval_env = gym.make(config.env)
@@ -323,8 +323,7 @@ def train(config: JsrlTrainConfig):
         )
 
         log_dict.update(online_log)
-        print(log_dict)
-        print(trainer.total_it)
+
         wandb.log(log_dict, step=trainer.total_it)
         # Evaluate episode
         if (t + 1) % config.eval_freq == 0:
@@ -380,4 +379,4 @@ def train(config: JsrlTrainConfig):
 
 
 if __name__ == "__main__":
-    train()
+    train(pyrallis.parse(config_class=JsrlTrainConfig))

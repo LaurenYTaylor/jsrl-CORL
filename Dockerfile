@@ -38,3 +38,5 @@ RUN pip install "cython<3"
 RUN ["python", "-c", "import mujoco_py"]
 
 COPY . /workspace/jsrl-CORL/
+
+RUN mkdir checkpoints

@@ -6,6 +6,9 @@ sweep_config.yaml
 .ml-job-preset.yml
 wandb
 downloaded_data
+*checkpoints
+*wandb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
