@@ -54,7 +54,6 @@ def prepare_finetuning(init_horizon, config):
     config.agent_type = config.all_agent_types[config.curriculum_stage_idx]
     config.best_eval_score = -np.inf
     config.rolling_mean_rews = deque(maxlen=config.rolling_mean_n)
-    config.offline_iterations = 0
     return config
 
 

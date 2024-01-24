@@ -5,7 +5,7 @@ wandb_run.sh
 sweep_config.yaml
 .ml-job-preset.yml
 wandb
-
+downloaded_data
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

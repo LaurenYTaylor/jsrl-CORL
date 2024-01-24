@@ -114,9 +114,17 @@ def train(config: JsrlTrainConfig):
 
     if config.downloaded_dataset:
         downloaded_data = {}
-        with h5py.File(config.downloaded_dataset, "r") as f:
+
+        def get_keys(f, dataset):
             for k in f.keys():
-                downloaded_data[k] = f[k][()]
+                try:
+                    dataset[k] = f[k][()]
+                except TypeError:
+                    dataset[k] = get_keys(f[k], {})
+            return dataset
+
+        with h5py.File(config.downloaded_dataset, "r") as f:
+            downloaded_data = get_keys(f, {})
         dataset = d4rl.qlearning_dataset(env, dataset=downloaded_data)
     else:
         dataset = d4rl.qlearning_dataset(env)
@@ -224,6 +232,7 @@ def train(config: JsrlTrainConfig):
             env, guide, None, kwargs["device"], 100, seed, np.nan
         )
         config = jsrl.prepare_finetuning(init_horizon, config)
+        config.offline_iterations = 0
     else:
         guide = None
 
@@ -238,6 +247,7 @@ def train(config: JsrlTrainConfig):
             guide_trainer = trainer
             guide.eval()
             trainer = ImplicitQLearning(**kwargs)
+            trainer.total_it = config.offline_iterations
             actor = (
                 DeterministicPolicy(
                     state_dim, action_dim, max_action, dropout=config.actor_dropout
@@ -311,12 +321,10 @@ def train(config: JsrlTrainConfig):
         log_dict["offline_iter" if t < config.offline_iterations else "online_iter"] = (
             t if t < config.offline_iterations else t - config.offline_iterations
         )
+
+        log_dict.update(online_log)
         print(log_dict)
         print(trainer.total_it)
-        import pdb
-
-        pdb.set_trace()
-        log_dict.update(online_log)
         wandb.log(log_dict, step=trainer.total_it)
         # Evaluate episode
         if (t + 1) % config.eval_freq == 0:
@@ -345,10 +353,11 @@ def train(config: JsrlTrainConfig):
             normalized = eval_env.get_normalized_score(eval_score)
 
             # Valid only for envs with goal, e.g. AntMaze, Adroit
-            if t >= config.offline_iterations and is_env_with_goal:
-                eval_successes.append(success_rate)
-                eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
-                eval_log["eval/success_rate"] = success_rate
+            if t >= config.offline_iterations:
+                if is_env_with_goal:
+                    eval_successes.append(success_rate)
+                    eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
+                    eval_log["eval/success_rate"] = success_rate
 
                 config = jsrl.horizon_update_callback(config, normalized)
                 eval_log = jsrl.add_jsrl_metrics(eval_log, config)
