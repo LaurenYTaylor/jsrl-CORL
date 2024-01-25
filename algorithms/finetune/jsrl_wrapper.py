@@ -262,13 +262,14 @@ def train(config: JsrlTrainConfig):
 
                 config = jsrl.prepare_finetuning(init_horizon, config)
             if config.new_online_buffer:
+                del replay_buffer
                 online_replay_buffer = ReplayBuffer(
                     state_dim,
                     action_dim,
                     config.buffer_size,
                     config.device,
                 )
-                del replay_buffer
+
             else:
                 online_replay_buffer = replay_buffer
 
