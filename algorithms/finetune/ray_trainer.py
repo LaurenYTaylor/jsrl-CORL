@@ -6,9 +6,8 @@ import time
 
 
 @ray.remote
-def run_training(seed, goal, train_config):
+def run_training(seed, train_config):
     train_config.seed = seed
-    train_config.horizon_fn = goal
     train_config.group = train_config.env + "_" + train_config.horizon_fn
     timestr = time.strftime("%d%m%y-%H%M%S")
     train_config.name = f"seed{seed}_{timestr}"
@@ -22,8 +21,7 @@ def run_training(seed, goal, train_config):
 def run(train_config: JsrlTrainConfig, extra_config: dict):
     rt_w_options = run_training.options(num_gpus=extra_config["gpu_frac"])
     object_references = [
-        rt_w_options.remote(seed, train_config.goal, train_config)
-        for seed in extra_config["seeds"]
+        rt_w_options.remote(seed, train_config) for seed in extra_config["seeds"]
     ]
 
     all_data = []
