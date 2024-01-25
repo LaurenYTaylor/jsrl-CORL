@@ -1,8 +1,8 @@
 #!/bin/bash
-
+done=$(sudo docker container ps -q)
 count=0
-while [ $done ]
+while [ ! -n $done ]
 do
-    echo $done" "
+    echo $done
     done=$(sudo docker container ps -q)
 done
