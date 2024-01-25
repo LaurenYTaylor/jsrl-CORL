@@ -10,7 +10,7 @@ def add_jsrl_metrics(eval_log, config):
     eval_log["eval/jsrl/curriculum_stage"] = config.curriculum_stage
     eval_log["eval/jsrl/best_eval_score"] = config.best_eval_score
     eval_log["eval/jsrl/mean_horizon_reached"] = config.mean_horizon_reached
-    eval_log["eval/jsrl/mean_agent_type"] = config.mean_agent_type
+    eval_log["eval/jsrl/mean_agent_type"] = config.eval_mean_agent_type
     return eval_log
 
 
@@ -32,12 +32,19 @@ def horizon_update_callback(config, eval_reward):
         config.curriculum_stage = config.all_curriculum_stages[
             config.curriculum_stage_idx
         ]
+        config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
         config.best_eval_score = rolling_mean
     return config
 
 
 def load_guide(trainer, pretrained):
-    trainer.load_state_dict(torch.load(pretrained))
+    try:
+        trainer.load_state_dict(torch.load(pretrained))
+    except RuntimeError:
+        trainer.load_state_dict(
+            torch.load(pretrained, map_location=torch.device("cpu"))
+        )
+
     guide = trainer.actor
     guide.eval()
     return guide
@@ -51,23 +58,29 @@ def prepare_finetuning(init_horizon, config):
     config.all_curriculum_stages = curriculum_stages
     config.curriculum_stage_idx = 0
     config.curriculum_stage = curriculum_stages[config.curriculum_stage_idx]
-    config.agent_type = config.all_agent_types[config.curriculum_stage_idx]
+    config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
     config.best_eval_score = -np.inf
     config.rolling_mean_rews = deque(maxlen=config.rolling_mean_n)
     return config
 
 
-def timestep_horizon(step, _s, _e, curriculum_stage):
+def timestep_horizon(step, _s, _e, config):
     use_learner = False
-    if step >= curriculum_stage:
+    if (
+        step >= config.curriculum_stage
+        and config.ep_agent_type <= config.agent_type_stage
+    ):
         use_learner = True
     return use_learner, step
 
 
-def goal_distance_horizon(_t, _s, env, curriculum_stage):
+def goal_distance_horizon(_t, _s, env, config):
     use_learner = False
     goal_dist = np.linalg.norm(np.array(env.target_goal) - np.array(env.get_xy()))
-    if goal_dist < curriculum_stage:
+    if (
+        goal_dist <= config.curriculum_stage
+        and config.ep_agent_type <= config.agent_type_stage
+    ):
         use_learner = True
     return use_learner, goal_dist
 
@@ -106,15 +119,13 @@ def accumulate(vals):
     return HORIZON_FNS[horizon_str]["accumulator_fn"](vals)
 
 
-def learner_or_guide_action(state, step, env, learner, guide, curriculum_stage, device):
+def learner_or_guide_action(state, step, env, learner, guide, config, device):
     if guide is None:
-        _, horizon = HORIZON_FNS[horizon_str]["horizon_fn"](
-            step, state, env, curriculum_stage
-        )
+        _, horizon = HORIZON_FNS[horizon_str]["horizon_fn"](step, state, env, config)
         use_learner = True
     else:
         use_learner, horizon = HORIZON_FNS[horizon_str]["horizon_fn"](
-            step, state, env, curriculum_stage
+            step, state, env, config
         )
 
     if use_learner:

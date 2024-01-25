@@ -2,6 +2,7 @@ import pyrallis
 import ray
 import os
 from jsrl_wrapper import JsrlTrainConfig, train
+import time
 
 
 @ray.remote
@@ -9,7 +10,8 @@ def run_training(seed, goal, train_config):
     train_config.seed = seed
     train_config.horizon_fn = goal
     train_config.group = train_config.env + "_" + train_config.horizon_fn
-    train_config.name = f"seed{seed}"
+    timestr = time.strftime("%d%m%y-%H%M%S")
+    train_config.name = f"seed{seed}_{timestr}_nooff"
     data_path = "jsrl-CORL/downloaded_data/" + train_config.env + ".hdf5"
     if os.path.exists(data_path):
         train_config.downloaded_dataset = data_path
