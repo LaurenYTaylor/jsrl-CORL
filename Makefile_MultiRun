@@ -29,4 +29,4 @@ run2:
 
 
 
-build_and_run: build run1 ; run2
+build_and_run: build run1 run2
