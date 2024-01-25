@@ -3,5 +3,5 @@ done=$(sudo docker container ps -q)
 count=0
 while [ $done ]
 do
-    echo $done
+    echo $done" "
 done
