@@ -1,7 +1,7 @@
 WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
 
 RUN_FILE="jsrl-CORL/algorithms/finetune/iql.py"
-NUM_GPUS=--gpus all
+GPUS=--gpus all
 DETACH=--detach
 
 run:
@@ -19,6 +19,8 @@ build:
 	.
 
 build_and_run:
+	yes | sudo docker container prune
+
 	sudo docker build \
 	-f $(DF) \
 	-t jsrl-corl \
@@ -27,13 +29,14 @@ build_and_run:
 	sudo docker run \
 	-e WANDB_API_KEY=$(WANDB_API_KEY) \
 	-it \
-	--shm-size=5.04gb \
-	$(NUM_GPUS) \
+	--shm-size=10.24gb \
 	$(DETACH) \
-	--cpus 6 \
+	$(CPUS) \
+	--gpus device="0" \
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	jsrl-corl python $(RUN_FILE) --checkpoints_path checkpoints
+
 
 build_and_run_finetune_test:
 	sudo docker build \
@@ -46,6 +49,6 @@ build_and_run_finetune_test:
 	-it \
 	--gpus all \
 	--rm \
-	jsrl-corl python $(RUN_FILE) --group IQL-D4RL-finetune_test --offline_iterations 5
+	jsrl-corl python $(RUN_FILE) --group IQL-D4RL-finetune_test --offline_iterations 5 --checkpoints_path checkpoints
 
 	echo "running $(RUN_FILE)"

@@ -36,7 +36,8 @@ COPY requirements/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN pip install "cython<3" ray h5py
 RUN ["python", "-c", "import mujoco_py"]
-
+RUN pip install h5py ray
 COPY . /workspace/jsrl-CORL/
 
 RUN mkdir checkpoints
+
