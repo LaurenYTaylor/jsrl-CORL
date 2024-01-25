@@ -11,7 +11,7 @@ def run_training(seed, goal, train_config):
     train_config.horizon_fn = goal
     train_config.group = train_config.env + "_" + train_config.horizon_fn
     timestr = time.strftime("%d%m%y-%H%M%S")
-    train_config.name = f"seed{seed}_{timestr}_nooff"
+    train_config.name = f"seed{seed}_{timestr}"
     data_path = "jsrl-CORL/downloaded_data/" + train_config.env + ".hdf5"
     if os.path.exists(data_path):
         train_config.downloaded_dataset = data_path
@@ -37,10 +37,10 @@ def run(train_config: JsrlTrainConfig, extra_config: dict):
 if __name__ == "__main__":
     extra_config = {}
 
-    extra_config["seeds"] = range(4)
+    extra_config["seeds"] = range(1)
     extra_config["goals"] = ["goal_dist", "time_step"]
     extra_config["gpu_frac"] = (
-        1 / (len(extra_config["seeds"]) * len(extra_config["goals"]))
+        2 / (len(extra_config["seeds"]) * len(extra_config["goals"]))
     )
     print(extra_config["gpu_frac"])
 
