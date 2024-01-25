@@ -4,6 +4,8 @@ DF=Dockerfile
 DOCKER_EXTRAS=--detach -e WANDB_API_KEY=$(WANDB_API_KEY) -it --shm-size=10.24gb --rm --cpus 24 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb
 
 build:
+	yes | sudo docker container prune
+
 	sudo docker build \
 	-f $(DF) \
 	-t jsrl-corl \
