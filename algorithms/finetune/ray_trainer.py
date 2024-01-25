@@ -36,9 +36,10 @@ if __name__ == "__main__":
     extra_config = {}
 
     extra_config["seeds"] = range(4)
-    extra_config["goals"] = ["time_step", "goal_dist"]
+    extra_config["goals"] = ["goal_dist"]
     extra_config["gpu_frac"] = (
-        len(ray.get_gpu_ids()) / len(extra_config["seeds"]) * len(extra_config["goals"])
+        1 / (len(extra_config["seeds"]) * len(extra_config["goals"]))
     )
+    print(extra_config["gpu_frac"])
 
     run(extra_config)

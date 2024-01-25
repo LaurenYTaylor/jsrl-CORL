@@ -30,9 +30,9 @@ build_and_run:
 	-e WANDB_API_KEY=$(WANDB_API_KEY) \
 	-it \
 	--shm-size=10.24gb \
-	$(GPUS) \
 	$(DETACH) \
 	$(CPUS) \
+	--gpus device="0" \
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	jsrl-corl python $(RUN_FILE) --checkpoints_path checkpoints
