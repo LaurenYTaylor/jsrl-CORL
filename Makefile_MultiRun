@@ -1,0 +1,24 @@
+WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
+RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer.py"
+DOCKER_EXTRAS=-f Dockerfile WANDB_API_KEY=$(WANDB_API_KEY) -it --shm-size=10.24gb --detach --rm --gpus all --cpus 24 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb
+
+build_and_run:
+	sudo docker build \
+	-f $(DF) \
+	-t jsrl-corl \
+	.
+
+	sudo docker run $(DOCKER_EXTRA)
+	jsrl-corl python $(RUN_FILE) --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9
+
+	echo "Run 1"
+
+	sudo docker run $(DOCKER_EXTRA)
+	--gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --offline_iterations 5000 --online_iterations 5000 --new_online_buffer True --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9
+
+	echo "Run 2"
+
+	sudo docker run $(DOCKER_EXTRA)
+	--gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --offline_iterations 5000 --online_iterations 5000 --new_online_buffer False --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9
