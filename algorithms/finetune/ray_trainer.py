@@ -22,9 +22,8 @@ def run_training(seed, goal, train_config):
 def run(train_config: JsrlTrainConfig, extra_config: dict):
     rt_w_options = run_training.options(num_gpus=extra_config["gpu_frac"])
     object_references = [
-        rt_w_options.remote(seed, goal, train_config)
+        rt_w_options.remote(seed, train_config.goal, train_config)
         for seed in extra_config["seeds"]
-        for goal in extra_config["goals"]
     ]
 
     all_data = []
@@ -37,11 +36,8 @@ def run(train_config: JsrlTrainConfig, extra_config: dict):
 if __name__ == "__main__":
     extra_config = {}
 
-    extra_config["seeds"] = range(4)
-    extra_config["goals"] = ["goal_dist", "time_step"]
-    extra_config["gpu_frac"] = 1 / (
-        len(extra_config["seeds"]) * len(extra_config["goals"])
-    )
+    extra_config["seeds"] = range(1)
+    extra_config["gpu_frac"] = 1 / (len(extra_config["seeds"]))
     print(extra_config["gpu_frac"])
 
     run(extra_config)
