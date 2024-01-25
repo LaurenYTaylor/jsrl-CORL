@@ -19,6 +19,7 @@ build:
 	.
 
 build_and_run:
+	check_stopped
 	yes | sudo docker container prune
 
 	sudo docker build \
@@ -33,6 +34,24 @@ build_and_run:
 	$(DETACH) \
 	$(CPUS) \
 	--gpus device="0" \
+	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
+	-v ./algorithms/finetune/wandb:/workspace/wandb \
+	jsrl-corl python $(RUN_FILE) --checkpoints_path checkpoints
+
+build_and_run_nogpu:
+	yes | sudo docker container prune
+
+	sudo docker build \
+	-f $(DF) \
+	-t jsrl-corl \
+	.
+
+	sudo docker run \
+	-e WANDB_API_KEY=$(WANDB_API_KEY) \
+	-it \
+	--shm-size=10.24gb \
+	$(DETACH) \
+	$(CPUS) \
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	jsrl-corl python $(RUN_FILE) --checkpoints_path checkpoints

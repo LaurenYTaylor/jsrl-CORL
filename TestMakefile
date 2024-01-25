@@ -1,0 +1,5 @@
+.PHONY: run2
+run2:
+    while [ ! -z $(shell $(DONE) sudo docker container ps -a) ] do ; \
+        sleep 1; \
+    done;

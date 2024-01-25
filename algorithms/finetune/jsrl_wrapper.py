@@ -341,7 +341,7 @@ def train(config: JsrlTrainConfig):
                 episode_step = 0
                 goal_achieved = False
         if t >= config.offline_iterations and t >= config.batch_size:
-            batch = replay_buffer.sample(config.batch_size)
+            batch = online_replay_buffer.sample(config.batch_size)
         else:
             batch = replay_buffer.sample(config.batch_size)
         batch = [b.to(config.device) for b in batch]
