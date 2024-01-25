@@ -340,62 +340,66 @@ def train(config: JsrlTrainConfig):
                 episode_return = 0
                 episode_step = 0
                 goal_achieved = False
-        if t >= config.offline_iterations and t >= config.batch_size:
-            batch = online_replay_buffer.sample(config.batch_size)
-        else:
-            batch = replay_buffer.sample(config.batch_size)
-        batch = [b.to(config.device) for b in batch]
-        log_dict = trainer.train(batch)
-        log_dict["offline_iter" if t < config.offline_iterations else "online_iter"] = (
-            t if t < config.offline_iterations else t - config.offline_iterations
-        )
 
-        log_dict.update(online_log)
-
-        wandb.log(log_dict, step=trainer.total_it)
-        # Evaluate episode
-        if (t + 1) % config.eval_freq == 0:
-            print(f"Time steps: {t + 1}")
-            if guide is None:
-                config.curriculum_stage = np.nan
-            else:
-                config.curriculum_stage = config.curriculum_stage
-            (
-                eval_scores,
-                success_rate,
-                config.mean_horizon_reached,
-                config.eval_mean_agent_type,
-            ) = eval_actor(eval_env, actor, guide, config)
-
-            eval_score = eval_scores.mean()
-            eval_log = {}
-            normalized = eval_env.get_normalized_score(eval_score)
-
-            # Valid only for envs with goal, e.g. AntMaze, Adroit
+        if (
+            t >= config.batch_size and config.new_online_buffer
+        ) or not config.new_online_buffer:
             if t >= config.offline_iterations:
-                if is_env_with_goal:
-                    eval_successes.append(success_rate)
-                    eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
-                    eval_log["eval/success_rate"] = success_rate
+                batch = online_replay_buffer.sample(config.batch_size)
+            elif t < config.offline_iterations:
+                batch = replay_buffer.sample(config.batch_size)
+            batch = [b.to(config.device) for b in batch]
+            log_dict = trainer.train(batch)
+            log_dict[
+                "offline_iter" if t < config.offline_iterations else "online_iter"
+            ] = (t if t < config.offline_iterations else t - config.offline_iterations)
 
-                config = jsrl.horizon_update_callback(config, normalized)
-                eval_log = jsrl.add_jsrl_metrics(eval_log, config)
+            log_dict.update(online_log)
 
-            normalized_eval_score = normalized * 100.0
-            evaluations.append(normalized_eval_score)
-            eval_log["eval/d4rl_normalized_score"] = normalized_eval_score
-            print("---------------------------------------")
-            print(
-                f"Evaluation over {config.n_episodes} episodes: "
-                f"{eval_score:.3f} , D4RL score: {normalized_eval_score:.3f}"
-            )
-            print("---------------------------------------")
-            if config.checkpoints_path is not None:
-                torch.save(
-                    trainer.state_dict(),
-                    os.path.join(config.checkpoints_path, f"checkpoint_{t}.pt"),
+            wandb.log(log_dict, step=trainer.total_it)
+            # Evaluate episode
+            if (t + 1) % config.eval_freq == 0:
+                print(f"Time steps: {t + 1}")
+                if guide is None:
+                    config.curriculum_stage = np.nan
+                else:
+                    config.curriculum_stage = config.curriculum_stage
+                (
+                    eval_scores,
+                    success_rate,
+                    config.mean_horizon_reached,
+                    config.eval_mean_agent_type,
+                ) = eval_actor(eval_env, actor, guide, config)
+
+                eval_score = eval_scores.mean()
+                eval_log = {}
+                normalized = eval_env.get_normalized_score(eval_score)
+
+                # Valid only for envs with goal, e.g. AntMaze, Adroit
+                if t >= config.offline_iterations:
+                    if is_env_with_goal:
+                        eval_successes.append(success_rate)
+                        eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
+                        eval_log["eval/success_rate"] = success_rate
+
+                    config = jsrl.horizon_update_callback(config, normalized)
+                    eval_log = jsrl.add_jsrl_metrics(eval_log, config)
+
+                normalized_eval_score = normalized * 100.0
+                evaluations.append(normalized_eval_score)
+                eval_log["eval/d4rl_normalized_score"] = normalized_eval_score
+                print("---------------------------------------")
+                print(
+                    f"Evaluation over {config.n_episodes} episodes: "
+                    f"{eval_score:.3f} , D4RL score: {normalized_eval_score:.3f}"
                 )
-            wandb.log(eval_log, step=trainer.total_it)
+                print("---------------------------------------")
+                if config.checkpoints_path is not None:
+                    torch.save(
+                        trainer.state_dict(),
+                        os.path.join(config.checkpoints_path, f"checkpoint_{t}.pt"),
+                    )
+                wandb.log(eval_log, step=trainer.total_it)
 
 
 if __name__ == "__main__":
