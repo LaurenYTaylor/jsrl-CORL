@@ -45,6 +45,7 @@ class JsrlTrainConfig(TrainConfig):
     pretrained_policy_path: str = None
     horizon_fn: str = "time_step"
     downloaded_dataset: str = None
+    new_online_buffer: bool = False
 
 
 @torch.no_grad()
@@ -260,12 +261,15 @@ def train(config: JsrlTrainConfig):
                 ).to(config.device)
 
                 config = jsrl.prepare_finetuning(init_horizon, config)
-            online_replay_buffer = ReplayBuffer(
-                state_dim,
-                action_dim,
-                config.buffer_size,
-                config.device,
-            )
+            if config.new_online_buffer:
+                online_replay_buffer = ReplayBuffer(
+                    state_dim,
+                    action_dim,
+                    config.buffer_size,
+                    config.device,
+                )
+            else:
+                online_replay_buffer = replay_buffer
 
         online_log = {}
         if t >= config.offline_iterations:
