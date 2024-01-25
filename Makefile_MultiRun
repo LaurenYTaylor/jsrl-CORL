@@ -16,7 +16,9 @@ run1:
 	echo "Run 1.B"
 	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
 	jsrl-corl python $(RUN_FILE) --offline_iterations 5000 --online_iterations 5000 --new_online_buffer True --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9
-	${HOME}/Documents/Code/jsrl-CORL/check_stopped
+	ls
+	check_stopped
+
 
 run2:
 	echo "Run 2.A"
