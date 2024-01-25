@@ -268,6 +268,7 @@ def train(config: JsrlTrainConfig):
                     config.buffer_size,
                     config.device,
                 )
+                del replay_buffer
             else:
                 online_replay_buffer = replay_buffer
 
