@@ -40,7 +40,7 @@ import jsrl_utils as jsrl
 @dataclass(kw_only=True)
 class JsrlTrainConfig(TrainConfig):
     n_curriculum_stages: int = 10
-    tolerance: float = 0.01
+    tolerance: float = 0.05
     rolling_mean_n: int = 5
     pretrained_policy_path: str = None
     horizon_fn: str = "time_step"
@@ -52,18 +52,15 @@ def eval_actor(
     env: gym.Env,
     learner: nn.Module,
     guide: nn.Module,
-    device: str,
-    n_episodes: int,
-    seed: int,
-    curriculum_stage: float,
+    config: JsrlTrainConfig,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    env.seed(seed)
+    env.seed(config.seed)
     learner.eval()
     episode_rewards = []
     successes = []
     horizons_reached = []
     agent_types = []
-    for _ in range(n_episodes):
+    for _ in range(config.n_episodes):
         state, done = env.reset(), False
         ts = 0
         episode_reward = 0.0
@@ -71,15 +68,20 @@ def eval_actor(
         ep_agent_types = []
         goal_achieved = False
         while not done:
+            if ts == 0:
+                config.ep_agent_type = 0
+            else:
+                config.ep_agent_type = np.mean(ep_agent_types)
+
             action, use_learner, horizon = jsrl.learner_or_guide_action(
-                state, ts, env, learner, guide, curriculum_stage, device
+                state, ts, env, learner, guide, config, config.device
             )
             episode_horizons.append(horizon)
             if use_learner:
-                action = learner.act(state, device)
+                action = learner.act(state, config.device)
                 ep_agent_types.append(1)
             else:
-                action = guide.act(state, device)
+                action = guide.act(state, config.device)
                 ep_agent_types.append(0)
             state, reward, done, env_infos = env.step(action)
             episode_reward += reward
@@ -228,9 +230,8 @@ def train(config: JsrlTrainConfig):
     if config.pretrained_policy_path is not None:
         guide_trainer = ImplicitQLearning(**kwargs)
         guide = jsrl.load_guide(guide_trainer, Path(config.pretrained_policy_path))
-        _, _, init_horizon, _ = eval_actor(
-            env, guide, None, kwargs["device"], 100, seed, np.nan
-        )
+        config.curriculum_stage = np.nan
+        _, _, init_horizon, _ = eval_actor(env, guide, None, config)
         config = jsrl.prepare_finetuning(init_horizon, config)
         config.offline_iterations = 0
     else:
@@ -238,41 +239,58 @@ def train(config: JsrlTrainConfig):
 
     print("Offline pretraining")
     for t in range(int(config.offline_iterations) + int(config.online_iterations)):
-        if t == config.offline_iterations and config.pretrained_policy_path is None:
+        if t == config.offline_iterations:
             print("Online tuning")
-            _, _, init_horizon, _ = eval_actor(
-                env, actor, guide, kwargs["device"], config.n_episodes, seed, np.nan
-            )
-            guide = trainer.actor
-            guide_trainer = trainer
-            guide.eval()
-            trainer = ImplicitQLearning(**kwargs)
-            trainer.total_it = config.offline_iterations
-            actor = (
-                DeterministicPolicy(
-                    state_dim, action_dim, max_action, dropout=config.actor_dropout
-                )
-                if config.iql_deterministic
-                else GaussianPolicy(
-                    state_dim, action_dim, max_action, dropout=config.actor_dropout
-                )
-            ).to(config.device)
+            if config.pretrained_policy_path is None:
+                config.curriculum_stage = np.nan
+                _, _, init_horizon, _ = eval_actor(env, actor, guide, config)
+                guide = trainer.actor
+                guide_trainer = trainer
+                guide.eval()
+                trainer = ImplicitQLearning(**kwargs)
+                trainer.total_it = config.offline_iterations
+                actor = (
+                    DeterministicPolicy(
+                        state_dim, action_dim, max_action, dropout=config.actor_dropout
+                    )
+                    if config.iql_deterministic
+                    else GaussianPolicy(
+                        state_dim, action_dim, max_action, dropout=config.actor_dropout
+                    )
+                ).to(config.device)
 
-            config = jsrl.prepare_finetuning(init_horizon, config)
+                config = jsrl.prepare_finetuning(init_horizon, config)
+            online_replay_buffer = ReplayBuffer(
+                state_dim,
+                action_dim,
+                config.buffer_size,
+                config.device,
+            )
 
         online_log = {}
         if t >= config.offline_iterations:
+            if episode_step == 0:
+                episode_agent_types = []
+                config.ep_agent_type = 0
+            else:
+                config.ep_agent_type = np.mean(episode_agent_types)
+
             episode_step += 1
 
-            action, _, _ = jsrl.learner_or_guide_action(
+            action, use_learner, _ = jsrl.learner_or_guide_action(
                 state,
                 episode_step,
                 env,
                 actor,
                 guide,
-                config.curriculum_stage,
+                config,
                 kwargs["device"],
             )
+
+            if use_learner:
+                episode_agent_types.append(1)
+            else:
+                episode_agent_types.append(0)
 
             if not config.iql_deterministic:
                 action = action.sample()
@@ -296,7 +314,9 @@ def train(config: JsrlTrainConfig):
             if config.normalize_reward:
                 reward = modify_reward_online(reward, config.env, **reward_mod_dict)
 
-            replay_buffer.add_transition(state, action, reward, next_state, real_done)
+            online_replay_buffer.add_transition(
+                state, action, reward, next_state, real_done
+            )
             state = next_state
             if done:
                 state, done = env.reset(), False
@@ -306,6 +326,7 @@ def train(config: JsrlTrainConfig):
                     online_log["train/regret"] = np.mean(1 - np.array(train_successes))
                     online_log["train/is_success"] = float(goal_achieved)
                 online_log["train/episode_return"] = episode_return
+                online_log["train/mean_ep_agent_type"] = np.mean(episode_agent_types)
                 normalized_return = eval_env.get_normalized_score(episode_return)
                 online_log["train/d4rl_normalized_episode_return"] = (
                     normalized_return * 100.0
@@ -314,8 +335,10 @@ def train(config: JsrlTrainConfig):
                 episode_return = 0
                 episode_step = 0
                 goal_achieved = False
-
-        batch = replay_buffer.sample(config.batch_size)
+        if t >= config.offline_iterations and t >= config.batch_size:
+            batch = replay_buffer.sample(config.batch_size)
+        else:
+            batch = replay_buffer.sample(config.batch_size)
         batch = [b.to(config.device) for b in batch]
         log_dict = trainer.train(batch)
         log_dict["offline_iter" if t < config.offline_iterations else "online_iter"] = (
@@ -329,23 +352,15 @@ def train(config: JsrlTrainConfig):
         if (t + 1) % config.eval_freq == 0:
             print(f"Time steps: {t + 1}")
             if guide is None:
-                curriculum_stage = np.nan
+                config.curriculum_stage = np.nan
             else:
-                curriculum_stage = config.curriculum_stage
+                config.curriculum_stage = config.curriculum_stage
             (
                 eval_scores,
                 success_rate,
                 config.mean_horizon_reached,
-                config.mean_agent_type,
-            ) = eval_actor(
-                eval_env,
-                actor,
-                guide,
-                config.device,
-                config.n_episodes,
-                config.seed,
-                curriculum_stage,
-            )
+                config.eval_mean_agent_type,
+            ) = eval_actor(eval_env, actor, guide, config)
 
             eval_score = eval_scores.mean()
             eval_log = {}
