@@ -13,21 +13,87 @@ build:
 
 run1:
 	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --offline_iterations 5000 --online_iterations 5000 --new_online_buffer True --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
 	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
-	jsrl-corl python $(RUN_FILE) --offline_iterations 5000 --online_iterations 5000 --new_online_buffer True --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
 	sh check_stopped.sh ;
 
 
 run2:
-	echo "Run 2.A"
 	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --offline_iterations 5000 --online_iterations 5000 --new_online_buffer False --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9
-	echo "Run 2.B"
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
 	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
-	jsrl-corl python $(RUN_FILE) --offline_iterations 5000 --online_iterations 5000 --new_online_buffer False --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
 
+run3:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
 
+run4:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
 
+run5:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-medium-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-medium-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
+
+run6:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-medium-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-medium-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
+
+run7:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-medium-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-medium-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
+
+run8:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-medium-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-medium-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
+
+run9:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-large-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
+
+run10:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-large-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
+
+run11:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer True --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
+
+run12:
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
+	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
+	sh check_stopped.sh ;
 
 build_and_run: build run1 run2
