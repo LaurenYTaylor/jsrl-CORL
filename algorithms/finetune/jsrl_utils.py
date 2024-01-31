@@ -80,6 +80,9 @@ def goal_distance_horizon(_t, _s, env, config):
     if (
         goal_dist <= config.curriculum_stage
         and config.ep_agent_type <= config.agent_type_stage
+    ) or (
+        goal_dist > config.all_curriculum_stages[-1]
+        and config.ep_agent_type <= config.agent_type_stage
     ):
         use_learner = True
     return use_learner, goal_dist
