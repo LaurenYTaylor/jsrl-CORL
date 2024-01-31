@@ -96,4 +96,4 @@ run12:
 	jsrl-corl python $(RUN_FILE) --new_online_buffer False --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
 	sh check_stopped.sh ;
 
-build_and_run: build run1 run2
+build_and_run: build run3 run4 run5 run6 run7 run8 run9 run10 run11 run12
