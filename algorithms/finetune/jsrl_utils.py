@@ -66,6 +66,8 @@ def prepare_finetuning(init_horizon, config):
 
 def timestep_horizon(step, _s, _e, config):
     use_learner = False
+    if np.isnan(config.curriculum_stage):
+        return True, step
     if (
         step >= config.curriculum_stage
         and config.ep_agent_type <= config.agent_type_stage
@@ -77,6 +79,8 @@ def timestep_horizon(step, _s, _e, config):
 def goal_distance_horizon(_t, _s, env, config):
     use_learner = False
     goal_dist = np.linalg.norm(np.array(env.target_goal) - np.array(env.get_xy()))
+    if np.isnan(config.curriculum_stage):
+        return True, goal_dist
     if (
         goal_dist <= config.curriculum_stage
         and config.ep_agent_type <= config.agent_type_stage
