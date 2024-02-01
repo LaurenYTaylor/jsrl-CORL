@@ -45,7 +45,9 @@ class JsrlTrainConfig(TrainConfig):
     pretrained_policy_path: str = None
     horizon_fn: str = "time_step"
     downloaded_dataset: str = None
-    new_online_buffer: bool = False
+    new_online_buffer: bool = True
+    online_buffer_size: int = 10000
+    max_init_horizon: bool = False
 
 
 @torch.no_grad()
@@ -92,14 +94,23 @@ def eval_actor(
         # Valid only for environments with goal
         successes.append(float(goal_achieved))
         episode_rewards.append(episode_reward)
-        horizons_reached.append(jsrl.accumulate(episode_horizons))
+
+        if guide is None and config.max_init_horizon:
+            horizons_reached.append(np.max(episode_horizons))
+        else:
+            horizons_reached.append(jsrl.accumulate(episode_horizons))
+
         agent_types.append(np.mean(ep_agent_types))
 
+    if guide is None and config.max_init_horizon:
+        horizon = np.max(horizons_reached)
+    else:
+        horizon = np.mean(horizons_reached)
     learner.train()
     return (
         np.asarray(episode_rewards),
         np.mean(successes),
-        np.mean(horizons_reached),
+        horizon,
         np.mean(agent_types),
     )
 
@@ -266,7 +277,7 @@ def train(config: JsrlTrainConfig):
                 online_replay_buffer = ReplayBuffer(
                     state_dim,
                     action_dim,
-                    config.buffer_size,
+                    config.online_buffer_size,
                     config.device,
                 )
 

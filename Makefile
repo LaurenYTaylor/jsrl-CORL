@@ -39,8 +39,6 @@ build_and_run:
 	jsrl-corl python $(RUN_FILE) --checkpoints_path checkpoints
 
 build_and_run_nogpu:
-	sh check_stopped.sh
-
 	sudo docker build \
 	-f $(DF) \
 	-t jsrl-corl \
