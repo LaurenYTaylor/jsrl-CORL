@@ -40,4 +40,5 @@ RUN pip install h5py ray
 COPY . /workspace/jsrl-CORL/
 
 RUN mkdir checkpoints
+RUN pip install gymnasium[box2d]
 
