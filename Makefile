@@ -19,7 +19,6 @@ build:
 	.
 
 build_and_run:
-	check_stopped
 	yes | sudo docker container prune
 
 	sudo docker build \
