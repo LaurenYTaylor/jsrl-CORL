@@ -34,11 +34,10 @@ ENV LD_LIBRARY_PATH /root/.mujoco/mujoco210/bin:${LD_LIBRARY_PATH}
 # installing poetry & env setup, mujoco_py compilation
 COPY requirements/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN pip install "cython<3" ray h5py
+RUN pip install "cython<3" ray h5py gymnasium[box2d]
 RUN ["python", "-c", "import mujoco_py"]
-RUN pip install h5py ray
-COPY . /workspace/jsrl-CORL/
 
 RUN mkdir checkpoints
-RUN pip install gymnasium[box2d]
+RUN mkdir wandb
+RUN mkdir jsrl-CORL
 
