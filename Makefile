@@ -1,6 +1,6 @@
 WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
 
-RUN_FILE="jsrl-CORL/algorithms/finetune/iql.py"
+RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer.py"
 GPUS=--gpus all
 DETACH=--detach
 
@@ -31,7 +31,7 @@ build_and_run:
 	-it \
 	--shm-size=10.24gb \
 	$(DETACH) \
-	$(CPUS) \
+	--cpus $(CPUS) \
 	--gpus device="0" \
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \

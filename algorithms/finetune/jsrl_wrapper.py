@@ -1,17 +1,23 @@
 # source: https://github.com/gwthomas/IQL-PyTorch
 # https://arxiv.org/pdf/2110.06169.pdf
 import os
-from dataclasses import asdict, dataclass
+import sys
+from dataclasses import asdict, dataclass, field
+from collections import defaultdict
+
 from pathlib import Path
 
 import d4rl
 import gym
+import gymnasium
 import numpy as np
 import pyrallis
 import torch
 import torch.nn.functional as F
 import wandb
 import h5py
+from gymnasium.wrappers import StepAPICompatibility
+
 
 from iql import (
     DeterministicPolicy,
@@ -35,6 +41,7 @@ from iql import (
     wrap_env,
 )
 import jsrl_utils as jsrl
+import guide_heuristics as guide_heuristics
 
 
 @dataclass(kw_only=True)
@@ -47,8 +54,9 @@ class JsrlTrainConfig(TrainConfig):
     downloaded_dataset: str = None
     new_online_buffer: bool = True
     online_buffer_size: int = 10000
-    max_init_horizon: bool = False
-    env_config: dict = {}
+    max_init_horizon: bool = True
+    env_config: dict = field(default_factory= lambda: {})
+    guide_heuristic_fn: str = None
 
 
 @torch.no_grad()
@@ -58,14 +66,19 @@ def eval_actor(
     guide: nn.Module,
     config: JsrlTrainConfig,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    env.seed(config.seed)
-    learner.eval()
+    if isinstance(learner, GaussianPolicy):
+        learner.eval()
     episode_rewards = []
     successes = []
     horizons_reached = []
     agent_types = []
     for _ in range(config.n_episodes):
-        state, done = env.reset(), False
+        try:
+            env.seed(config.seed)
+            state, done = env.reset(), False
+        except AttributeError:
+            state, _ = env.reset(seed=config.seed)
+            done =  False
         ts = 0
         episode_reward = 0.0
         episode_horizons = []
@@ -76,16 +89,13 @@ def eval_actor(
                 config.ep_agent_type = 0
             else:
                 config.ep_agent_type = np.mean(ep_agent_types)
-
             action, use_learner, horizon = jsrl.learner_or_guide_action(
-                state, ts, env, learner, guide, config, config.device
+                state, ts, env, learner, guide, config, config.device, eval=True
             )
             episode_horizons.append(horizon)
             if use_learner:
-                action = learner.act(state, config.device)
                 ep_agent_types.append(1)
             else:
-                action = guide.act(state, config.device)
                 ep_agent_types.append(0)
             state, reward, done, env_infos = env.step(action)
             episode_reward += reward
@@ -107,7 +117,10 @@ def eval_actor(
         horizon = np.max(horizons_reached)
     else:
         horizon = np.mean(horizons_reached)
-    learner.train()
+    
+    if isinstance(learner, GaussianPolicy):
+        learner.train()
+    
     return (
         np.asarray(episode_rewards),
         np.mean(successes),
@@ -115,14 +128,52 @@ def eval_actor(
         np.mean(agent_types),
     )
 
+def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, max_steps=None):
+    q_network = TwinQ(state_dim, action_dim).to(config.device)
+    v_network = ValueFunction(state_dim).to(config.device)
+    actor = (
+        DeterministicPolicy(
+            state_dim, action_dim, max_action, dropout=config.actor_dropout
+        )
+        if config.iql_deterministic
+        else GaussianPolicy(
+            state_dim, action_dim, max_action, dropout=config.actor_dropout
+        )
+    ).to(config.device)
+    v_optimizer = torch.optim.Adam(v_network.parameters(), lr=config.vf_lr)
+    q_optimizer = torch.optim.Adam(q_network.parameters(), lr=config.qf_lr)
+    actor_optimizer = torch.optim.Adam(actor.parameters(), lr=config.actor_lr)
+    kwargs = {
+        "max_action": max_action,
+        "actor": actor,
+        "actor_optimizer": actor_optimizer,
+        "q_network": q_network,
+        "q_optimizer": q_optimizer,
+        "v_network": v_network,
+        "v_optimizer": v_optimizer,
+        "discount": config.discount,
+        "tau": config.tau,
+        "device": config.device,
+        # IQL
+        "beta": config.beta,
+        "iql_tau": config.iql_tau,
+        "max_steps": max_steps,
+    }
+    return kwargs
+
 
 def train(config: JsrlTrainConfig):
-    env = gym.make(config.env, **config.env_config)
-    eval_env = gym.make(config.env, **config.env_config)
+    try:
+        env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
+        eval_env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
+        max_steps = env.spec.max_episode_steps
+    except:
+        env = gym.make(config.env, **config.env_config)
+        eval_env = gym.make(config.env, **config.env_config)
+        max_steps = env._max_episode_steps
 
     is_env_with_goal = config.env.startswith(ENVS_WITH_GOAL)
 
-    max_steps = env._max_episode_steps
 
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
@@ -141,33 +192,40 @@ def train(config: JsrlTrainConfig):
         with h5py.File(config.downloaded_dataset, "r") as f:
             downloaded_data = get_keys(f, {})
         dataset = d4rl.qlearning_dataset(env, dataset=downloaded_data)
-    else:
+    elif (config.guide_heuristic_fn is None and 
+      config.pretrained_policy_path is None and
+      config.new_online_buffer is True):
         dataset = d4rl.qlearning_dataset(env)
-
-    reward_mod_dict = {}
-    if config.normalize_reward:
-        reward_mod_dict = modify_reward(dataset, config.env)
-
-    if config.normalize:
-        state_mean, state_std = compute_mean_std(dataset["observations"], eps=1e-3)
     else:
-        state_mean, state_std = 0, 1
+        dataset = None
+        config.normalize_reward = False
+        config.normalize = False
 
-    dataset["observations"] = normalize_states(
-        dataset["observations"], state_mean, state_std
-    )
-    dataset["next_observations"] = normalize_states(
-        dataset["next_observations"], state_mean, state_std
-    )
-    env = wrap_env(env, state_mean=state_mean, state_std=state_std)
-    eval_env = wrap_env(eval_env, state_mean=state_mean, state_std=state_std)
-    replay_buffer = ReplayBuffer(
-        state_dim,
-        action_dim,
-        config.buffer_size,
-        config.device,
-    )
-    replay_buffer.load_d4rl_dataset(dataset)
+    if dataset is not None:
+        reward_mod_dict = {}
+        if config.normalize_reward:
+            reward_mod_dict = modify_reward(dataset, config.env)
+
+        if config.normalize:
+            state_mean, state_std = compute_mean_std(dataset["observations"], eps=1e-3)
+        else:
+            state_mean, state_std = 0, 1
+
+        dataset["observations"] = normalize_states(
+            dataset["observations"], state_mean, state_std
+        )
+        dataset["next_observations"] = normalize_states(
+            dataset["next_observations"], state_mean, state_std
+        )
+        env = wrap_env(env, state_mean=state_mean, state_std=state_std)
+        eval_env = wrap_env(eval_env, state_mean=state_mean, state_std=state_std)
+        replay_buffer = ReplayBuffer(
+            state_dim,
+            action_dim,
+            config.buffer_size,
+            config.device,
+        )
+        replay_buffer.load_d4rl_dataset(dataset)
 
     max_action = float(env.action_space.high[0])
 
@@ -179,58 +237,37 @@ def train(config: JsrlTrainConfig):
 
     # Set seeds
     seed = config.seed
-    set_seed(seed, env)
-    set_env_seed(eval_env, config.eval_seed)
+    set_seed(seed, None)
+    try:
+        set_env_seed(env, config.eval_seed)
+        set_env_seed(eval_env, config.eval_seed)
+        seed_set = True
+    except AttributeError:
+        seed_set = False
 
-    q_network = TwinQ(state_dim, action_dim).to(config.device)
-    v_network = ValueFunction(state_dim).to(config.device)
-    actor = (
-        DeterministicPolicy(
-            state_dim, action_dim, max_action, dropout=config.actor_dropout
-        )
-        if config.iql_deterministic
-        else GaussianPolicy(
-            state_dim, action_dim, max_action, dropout=config.actor_dropout
-        )
-    ).to(config.device)
-    v_optimizer = torch.optim.Adam(v_network.parameters(), lr=config.vf_lr)
-    q_optimizer = torch.optim.Adam(q_network.parameters(), lr=config.qf_lr)
-    actor_optimizer = torch.optim.Adam(actor.parameters(), lr=config.actor_lr)
-
-    kwargs = {
-        "max_action": max_action,
-        "actor": actor,
-        "actor_optimizer": actor_optimizer,
-        "q_network": q_network,
-        "q_optimizer": q_optimizer,
-        "v_network": v_network,
-        "v_optimizer": v_optimizer,
-        "discount": config.discount,
-        "tau": config.tau,
-        "device": config.device,
-        # IQL
-        "beta": config.beta,
-        "iql_tau": config.iql_tau,
-        "max_steps": config.offline_iterations,
-    }
 
     print("---------------------------------------")
     print(f"Training IQL, Env: {config.env}, Seed: {seed}")
     print("---------------------------------------")
 
     # Initialize actor
-    trainer = ImplicitQLearning(**kwargs)
-
-    if config.load_model != "":
-        policy_file = Path(config.load_model)
-        trainer.load_state_dict(torch.load(policy_file))
-        actor = trainer.actor
+    if config.pretrained_policy_path is not None and config.guide_heuristic_fn is None:
+        training_kwargs = make_actor(config, state_dim, action_dim, max_action, max_steps=config.offline_iterations)
+        trainer = ImplicitQLearning(**training_kwargs)
+        if config.load_model != "":
+            policy_file = Path(config.load_model)
+            trainer.load_state_dict(torch.load(policy_file))
+            actor = trainer.actor
 
     wandb_init(asdict(config))
 
     evaluations = []
 
-    state, done = env.reset(), False
+    if seed_set:
+        state, done = env.reset(), False
+    else:
+        state, _ = env.reset(seed=config.seed)
+        done = False
     episode_return = 0
     episode_step = 0
     goal_achieved = False
@@ -241,12 +278,21 @@ def train(config: JsrlTrainConfig):
     jsrl.horizon_str = config.horizon_fn
 
     if config.pretrained_policy_path is not None:
-        guide_trainer = ImplicitQLearning(**kwargs)
+        if config.guide_heuristic_fn:
+            sys.exit("Guide can be a pretrained policy OR a heuristic,\
+                        but you have provided both. Please choose one.")
+        training_kwargs = make_actor(config, state_dim, action_dim, max_action)
+        guide_trainer = ImplicitQLearning(**training_kwargs)
         guide = jsrl.load_guide(guide_trainer, Path(config.pretrained_policy_path))
+        guide.eval()
         config.curriculum_stage = np.nan
         _, _, init_horizon, _ = eval_actor(env, guide, None, config)
         config = jsrl.prepare_finetuning(init_horizon, config)
         config.offline_iterations = 0
+        kwargs = make_actor(config, state_dim, action_dim, max_action)
+        trainer = ImplicitQLearning(**kwargs)
+        kwargs["max_steps"] = config.offline_iterations
+        actor = trainer.actor
     else:
         guide = None
 
@@ -256,25 +302,25 @@ def train(config: JsrlTrainConfig):
             print("Online tuning")
             if config.pretrained_policy_path is None:
                 config.curriculum_stage = np.nan
+                if config.guide_heuristic_fn is not None:
+                    actor = getattr(guide_heuristics, config.guide_heuristic_fn)
                 _, _, init_horizon, _ = eval_actor(env, actor, guide, config)
-                guide = trainer.actor
-                guide_trainer = trainer
-                guide.eval()
+                if config.guide_heuristic_fn is not None:
+                    guide = getattr(guide_heuristics, config.guide_heuristic_fn)
+                else:
+                    guide = trainer.actor
+                    guide_trainer = trainer
+                    guide.eval()
+                kwargs = make_actor(config, state_dim, action_dim, max_action)
                 trainer = ImplicitQLearning(**kwargs)
-                trainer.total_it = config.offline_iterations
-                actor = (
-                    DeterministicPolicy(
-                        state_dim, action_dim, max_action, dropout=config.actor_dropout
-                    )
-                    if config.iql_deterministic
-                    else GaussianPolicy(
-                        state_dim, action_dim, max_action, dropout=config.actor_dropout
-                    )
-                ).to(config.device)
-
+                trainer.total_it = config.offline_iterations # iterations done so far
+                actor = trainer.actor
                 config = jsrl.prepare_finetuning(init_horizon, config)
             if config.new_online_buffer:
-                del replay_buffer
+                try:
+                    del replay_buffer
+                except UnboundLocalError:
+                    pass
                 online_replay_buffer = ReplayBuffer(
                     state_dim,
                     action_dim,
@@ -307,16 +353,16 @@ def train(config: JsrlTrainConfig):
 
             if use_learner:
                 episode_agent_types.append(1)
+                if not config.iql_deterministic:
+                    action = action.sample()
+                else:
+                    noise = (torch.randn_like(action) * config.expl_noise).clamp(
+                        -config.noise_clip, config.noise_clip
+                    )
+                    action += noise
             else:
                 episode_agent_types.append(0)
 
-            if not config.iql_deterministic:
-                action = action.sample()
-            else:
-                noise = (torch.randn_like(action) * config.expl_noise).clamp(
-                    -config.noise_clip, config.noise_clip
-                )
-                action += noise
             action = torch.clamp(max_action * action, -max_action, max_action)
             action = action.cpu().data.numpy().flatten()
             next_state, reward, done, env_infos = env.step(action)
@@ -337,7 +383,11 @@ def train(config: JsrlTrainConfig):
             )
             state = next_state
             if done:
-                state, done = env.reset(), False
+                if seed_set:
+                    state, done = env.reset(), False
+                else:
+                    state, _ = env.reset(seed=config.seed)
+                    done = False
                 # Valid only for envs with goal, e.g. AntMaze, Adroit
                 if is_env_with_goal:
                     train_successes.append(goal_achieved)
@@ -345,10 +395,11 @@ def train(config: JsrlTrainConfig):
                     online_log["train/is_success"] = float(goal_achieved)
                 online_log["train/episode_return"] = episode_return
                 online_log["train/mean_ep_agent_type"] = np.mean(episode_agent_types)
-                normalized_return = eval_env.get_normalized_score(episode_return)
-                online_log["train/d4rl_normalized_episode_return"] = (
-                    normalized_return * 100.0
-                )
+                if config.normalize_reward:
+                    normalized_return = eval_env.get_normalized_score(episode_return)
+                    online_log["train/d4rl_normalized_episode_return"] = (
+                        normalized_return * 100.0
+                    )
                 online_log["train/episode_length"] = episode_step
                 episode_return = 0
                 episode_step = 0
@@ -362,6 +413,7 @@ def train(config: JsrlTrainConfig):
             elif t < config.offline_iterations:
                 batch = replay_buffer.sample(config.batch_size)
             batch = [b.to(config.device) for b in batch]
+            #import pdb;pdb.set_trace()
             log_dict = trainer.train(batch)
             log_dict[
                 "offline_iter" if t < config.offline_iterations else "online_iter"
@@ -386,7 +438,10 @@ def train(config: JsrlTrainConfig):
 
                 eval_score = eval_scores.mean()
                 eval_log = {}
-                normalized = eval_env.get_normalized_score(eval_score)
+                if config.normalize_reward:
+                    normalized = eval_env.get_normalized_score(eval_score)
+                else:
+                    normalized = eval_score
 
                 # Valid only for envs with goal, e.g. AntMaze, Adroit
                 if t >= config.offline_iterations:
@@ -397,15 +452,18 @@ def train(config: JsrlTrainConfig):
 
                     config = jsrl.horizon_update_callback(config, normalized)
                     eval_log = jsrl.add_jsrl_metrics(eval_log, config)
-
-                normalized_eval_score = normalized * 100.0
-                evaluations.append(normalized_eval_score)
-                eval_log["eval/d4rl_normalized_score"] = normalized_eval_score
+                if config.normalize_reward:
+                    normalized_eval_score = normalized * 100.0
+                    evaluations.append(normalized_eval_score)
+                    eval_log["eval/d4rl_normalized_score"] = normalized_eval_score
+                else:
+                    eval_log["eval/score"] = normalized
                 print("---------------------------------------")
-                print(
-                    f"Evaluation over {config.n_episodes} episodes: "
-                    f"{eval_score:.3f} , D4RL score: {normalized_eval_score:.3f}"
-                )
+                eval_str = f"Evaluation over {config.n_episodes} episodes: "\
+                    f"{eval_score:.3f}"
+                if config.normalize_reward:
+                    eval_str += " , D4RL score: {normalized_eval_score:.3f}"
+                print(eval_str)
                 print("---------------------------------------")
                 if config.checkpoints_path is not None:
                     torch.save(
