@@ -451,7 +451,10 @@ class ImplicitQLearning:
         self.v_optimizer = v_optimizer
         self.q_optimizer = q_optimizer
         self.actor_optimizer = actor_optimizer
-        self.actor_lr_schedule = CosineAnnealingLR(self.actor_optimizer, max_steps)
+        if max_steps is not None:
+            self.actor_lr_schedule = CosineAnnealingLR(self.actor_optimizer, max_steps)
+        else:
+            self.actor_lr_schedule = None
         self.iql_tau = iql_tau
         self.beta = beta
         self.discount = discount
@@ -464,8 +467,9 @@ class ImplicitQLearning:
         # Update value function
         with torch.no_grad():
             target_q = self.q_target(observations, actions)
-
+        
         v = self.vf(observations)
+
         adv = target_q - v
         v_loss = asymmetric_l2_loss(adv, self.iql_tau)
         log_dict["value_loss"] = v_loss.item()
@@ -516,7 +520,8 @@ class ImplicitQLearning:
         self.actor_optimizer.zero_grad()
         policy_loss.backward()
         self.actor_optimizer.step()
-        self.actor_lr_schedule.step()
+        if self.actor_lr_schedule is not None:
+            self.actor_lr_schedule.step()
 
     def train(self, batch: TensorBatch) -> Dict[str, float]:
         self.total_it += 1
@@ -543,6 +548,10 @@ class ImplicitQLearning:
         return log_dict
 
     def state_dict(self) -> Dict[str, Any]:
+        if self.actor_lr_schedule is None:
+            lr_state_dict = {}
+        else:
+            lr_state_dict = self.actor_lr_schedule.state_dict()
         return {
             "qf": self.qf.state_dict(),
             "q_optimizer": self.q_optimizer.state_dict(),
@@ -550,7 +559,7 @@ class ImplicitQLearning:
             "v_optimizer": self.v_optimizer.state_dict(),
             "actor": self.actor.state_dict(),
             "actor_optimizer": self.actor_optimizer.state_dict(),
-            "actor_lr_schedule": self.actor_lr_schedule.state_dict(),
+            "actor_lr_schedule": lr_state_dict,
             "total_it": self.total_it,
         }
 
@@ -564,7 +573,8 @@ class ImplicitQLearning:
 
         self.actor.load_state_dict(state_dict["actor"])
         self.actor_optimizer.load_state_dict(state_dict["actor_optimizer"])
-        self.actor_lr_schedule.load_state_dict(state_dict["actor_lr_schedule"])
+        if self.actor_lr_schedule is not None:
+            self.actor_lr_schedule.load_state_dict(state_dict["actor_lr_schedule"])
 
         self.total_it = state_dict["total_it"]
 

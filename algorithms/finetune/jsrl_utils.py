@@ -1,6 +1,8 @@
 import torch
 import numpy as np
 from collections import deque
+import iql
+from pathlib import PosixPath
 
 horizon_str = ""
 
@@ -38,6 +40,8 @@ def horizon_update_callback(config, eval_reward):
 
 
 def load_guide(trainer, pretrained):
+    if not isinstance(pretrained, PosixPath):
+        return pretrained
     try:
         trainer.load_state_dict(torch.load(pretrained))
     except RuntimeError:
@@ -126,7 +130,7 @@ def accumulate(vals):
     return HORIZON_FNS[horizon_str]["accumulator_fn"](vals)
 
 
-def learner_or_guide_action(state, step, env, learner, guide, config, device):
+def learner_or_guide_action(state, step, env, learner, guide, config, device, eval=False):
     if guide is None:
         _, horizon = HORIZON_FNS[horizon_str]["horizon_fn"](step, state, env, config)
         use_learner = True
@@ -136,11 +140,22 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device):
         )
 
     if use_learner:
-        action = learner(
-            torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
-        )
+        # other than the actual learner, this may also be the training guide policy,
+        # or the guide being evaluated before online training starts
+        if not isinstance(learner, iql.GaussianPolicy):
+            action = learner(env, state)
+        else:
+            if eval:
+                action = learner.act(state, device)
+            else:
+                action = learner(
+                    torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
+                )
     else:
-        action = guide(
-            torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
-        )
+        if not isinstance(guide, iql.GaussianPolicy):
+            action = guide(env, state)
+        else:
+            action = guide.act(state, device)
+        if not eval:
+             action = torch.tensor(action)
     return action, use_learner, horizon
