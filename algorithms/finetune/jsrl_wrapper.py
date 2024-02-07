@@ -178,6 +178,7 @@ def train(config: JsrlTrainConfig):
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
 
+    import pdb;pdb.set_trace()
     if config.downloaded_dataset:
         downloaded_data = {}
 
@@ -192,9 +193,7 @@ def train(config: JsrlTrainConfig):
         with h5py.File(config.downloaded_dataset, "r") as f:
             downloaded_data = get_keys(f, {})
         dataset = d4rl.qlearning_dataset(env, dataset=downloaded_data)
-    elif (config.guide_heuristic_fn is None and 
-      config.pretrained_policy_path is None and
-      config.new_online_buffer is True):
+    elif config.guide_heuristic_fn is None:
         dataset = d4rl.qlearning_dataset(env)
     else:
         dataset = None
