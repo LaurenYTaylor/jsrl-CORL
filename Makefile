@@ -19,7 +19,6 @@ build:
 	.
 
 build_and_run:
-	check_stopped
 	yes | sudo docker container prune
 
 	sudo docker build \
@@ -36,6 +35,7 @@ build_and_run:
 	--gpus device="0" \
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
+	-v ".:/workspace/jsrl-CORL" \
 	jsrl-corl python $(RUN_FILE) --checkpoints_path checkpoints
 
 build_and_run_nogpu:

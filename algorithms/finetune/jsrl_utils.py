@@ -26,7 +26,7 @@ def horizon_update_callback(config, eval_reward):
 
     if (
         len(config.rolling_mean_rews) == config.rolling_mean_n
-        and rolling_mean > prev_best
+        and rolling_mean >= prev_best
     ):
         config.curriculum_stage_idx += 1
         config.curriculum_stage = config.all_curriculum_stages[

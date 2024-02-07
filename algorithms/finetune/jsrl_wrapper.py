@@ -48,6 +48,7 @@ class JsrlTrainConfig(TrainConfig):
     new_online_buffer: bool = True
     online_buffer_size: int = 10000
     max_init_horizon: bool = False
+    env_config: dict = {}
 
 
 @torch.no_grad()
@@ -116,8 +117,8 @@ def eval_actor(
 
 
 def train(config: JsrlTrainConfig):
-    env = gym.make(config.env)
-    eval_env = gym.make(config.env)
+    env = gym.make(config.env, **config.env_config)
+    eval_env = gym.make(config.env, **config.env_config)
 
     is_env_with_goal = config.env.startswith(ENVS_WITH_GOAL)
 
