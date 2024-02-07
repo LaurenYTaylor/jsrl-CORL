@@ -1,7 +1,7 @@
 WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
 RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer.py"
 DF=Dockerfile
-DOCKER_EXTRAS=--detach -e WANDB_API_KEY=$(WANDB_API_KEY) -it --shm-size=10.24gb --cpus 24 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb
+DOCKER_EXTRAS=--detach -e WANDB_API_KEY=$(WANDB_API_KEY) -it --shm-size=10.24gb --cpus 24 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb -v .:/workspace/jsrl-CORL
 
 build:
 	yes | sudo docker container prune
