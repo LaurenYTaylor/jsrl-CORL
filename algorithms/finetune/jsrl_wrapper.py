@@ -250,8 +250,9 @@ def train(config: JsrlTrainConfig):
     print(f"Training IQL, Env: {config.env}, Seed: {seed}")
     print("---------------------------------------")
 
+    import pdb;pdb.set_trace()
     # Initialize actor
-    if config.pretrained_policy_path is not None and config.guide_heuristic_fn is None:
+    if config.pretrained_policy_path is None and config.guide_heuristic_fn is None:
         training_kwargs = make_actor(config, state_dim, action_dim, max_action, max_steps=config.offline_iterations)
         trainer = ImplicitQLearning(**training_kwargs)
         if config.load_model != "":
@@ -287,6 +288,8 @@ def train(config: JsrlTrainConfig):
         guide.eval()
         config.curriculum_stage = np.nan
         _, _, init_horizon, _ = eval_actor(env, guide, None, config)
+        if config.n_curriculum_stages == 1:
+            init_horizon = max_steps
         config = jsrl.prepare_finetuning(init_horizon, config)
         config.offline_iterations = 0
         kwargs = make_actor(config, state_dim, action_dim, max_action)
@@ -305,6 +308,8 @@ def train(config: JsrlTrainConfig):
                 if config.guide_heuristic_fn is not None:
                     actor = getattr(guide_heuristics, config.guide_heuristic_fn)
                 _, _, init_horizon, _ = eval_actor(env, actor, guide, config)
+                if config.n_curriculum_stages == 1:
+                    init_horizon = max_steps
                 if config.guide_heuristic_fn is not None:
                     guide = getattr(guide_heuristics, config.guide_heuristic_fn)
                 else:
