@@ -1,0 +1,57 @@
+WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
+RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer.py"
+DF=Dockerfile
+DOCKER_EXTRAS=--detach -e WANDB_API_KEY=$(WANDB_API_KEY) -it --shm-size=10.24gb --cpus 16 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb -v .:/workspace/jsrl-CORL
+
+build:
+	yes | sudo docker container prune
+
+	sudo docker build \
+	-f $(DF) \
+	-t jsrl-corl \
+	.
+
+run1:
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --tolerance 0.05 --rolling_mean_n 5;
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --tolerance 0.05 --rolling_mean_n 5;
+	sh check_stopped.sh ;
+
+run2:
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --n_curriculum_stages 5 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --n_curriculum_stages 5 ;
+	sh check_stopped.sh ;
+
+run3:
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --n_curriculum_stages 5 --tolerance 0.01 --rolling_mean_n 1 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --n_curriculum_stages 5 --tolerance 0.01 --rolling_mean_n 1 ;
+	sh check_stopped.sh ;
+
+run4:
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-diverse-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9  --max_init_horizon True --tolerance 0.01 --rolling_mean_n 5 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-diverse-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --tolerance 0.01 --rolling_mean_n 5 ;
+	sh check_stopped.sh ;
+
+run5:
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-diverse-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --n_curriculum_stages 15 --tolerance 0.0 --rolling_mean_n 5 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-diverse-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --n_curriculum_stages 15 --tolerance 0.0 --rolling_mean_n 5 ;
+	sh check_stopped.sh ;
+
+run6:
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-diverse-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --n_curriculum_stages 15 --tolerance 0.01 --rolling_mean_n 5 ;
+	sudo docker run $(DOCKER_EXTRAS) --gpus all \
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-diverse-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --max_init_horizon True --n_curriculum_stages 15 --tolerance 0.01 --rolling_mean_n 5 ;
+	sh check_stopped.sh ;
+
+
+build_and_run: build run1 run2 run3 run4 run5 run6
