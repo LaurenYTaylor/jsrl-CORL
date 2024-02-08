@@ -178,7 +178,6 @@ def train(config: JsrlTrainConfig):
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
 
-    import pdb;pdb.set_trace()
     if config.downloaded_dataset:
         downloaded_data = {}
 
@@ -249,7 +248,6 @@ def train(config: JsrlTrainConfig):
     print(f"Training IQL, Env: {config.env}, Seed: {seed}")
     print("---------------------------------------")
 
-    import pdb;pdb.set_trace()
     # Initialize actor
     if config.pretrained_policy_path is None and config.guide_heuristic_fn is None:
         training_kwargs = make_actor(config, state_dim, action_dim, max_action, max_steps=config.offline_iterations)
@@ -417,7 +415,6 @@ def train(config: JsrlTrainConfig):
             elif t < config.offline_iterations:
                 batch = replay_buffer.sample(config.batch_size)
             batch = [b.to(config.device) for b in batch]
-            #import pdb;pdb.set_trace()
             log_dict = trainer.train(batch)
             log_dict[
                 "offline_iter" if t < config.offline_iterations else "online_iter"
