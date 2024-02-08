@@ -128,9 +128,11 @@ def eval_actor(
         np.mean(agent_types),
     )
 
-def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, max_steps=None):
-    q_network = TwinQ(state_dim, action_dim).to(config.device)
-    v_network = ValueFunction(state_dim).to(config.device)
+def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, device=None, max_steps=None):
+    if device is None:
+        device = config.device
+    q_network = TwinQ(state_dim, action_dim).to(device)
+    v_network = ValueFunction(state_dim).to(device)
     actor = (
         DeterministicPolicy(
             state_dim, action_dim, max_action, dropout=config.actor_dropout
@@ -139,7 +141,7 @@ def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, max_s
         else GaussianPolicy(
             state_dim, action_dim, max_action, dropout=config.actor_dropout
         )
-    ).to(config.device)
+    ).to(device)
     v_optimizer = torch.optim.Adam(v_network.parameters(), lr=config.vf_lr)
     q_optimizer = torch.optim.Adam(q_network.parameters(), lr=config.qf_lr)
     actor_optimizer = torch.optim.Adam(actor.parameters(), lr=config.actor_lr)
@@ -153,7 +155,7 @@ def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, max_s
         "v_optimizer": v_optimizer,
         "discount": config.discount,
         "tau": config.tau,
-        "device": config.device,
+        "device": device,
         # IQL
         "beta": config.beta,
         "iql_tau": config.iql_tau,
@@ -281,7 +283,7 @@ def train(config: JsrlTrainConfig):
         if config.guide_heuristic_fn:
             sys.exit("Guide can be a pretrained policy OR a heuristic,\
                         but you have provided both. Please choose one.")
-        training_kwargs = make_actor(config, state_dim, action_dim, max_action)
+        training_kwargs = make_actor(config, state_dim, action_dim, max_action, device="cpu")
         guide_trainer = ImplicitQLearning(**training_kwargs)
         guide = jsrl.load_guide(guide_trainer, Path(config.pretrained_policy_path))
         guide.eval()
@@ -314,6 +316,10 @@ def train(config: JsrlTrainConfig):
                 else:
                     guide = trainer.actor
                     guide_trainer = trainer
+                    guide.actor.to("cpu")
+                    guide.q_network.to("cpu")
+                    guide.v_network.to("cpu")
+                    guide.q_target.to("cpu")
                     guide.eval()
                 kwargs = make_actor(config, state_dim, action_dim, max_action)
                 trainer = ImplicitQLearning(**kwargs)
