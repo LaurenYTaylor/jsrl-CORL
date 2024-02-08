@@ -256,7 +256,9 @@ def train(config: JsrlTrainConfig):
             policy_file = Path(config.load_model)
             trainer.load_state_dict(torch.load(policy_file))
             actor = trainer.actor
-
+        else:
+            actor = trainer.actor
+    
     wandb_init(asdict(config))
 
     evaluations = []
@@ -421,7 +423,6 @@ def train(config: JsrlTrainConfig):
             ] = (t if t < config.offline_iterations else t - config.offline_iterations)
 
             log_dict.update(online_log)
-
             wandb.log(log_dict, step=trainer.total_it)
             # Evaluate episode
             if (t + 1) % config.eval_freq == 0:

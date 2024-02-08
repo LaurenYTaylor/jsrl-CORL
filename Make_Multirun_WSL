@@ -51,4 +51,4 @@ run8:
 	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --n_curriculum_stages 1 ;
 	sh check_stopped.sh ;
 
-build_and_run: build run4 run5 run6 run7 run8
+build_and_run: build run5 run6 run7 run8
