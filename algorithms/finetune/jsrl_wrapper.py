@@ -128,9 +128,11 @@ def eval_actor(
         np.mean(agent_types),
     )
 
-def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, max_steps=None):
-    q_network = TwinQ(state_dim, action_dim).to(config.device)
-    v_network = ValueFunction(state_dim).to(config.device)
+def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, device=None, max_steps=None):
+    if device is None:
+        device = config.device
+    q_network = TwinQ(state_dim, action_dim).to(device)
+    v_network = ValueFunction(state_dim).to(device)
     actor = (
         DeterministicPolicy(
             state_dim, action_dim, max_action, dropout=config.actor_dropout
@@ -139,7 +141,7 @@ def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, max_s
         else GaussianPolicy(
             state_dim, action_dim, max_action, dropout=config.actor_dropout
         )
-    ).to(config.device)
+    ).to(device)
     v_optimizer = torch.optim.Adam(v_network.parameters(), lr=config.vf_lr)
     q_optimizer = torch.optim.Adam(q_network.parameters(), lr=config.qf_lr)
     actor_optimizer = torch.optim.Adam(actor.parameters(), lr=config.actor_lr)
@@ -153,7 +155,7 @@ def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, max_s
         "v_optimizer": v_optimizer,
         "discount": config.discount,
         "tau": config.tau,
-        "device": config.device,
+        "device": device,
         # IQL
         "beta": config.beta,
         "iql_tau": config.iql_tau,
@@ -288,7 +290,7 @@ def train(config: JsrlTrainConfig):
         config.curriculum_stage = np.nan
         _, _, init_horizon, _ = eval_actor(env, guide, None, config)
         if config.n_curriculum_stages == 1:
-            init_horizon = max_steps
+            init_horizon = max_steps*10
         config = jsrl.prepare_finetuning(init_horizon, config)
         config.offline_iterations = 0
         kwargs = make_actor(config, state_dim, action_dim, max_action)
@@ -314,6 +316,7 @@ def train(config: JsrlTrainConfig):
                 else:
                     guide = trainer.actor
                     guide_trainer = trainer
+                    #del trainer
                     guide.eval()
                 kwargs = make_actor(config, state_dim, action_dim, max_action)
                 trainer = ImplicitQLearning(**kwargs)

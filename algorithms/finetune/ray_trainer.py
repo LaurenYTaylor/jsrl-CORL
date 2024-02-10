@@ -34,7 +34,7 @@ def run(train_config: JsrlTrainConfig, extra_config: dict):
 if __name__ == "__main__":
     extra_config = {}
 
-    extra_config["seeds"] = range(4)
+    extra_config["seeds"] = range(2)
     extra_config["gpu_frac"] = 1 / (len(extra_config["seeds"]))
 
     run(extra_config)

@@ -14,7 +14,7 @@ build:
 run1:
 	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
-	sudo docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	sudo docker run $(DOCKER_EXTRAS) --gpus device="1" \
 	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
 	sh check_stopped.sh ;
 
@@ -68,4 +68,4 @@ run8:
 	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 ;
 	sh check_stopped.sh ;
 
-build_and_run: build run1 run4 run5 run6 run7 run8
+build_and_run: build run1 run2 run3 run4 run5 run6 run7 run8
