@@ -283,14 +283,14 @@ def train(config: JsrlTrainConfig):
         if config.guide_heuristic_fn:
             sys.exit("Guide can be a pretrained policy OR a heuristic,\
                         but you have provided both. Please choose one.")
-        training_kwargs = make_actor(config, state_dim, action_dim, max_action, device="cpu")
+        training_kwargs = make_actor(config, state_dim, action_dim, max_action)
         guide_trainer = ImplicitQLearning(**training_kwargs)
         guide = jsrl.load_guide(guide_trainer, Path(config.pretrained_policy_path))
         guide.eval()
         config.curriculum_stage = np.nan
         _, _, init_horizon, _ = eval_actor(env, guide, None, config)
         if config.n_curriculum_stages == 1:
-            init_horizon = max_steps
+            init_horizon = max_steps*10
         config = jsrl.prepare_finetuning(init_horizon, config)
         config.offline_iterations = 0
         kwargs = make_actor(config, state_dim, action_dim, max_action)
@@ -316,10 +316,7 @@ def train(config: JsrlTrainConfig):
                 else:
                     guide = trainer.actor
                     guide_trainer = trainer
-                    guide.actor.to("cpu")
-                    guide.q_network.to("cpu")
-                    guide.v_network.to("cpu")
-                    guide.q_target.to("cpu")
+                    #del trainer
                     guide.eval()
                 kwargs = make_actor(config, state_dim, action_dim, max_action)
                 trainer = ImplicitQLearning(**kwargs)
