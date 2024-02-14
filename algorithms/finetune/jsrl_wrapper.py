@@ -290,13 +290,17 @@ def train(config: JsrlTrainConfig):
         config.curriculum_stage = np.nan
         _, _, init_horizon, _ = eval_actor(env, guide, None, config)
         if config.n_curriculum_stages == 1:
-            init_horizon = max_steps*10
+            init_horizon = 0
         config = jsrl.prepare_finetuning(init_horizon, config)
         config.offline_iterations = 0
         kwargs = make_actor(config, state_dim, action_dim, max_action)
         trainer = ImplicitQLearning(**kwargs)
+        if config.n_curriculum_stages == 1:
+            state_dict = guide_trainer.state_dict()
+            trainer.load_state_dict(state_dict)
         kwargs["max_steps"] = config.offline_iterations
         actor = trainer.actor
+        trainer.total_it = config.offline_iterations
     else:
         guide = None
 
@@ -310,7 +314,7 @@ def train(config: JsrlTrainConfig):
                     actor = getattr(guide_heuristics, config.guide_heuristic_fn)
                 _, _, init_horizon, _ = eval_actor(env, actor, guide, config)
                 if config.n_curriculum_stages == 1:
-                    init_horizon = max_steps
+                    init_horizon = 0
                 if config.guide_heuristic_fn is not None:
                     guide = getattr(guide_heuristics, config.guide_heuristic_fn)
                 else:
@@ -320,6 +324,9 @@ def train(config: JsrlTrainConfig):
                     guide.eval()
                 kwargs = make_actor(config, state_dim, action_dim, max_action)
                 trainer = ImplicitQLearning(**kwargs)
+                if config.n_curriculum_stages == 1:
+                    state_dict = guide_trainer.state_dict()
+                    trainer.load_state_dict(state_dict)
                 trainer.total_it = config.offline_iterations # iterations done so far
                 actor = trainer.actor
                 config = jsrl.prepare_finetuning(init_horizon, config)

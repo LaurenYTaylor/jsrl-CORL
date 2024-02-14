@@ -62,14 +62,22 @@ def heuristic(env, s):
             a = 1
     return a
 
+obs_keys = ["x_coord", "y_coord", "x_lin_vel", "y_lin_vel", "angle",
+            "ang_vel", "right_leg_contact", "left_leg_contact"]
+
 for ep in range(5):
     term = False
     trunc = False
     obs, _ = env.reset()
     ep_reward = 0
     while not (term or trunc):
+        #print(dict(zip(obs_keys, obs)))
+        goal_dist = np.array([0,0,0,0,0,0,1,1])
+        curr_goal_dist = np.linalg.norm(np.array(obs)[:2][-2:]-goal_dist[:2][-2:])
+        print("Curr goal dist: ", np.round(curr_goal_dist, 4))
         action = heuristic(env, obs)
         obs, reward, term, trunc, _ = env.step(action)
+        
         env.render()
         ep_reward += reward
     print(f"{ep}: {ep_reward}")
