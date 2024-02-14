@@ -1,0 +1,27 @@
+From 32d5ebccfbe2f82c2b2aead92a87f01daa9e8242 Mon Sep 17 00:00:00 2001
+From: clock zhong <zhong.clock@gmail.com>
+Date: Tue, 17 Oct 2023 16:48:54 +0800
+Subject: [PATCH] workaround bug fix for
+ https://github.com/Farama-Foundation/Gymnasium/issues/728
+
+---
+ gymnasium/envs/box2d/lunar_lander.py | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git envs/box2d/lunar_lander.py envs/box2d/lunar_lander.py
+index 4e092a3bc..90e03a5bf 100644
+--- envs/box2d/lunar_lander.py
++++ envs/box2d/lunar_lander.py
+@@ -350,6 +350,12 @@ def reset(
+     ):
+         super().reset(seed=seed)
+         self._destroy()
++        
++        #Bug's workaround for: https://github.com/Farama-Foundation/Gymnasium/issues/728
++        # Not sure why the self._destroy() is not enough to clean(reset) the total world environment elements, need more investigation on the root cause, 
++        # we must create a totally new world for self.reset(), or the bug#728 will happen
++        self.world = Box2D.b2World(gravity=(0, self.gravity))
++
+         self.world.contactListener_keepref = ContactDetector(self)
+         self.world.contactListener = self.world.contactListener_keepref
+         self.game_over = False

@@ -37,6 +37,10 @@ RUN pip install -r requirements.txt
 RUN pip install "cython<3" ray h5py gymnasium[box2d]
 RUN ["python", "-c", "import mujoco_py"]
 
+RUN pip install pypatch
+COPY lunarlander.patch lunarlander.patch 
+RUN pypatch apply lunarlander.patch gymnasium
+
 RUN mkdir checkpoints
 RUN mkdir wandb
 RUN mkdir jsrl-CORL

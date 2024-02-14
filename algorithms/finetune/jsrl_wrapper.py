@@ -72,13 +72,20 @@ def eval_actor(
     successes = []
     horizons_reached = []
     agent_types = []
-    for _ in range(config.n_episodes):
-        try:
-            env.seed(config.seed)
-            state, done = env.reset(), False
-        except AttributeError:
-            state, _ = env.reset(seed=config.seed)
-            done =  False
+    for i in range(config.n_episodes):
+        if i == 0:
+            try:
+                env.seed(config.seed)
+                state = env.reset()
+            except AttributeError:
+                state, _ = env.reset(seed=config.seed)
+            done = False
+        else:
+            state = env.reset()
+            if isinstance(state, tuple):
+                state, _ = state
+            done = False
+        
         ts = 0
         episode_reward = 0.0
         episode_horizons = []
@@ -268,7 +275,7 @@ def train(config: JsrlTrainConfig):
     if seed_set:
         state, done = env.reset(), False
     else:
-        state, _ = env.reset(seed=config.seed)
+        state, _ = env.reset(seed=seed)
         done = False
     episode_return = 0
     episode_step = 0
@@ -400,7 +407,9 @@ def train(config: JsrlTrainConfig):
                 if seed_set:
                     state, done = env.reset(), False
                 else:
-                    state, _ = env.reset(seed=config.seed)
+                    # just use seed_set to know if it's a gymnasium env,
+                    # don't actually need to reseed
+                    state, _ = env.reset()
                     done = False
                 # Valid only for envs with goal, e.g. AntMaze, Adroit
                 if is_env_with_goal:

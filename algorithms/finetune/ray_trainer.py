@@ -35,6 +35,6 @@ if __name__ == "__main__":
     extra_config = {}
 
     extra_config["seeds"] = range(1)
-    extra_config["gpu_frac"] = 1 / (len(extra_config["seeds"]))
+    extra_config["gpu_frac"] = 0
 
     run(extra_config)

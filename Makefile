@@ -1,14 +1,12 @@
 WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
-
+DF=Dockerfile
 RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer.py"
-GPUS=--gpus all
-DETACH=--detach
+CPUS=3
 
 run:
 	sudo docker run \
 	-e WANDB_API_KEY=$(WANDB_API_KEY) \
 	-it \
-	--gpus all \
 	--rm \
 	jsrl-corl python $(RUN_FILE)
 
@@ -18,7 +16,7 @@ build:
 	-t jsrl-corl \
 	.
 
-build_and_run:
+build_and_run_lunar:
 	yes | sudo docker container prune
 
 	sudo docker build \
@@ -32,40 +30,25 @@ build_and_run:
 	--shm-size=10.24gb \
 	$(DETACH) \
 	--cpus $(CPUS) \
-	--gpus device="0" \
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	-v ".:/workspace/jsrl-CORL" \
-	jsrl-corl python $(RUN_FILE) --checkpoints_path checkpoints
+	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander --offline_iterations 0 --env_config '{"continuous": True}' --eval_freq 500 --beta 10 --iql_tau 0.9 --horizon_fn goal_dist --name IQL-test --device cpu
 
-build_and_run_nogpu:
+build_and_run_antmaze:
+	yes | sudo docker container prune
+
 	sudo docker build \
 	-f $(DF) \
 	-t jsrl-corl \
 	.
-
 	sudo docker run \
 	-e WANDB_API_KEY=$(WANDB_API_KEY) \
 	-it \
 	--shm-size=10.24gb \
 	$(DETACH) \
-	$(CPUS) \
+	--cpus $(CPUS) \
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
-	jsrl-corl python $(RUN_FILE) --checkpoints_path checkpoints
-
-
-build_and_run_finetune_test:
-	sudo docker build \
-	-f $(DF) \
-	-t jsrl-corl \
-	.
-
-	sudo docker run \
-	-e WANDB_API_KEY=$(WANDB_API_KEY) \
-	-it \
-	--gpus all \
-	--rm \
-	jsrl-corl python $(RUN_FILE) --group IQL-D4RL-finetune_test --offline_iterations 5 --checkpoints_path checkpoints
-
-	echo "running $(RUN_FILE)"
+	-v ".:/workspace/jsrl-CORL" \
+	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 --device cpu --name IQL-test ;

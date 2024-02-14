@@ -3,6 +3,7 @@ import numpy as np
 from collections import deque
 import iql
 from pathlib import PosixPath
+from goal_horizon_fns import goal_dist_calc
 
 horizon_str = ""
 
@@ -35,6 +36,7 @@ def horizon_update_callback(config, eval_reward):
             config.curriculum_stage_idx
         ]
         config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
+        print(f"curr best: {config.best_eval_score}, rolling mean: {rolling_mean}")
         config.best_eval_score = rolling_mean
     return config
 
@@ -82,9 +84,9 @@ def timestep_horizon(step, _s, _e, config):
     return use_learner, step
 
 
-def goal_distance_horizon(_t, _s, env, config):
+def goal_distance_horizon(_t, s, env, config):
     use_learner = False
-    goal_dist = np.linalg.norm(np.array(env.target_goal) - np.array(env.get_xy()))
+    goal_dist = goal_dist_calc(s, env)
     if np.isnan(config.curriculum_stage):
         return True, goal_dist
     if (
