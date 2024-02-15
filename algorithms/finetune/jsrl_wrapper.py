@@ -170,7 +170,6 @@ def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, devic
     }
     return kwargs
 
-
 def train(config: JsrlTrainConfig):
     try:
         env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
@@ -304,7 +303,7 @@ def train(config: JsrlTrainConfig):
         trainer = ImplicitQLearning(**kwargs)
         if config.n_curriculum_stages == 1:
             state_dict = guide_trainer.state_dict()
-            trainer.load_state_dict(state_dict)
+            trainer.partial_load_state_dict(state_dict)
         kwargs["max_steps"] = config.offline_iterations
         actor = trainer.actor
         trainer.total_it = config.offline_iterations
@@ -334,8 +333,13 @@ def train(config: JsrlTrainConfig):
                 if config.n_curriculum_stages == 1 and config.guide_heuristic_fn is None:
                     state_dict = guide_trainer.state_dict()
                     trainer.load_state_dict(state_dict)
+                    v_optimizer = torch.optim.Adam(v_network.parameters(), lr=config.vf_lr)
+                    q_optimizer = torch.optim.Adam(q_network.parameters(), lr=config.qf_lr)
+                    actor_optimizer = torch.optim.Adam(actor.parameters(), lr=config.actor_lr)
+                    trainer.actor.actor_optimizer
                 trainer.total_it = config.offline_iterations # iterations done so far
                 actor = trainer.actor
+                actor.train()
                 config = jsrl.prepare_finetuning(init_horizon, config)
             if config.new_online_buffer:
                 try:
