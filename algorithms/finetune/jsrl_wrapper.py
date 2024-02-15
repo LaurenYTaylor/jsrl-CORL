@@ -331,7 +331,7 @@ def train(config: JsrlTrainConfig):
                     guide.eval()
                 kwargs = make_actor(config, state_dim, action_dim, max_action)
                 trainer = ImplicitQLearning(**kwargs)
-                if config.n_curriculum_stages == 1:
+                if config.n_curriculum_stages == 1 and config.guide_heuristic_fn is None:
                     state_dict = guide_trainer.state_dict()
                     trainer.load_state_dict(state_dict)
                 trainer.total_it = config.offline_iterations # iterations done so far

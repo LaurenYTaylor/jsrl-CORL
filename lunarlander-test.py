@@ -1,12 +1,13 @@
 import gymnasium as gym
 import numpy as np
+from copy import deepcopy
+import sys
 
 env = gym.make(
     "LunarLander-v2",
     continuous = True,
     render_mode="human"
 )
-
 def heuristic(env, s):
     """
     The heuristic for

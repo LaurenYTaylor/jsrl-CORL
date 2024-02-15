@@ -46,4 +46,4 @@ run7:
 	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander --offline_iterations 0 --env_config '{"continuous": True}' --eval_freq 5000 --n_curriculum_stages 1 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step ;
 	sh check_stopped.sh ;
 
-build_and_run: build run1 run2 run3 run4 run5 run6 run7
+build_and_run: build run7
