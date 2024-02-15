@@ -18,7 +18,7 @@ def lunar_lander(state, _):
 
 
 GOAL_MAP = {"antmaze-umaze-v2": antmaze,
-            "antmaze-umaze-diverse-v": antmaze,
+            "antmaze-umaze-diverse-v2": antmaze,
             "antmaze-medium-play-v2": antmaze,
             "antmaze-medium-diverse-v2": antmaze,
             "antmaze-large-play-v2": antmaze,
