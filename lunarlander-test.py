@@ -6,7 +6,10 @@ import sys
 env = gym.make(
     "LunarLander-v2",
     continuous = True,
-    render_mode="human"
+    render_mode="human",
+    turbulence_power=2,
+    enable_wind=True,
+    wind_power=20
 )
 def heuristic(env, s):
     """
@@ -120,7 +123,7 @@ obs_keys = ["x_coord", "y_coord", "x_lin_vel", "y_lin_vel", "angle",
             "ang_vel", "right_leg_contact", "left_leg_contact"]
 seed = 0
 all_ep_rews = []
-for ep in range(5):
+for ep in range(10):
     term = False
     trunc = False
     if ep==0:
@@ -132,7 +135,7 @@ for ep in range(5):
         #print(dict(zip(obs_keys, obs)))
         goal_dist = np.array([0,0,0,0,0,0,1,1])
         curr_goal_dist = np.linalg.norm(np.array(obs)[:2][-2:]-goal_dist[:2][-2:])
-        action = imperfect_heuristic(env, obs)
+        action = heuristic(env, obs)
         obs, reward, term, trunc, _ = env.step(action)
         
         #env.render()
