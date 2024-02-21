@@ -38,8 +38,11 @@ RUN pip install "cython<3" ray h5py gymnasium[box2d]
 RUN ["python", "-c", "import mujoco_py"]
 
 RUN pip install pypatch
-COPY lunarlander.patch lunarlander.patch 
+COPY lunarlander.patch lunarlander.patch
+COPY lunarlander-seed.patch lunarlander-seed.patch 
 RUN pypatch apply lunarlander.patch gymnasium
+RUN pypatch apply lunarlander-seed.patch gymnasium
+
 
 RUN mkdir checkpoints
 RUN mkdir wandb
