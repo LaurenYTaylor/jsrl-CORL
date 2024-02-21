@@ -1,0 +1,28 @@
+From 689de42418919446280b2c5dd110563862c0e4a9 Mon Sep 17 00:00:00 2001
+From: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date: Fri, 16 Feb 2024 15:04:28 +1030
+Subject: [PATCH] fixed seed bug for wind lunar lander
+
+---
+ envs/box2d/lunar_lander.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git envs/box2d/lunar_lander.py envs/box2d/lunar_lander.py
+index 90e03a5..65fc39d 100644
+--- envs/box2d/lunar_lander.py
++++ envs/box2d/lunar_lander.py
+@@ -350,7 +350,10 @@ class LunarLander(gym.Env, EzPickle):
+     ):
+         super().reset(seed=seed)
+         self._destroy()
+-        
++        if seed is not None:
++            np.random.seed(seed)
++            self.wind_idx = np.random.randint(-9999, 9999)
++            self.torque_idx = np.random.randint(-9999, 9999)
+         #Bug's workaround for: https://github.com/Farama-Foundation/Gymnasium/issues/728
+         # Not sure why the self._destroy() is not enough to clean(reset) the total world environment elements, need more investigation on the root cause, 
+         # we must create a totally new world for self.reset(), or the bug#728 will happen
+-- 
+2.34.1
+
