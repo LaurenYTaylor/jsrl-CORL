@@ -4,6 +4,8 @@ from collections import deque
 import iql
 from pathlib import PosixPath
 from goal_horizon_fns import goal_dist_calc
+from torch import nn
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 horizon_str = ""
 

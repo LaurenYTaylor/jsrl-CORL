@@ -332,11 +332,7 @@ def train(config: JsrlTrainConfig):
                 trainer = ImplicitQLearning(**kwargs)
                 if config.n_curriculum_stages == 1 and config.guide_heuristic_fn is None:
                     state_dict = guide_trainer.state_dict()
-                    trainer.load_state_dict(state_dict)
-                    v_optimizer = torch.optim.Adam(v_network.parameters(), lr=config.vf_lr)
-                    q_optimizer = torch.optim.Adam(q_network.parameters(), lr=config.qf_lr)
-                    actor_optimizer = torch.optim.Adam(actor.parameters(), lr=config.actor_lr)
-                    trainer.actor.actor_optimizer
+                    trainer.partial_load_state_dict(state_dict)
                 trainer.total_it = config.offline_iterations # iterations done so far
                 actor = trainer.actor
                 actor.train()
