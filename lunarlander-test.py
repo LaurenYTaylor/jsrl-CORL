@@ -6,7 +6,6 @@ import sys
 env = gym.make(
     "LunarLander-v2",
     continuous = True,
-    render_mode="human",
     turbulence_power=2,
     enable_wind=True,
     wind_power=20
@@ -96,7 +95,7 @@ def imperfect_heuristic(env, s):
     )  # target y should be proportional to horizontal offset
 
     angle_todo = (angle_targ - s[4]) * 0.5 - (s[5]) * 1.0
-    hover_todo = (hover_targ - s[1]) * 0.25 - (s[3]) * 0.25
+    hover_todo = (hover_targ - s[1]) * 0.2 - (s[3]) * 0.2
 
     '''
     if s[6] or s[7]:  # legs have contact
@@ -123,7 +122,7 @@ obs_keys = ["x_coord", "y_coord", "x_lin_vel", "y_lin_vel", "angle",
             "ang_vel", "right_leg_contact", "left_leg_contact"]
 seed = 0
 all_ep_rews = []
-for ep in range(10):
+for ep in range(50):
     term = False
     trunc = False
     if ep==0:
@@ -135,7 +134,7 @@ for ep in range(10):
         #print(dict(zip(obs_keys, obs)))
         goal_dist = np.array([0,0,0,0,0,0,1,1])
         curr_goal_dist = np.linalg.norm(np.array(obs)[:2][-2:]-goal_dist[:2][-2:])
-        action = heuristic(env, obs)
+        action = imperfect_heuristic(env, obs)
         obs, reward, term, trunc, _ = env.step(action)
         
         #env.render()
