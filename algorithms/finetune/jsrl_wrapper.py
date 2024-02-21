@@ -318,6 +318,11 @@ def train(config: JsrlTrainConfig):
                 config.curriculum_stage = np.nan
                 if config.guide_heuristic_fn is not None:
                     actor = getattr(guide_heuristics, config.guide_heuristic_fn)
+
+                from variance_learner import VarianceLearner
+                vl = VarianceLearner(state_dim, action_dim, config)
+                vl.run_training(eval_env, max_steps)
+                exit()
                 _, _, init_horizon, _ = eval_actor(env, actor, guide, config)
                 if config.n_curriculum_stages == 1:
                     init_horizon = 0

@@ -51,4 +51,4 @@ build_and_run_antmaze:
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	-v ".:/workspace/jsrl-CORL" \
-	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --heuristic_fn perfect_heuristic --env LunarLander-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 --device cpu --name variance-test --group variance_tests ;
+	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --buffer_size 10000000 --iql_tau 0.9 --device cpu --name IQL-test ;
