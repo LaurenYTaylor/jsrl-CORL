@@ -1,7 +1,7 @@
 WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
 DF=Dockerfile
 RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer.py"
-CPUS=3
+CPUS=5
 
 run:
 	sudo docker run \
@@ -29,7 +29,6 @@ build_and_run_lunar:
 	-it \
 	--shm-size=10.24gb \
 	$(DETACH) \
-	--cpus $(CPUS) \
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	-v ".:/workspace/jsrl-CORL" \
