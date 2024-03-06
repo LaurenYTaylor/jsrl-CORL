@@ -128,9 +128,7 @@ def make_actor(config, state_dim, action_dim, max_action, device=None, max_steps
     }
     return ImplicitQLearning(**kwargs)
 
-def go_online(config, trainer, init_horizon, state_dim, action_dim, max_action):
-    if config.n_curriculum_stages == 1:
-        init_horizon = 0
+def get_guide_agent(config, trainer, state_dim, action_dim, max_action):
     if config.guide_heuristic_fn is not None:
         guide = getattr(guide_heuristics, config.guide_heuristic_fn)
     elif trainer is None:
@@ -141,13 +139,16 @@ def go_online(config, trainer, init_horizon, state_dim, action_dim, max_action):
         guide = trainer.actor
         guide_trainer = trainer
         guide.eval()
+    return guide, guide_trainer
+
+def get_learning_agent(config, guide_trainer, init_horizon, state_dim, action_dim, max_action):
     trainer = make_actor(config, state_dim, action_dim, max_action)
     if config.n_curriculum_stages == 1 and config.guide_heuristic_fn is None:
         state_dict = guide_trainer.state_dict()
         trainer.partial_load_state_dict(state_dict)
     trainer.total_it = config.offline_iterations # iterations done so far
     config = prepare_finetuning(init_horizon, config)
-    return trainer, guide, config
+    return trainer, config
 
 def variance_horizon(_, s, _e, config):
     use_learner = False

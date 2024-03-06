@@ -131,12 +131,16 @@ def eval_actor(
     )
 
 def jsrl_online_actor(config, env, actor, trainer):
-    state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.shape[0]
-    max_action = float(env.action_space.high[0])
+    env_info = {"state_dim": env.observation_space.shape[0],
+                "action_dim": env.action_space.shape[0],
+                "max_action": float(env.action_space.high[0])
+                }
     config.curriculum_stage = np.nan
-    _, _, init_horizon, _ = eval_actor(env, actor, None, config)
-    trainer, guide, config = jsrl.go_online(config, trainer, init_horizon, state_dim, action_dim, max_action)
+    if config.n_curriculum_stages == 1:
+        init_horizon = 0
+    guide, guide_trainer = jsrl.get_guide_agent(config, trainer, **env_info)
+    _, _, init_horizon, _ = eval_actor(env, guide, None, config)
+    trainer, config = jsrl.get_learning_agent(config, guide_trainer, init_horizon, **env_info)
     return trainer, guide, config
 
 def get_online_buffer(config, replay_buffer, state_dim, action_dim):
