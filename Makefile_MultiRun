@@ -54,4 +54,4 @@ run6:
 	jsrl-corl python $(RUN_FILE) --horizon_fn goal_dist --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-large-diverse-v2-offline/checkpoint_999999.pt ;
 	sh check_stopped.sh ;
 
-build_and_run: build run1 run2 run3 run4 run5 run6
+build_and_run: build run4 run5 run6
