@@ -1,11 +1,18 @@
 import torch
 import numpy as np
 from collections import deque
-import iql
-from pathlib import PosixPath
+from pathlib import PosixPath, Path
 from goal_horizon_fns import goal_dist_calc
 from torch import nn
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+import guide_heuristics
+from variance_learner import StateDepFunction, VarianceLearner
+from iql import (
+    DeterministicPolicy,
+    GaussianPolicy,
+    ImplicitQLearning,
+    TwinQ,
+    ValueFunction
+)
 
 horizon_str = ""
 
@@ -73,6 +80,87 @@ def prepare_finetuning(init_horizon, config):
     config.rolling_mean_rews = deque(maxlen=config.rolling_mean_n)
     return config
 
+def get_var_predictor(env, config, max_steps):
+    state_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.shape[0]
+    if config.horizon_fn == "variance":
+        var_actor = None
+        try:
+            vf = StateDepFunction(state_dim)
+            vf.load_state_dict(torch.load(f"jsrl-CORL/algorithms/finetune/var_functions/{env.unwrapped.spec.name}_{var_actor}_10000.pt"))
+        except FileNotFoundError:
+            vf = VarianceLearner(state_dim, action_dim, config, var_actor).run_training(env, max_steps)
+        config.vf = vf.eval()
+    return config
+
+def make_actor(config, state_dim, action_dim, max_action, device=None, max_steps=None):
+    if device is None:
+        device = config.device
+    q_network = TwinQ(state_dim, action_dim).to(device)
+    v_network = ValueFunction(state_dim).to(device)
+    actor = (
+        DeterministicPolicy(
+            state_dim, action_dim, max_action, dropout=config.actor_dropout
+        )
+        if config.iql_deterministic
+        else GaussianPolicy(
+            state_dim, action_dim, max_action, dropout=config.actor_dropout
+        )
+    ).to(device)
+    v_optimizer = torch.optim.Adam(v_network.parameters(), lr=config.vf_lr)
+    q_optimizer = torch.optim.Adam(q_network.parameters(), lr=config.qf_lr)
+    actor_optimizer = torch.optim.Adam(actor.parameters(), lr=config.actor_lr)
+    kwargs = {
+        "max_action": max_action,
+        "actor": actor,
+        "actor_optimizer": actor_optimizer,
+        "q_network": q_network,
+        "q_optimizer": q_optimizer,
+        "v_network": v_network,
+        "v_optimizer": v_optimizer,
+        "discount": config.discount,
+        "tau": config.tau,
+        "device": device,
+        # IQL
+        "beta": config.beta,
+        "iql_tau": config.iql_tau,
+        "max_steps": max_steps,
+    }
+    return ImplicitQLearning(**kwargs)
+
+def go_online(config, trainer, init_horizon, state_dim, action_dim, max_action):
+    if config.n_curriculum_stages == 1:
+        init_horizon = 0
+    if config.guide_heuristic_fn is not None:
+        guide = getattr(guide_heuristics, config.guide_heuristic_fn)
+    elif trainer is None:
+        guide_trainer = make_actor(config, state_dim, action_dim, max_action)
+        guide = load_guide(guide_trainer, Path(config.pretrained_policy_path))
+        guide.eval()
+    else:
+        guide = trainer.actor
+        guide_trainer = trainer
+        guide.eval()
+    trainer = make_actor(config, state_dim, action_dim, max_action)
+    if config.n_curriculum_stages == 1 and config.guide_heuristic_fn is None:
+        state_dict = guide_trainer.state_dict()
+        trainer.partial_load_state_dict(state_dict)
+    trainer.total_it = config.offline_iterations # iterations done so far
+    config = prepare_finetuning(init_horizon, config)
+    return trainer, guide, config
+
+def variance_horizon(_, s, _e, config):
+    use_learner = False
+    var = config.vf(torch.Tensor(s))
+
+    if np.isnan(config.curriculum_stage):
+        return True, var
+    if (
+        var <= config.curriculum_stage
+        and config.ep_agent_type <= config.agent_type_stage
+    ):
+        use_learner = True
+    return use_learner, var
 
 def timestep_horizon(step, _s, _e, config):
     use_learner = False
@@ -129,6 +217,11 @@ HORIZON_FNS = {
         "accumulator_fn": mean_accumulator,
         "generate_curriculum_fn": min_to_max_curriculum,
     },
+    "variance": {
+        "horizon_fn": variance_horizon,
+        "accumulator_fn": max_accumulator,
+        "generate_curriculum_fn": min_to_max_curriculum,
+    }
 }
 
 
@@ -148,7 +241,7 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
     if use_learner:
         # other than the actual learner, this may also be the training guide policy,
         # or the guide being evaluated before online training starts
-        if not isinstance(learner, iql.GaussianPolicy):
+        if not isinstance(learner, GaussianPolicy):
             action = learner(env, state)
         else:
             if eval:
@@ -158,7 +251,7 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
                     torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
                 )
     else:
-        if not isinstance(guide, iql.GaussianPolicy):
+        if not isinstance(guide, GaussianPolicy):
             action = guide(env, state)
         else:
             action = guide.act(state, device)

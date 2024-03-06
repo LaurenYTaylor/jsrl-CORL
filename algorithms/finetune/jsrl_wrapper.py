@@ -1,9 +1,7 @@
 # source: https://github.com/gwthomas/IQL-PyTorch
 # https://arxiv.org/pdf/2110.06169.pdf
 import os
-import sys
 from dataclasses import asdict, dataclass, field
-from collections import defaultdict
 
 from pathlib import Path
 
@@ -20,15 +18,11 @@ from gymnasium.wrappers import StepAPICompatibility
 
 
 from iql import (
-    DeterministicPolicy,
     ENVS_WITH_GOAL,
     GaussianPolicy,
-    ImplicitQLearning,
     ReplayBuffer,
     TrainConfig,
     Tuple,
-    TwinQ,
-    ValueFunction,
     compute_mean_std,
     is_goal_reached,
     modify_reward,
@@ -73,6 +67,7 @@ def eval_actor(
     horizons_reached = []
     agent_types = []
     for i in range(config.n_episodes):
+        print(f"Eval {i}/{config.n_episodes}")
         if i == 0:
             try:
                 env.seed(config.seed)
@@ -135,40 +130,28 @@ def eval_actor(
         np.mean(agent_types),
     )
 
-def make_actor(config: JsrlTrainConfig, state_dim, action_dim, max_action, device=None, max_steps=None):
-    if device is None:
-        device = config.device
-    q_network = TwinQ(state_dim, action_dim).to(device)
-    v_network = ValueFunction(state_dim).to(device)
-    actor = (
-        DeterministicPolicy(
-            state_dim, action_dim, max_action, dropout=config.actor_dropout
+def jsrl_online_actor(config, env, actor, trainer):
+    state_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.shape[0]
+    max_action = float(env.action_space.high[0])
+    config.curriculum_stage = np.nan
+    _, _, init_horizon, _ = eval_actor(env, actor, None, config)
+    trainer, guide, config = jsrl.go_online(config, trainer, init_horizon, state_dim, action_dim, max_action)
+    return trainer, guide, config
+
+def get_online_buffer(config, replay_buffer, state_dim, action_dim):
+    if config.new_online_buffer:
+        if replay_buffer is not None:
+            del replay_buffer
+        online_replay_buffer = ReplayBuffer(
+            state_dim,
+            action_dim,
+            config.online_buffer_size,
+            config.device,
         )
-        if config.iql_deterministic
-        else GaussianPolicy(
-            state_dim, action_dim, max_action, dropout=config.actor_dropout
-        )
-    ).to(device)
-    v_optimizer = torch.optim.Adam(v_network.parameters(), lr=config.vf_lr)
-    q_optimizer = torch.optim.Adam(q_network.parameters(), lr=config.qf_lr)
-    actor_optimizer = torch.optim.Adam(actor.parameters(), lr=config.actor_lr)
-    kwargs = {
-        "max_action": max_action,
-        "actor": actor,
-        "actor_optimizer": actor_optimizer,
-        "q_network": q_network,
-        "q_optimizer": q_optimizer,
-        "v_network": v_network,
-        "v_optimizer": v_optimizer,
-        "discount": config.discount,
-        "tau": config.tau,
-        "device": device,
-        # IQL
-        "beta": config.beta,
-        "iql_tau": config.iql_tau,
-        "max_steps": max_steps,
-    }
-    return kwargs
+    else:
+        online_replay_buffer = replay_buffer
+    return online_replay_buffer
 
 def train(config: JsrlTrainConfig):
     try:
@@ -182,13 +165,11 @@ def train(config: JsrlTrainConfig):
 
     is_env_with_goal = config.env.startswith(ENVS_WITH_GOAL)
 
-
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
 
     if config.downloaded_dataset:
         downloaded_data = {}
-
         def get_keys(f, dataset):
             for k in f.keys():
                 try:
@@ -207,6 +188,7 @@ def train(config: JsrlTrainConfig):
         config.normalize_reward = False
         config.normalize = False
 
+    replay_buffer = None
     if dataset is not None:
         reward_mod_dict = {}
         if config.normalize_reward:
@@ -258,14 +240,16 @@ def train(config: JsrlTrainConfig):
 
     # Initialize actor
     if config.pretrained_policy_path is None and config.guide_heuristic_fn is None:
-        training_kwargs = make_actor(config, state_dim, action_dim, max_action, max_steps=config.offline_iterations)
-        trainer = ImplicitQLearning(**training_kwargs)
+        trainer = jsrl.make_actor(config, state_dim, action_dim, max_action, max_steps=config.offline_iterations)
         if config.load_model != "":
             policy_file = Path(config.load_model)
             trainer.load_state_dict(torch.load(policy_file))
             actor = trainer.actor
         else:
             actor = trainer.actor
+    else:
+        trainer = None
+        actor = None
     
     wandb_init(asdict(config))
 
@@ -283,80 +267,22 @@ def train(config: JsrlTrainConfig):
     eval_successes = []
     train_successes = []
 
-    jsrl.horizon_str = config.horizon_fn
 
+    jsrl.horizon_str = config.horizon_fn
     if config.pretrained_policy_path is not None:
-        if config.guide_heuristic_fn:
-            sys.exit("Guide can be a pretrained policy OR a heuristic,\
-                        but you have provided both. Please choose one.")
-        training_kwargs = make_actor(config, state_dim, action_dim, max_action)
-        guide_trainer = ImplicitQLearning(**training_kwargs)
-        guide = jsrl.load_guide(guide_trainer, Path(config.pretrained_policy_path))
-        guide.eval()
-        config.curriculum_stage = np.nan
-        _, _, init_horizon, _ = eval_actor(env, guide, None, config)
-        if config.n_curriculum_stages == 1:
-            init_horizon = 0
-        config = jsrl.prepare_finetuning(init_horizon, config)
         config.offline_iterations = 0
-        kwargs = make_actor(config, state_dim, action_dim, max_action)
-        trainer = ImplicitQLearning(**kwargs)
-        if config.n_curriculum_stages == 1:
-            state_dict = guide_trainer.state_dict()
-            trainer.partial_load_state_dict(state_dict)
-        kwargs["max_steps"] = config.offline_iterations
-        actor = trainer.actor
-        trainer.total_it = config.offline_iterations
-    else:
-        guide = None
 
     print("Offline pretraining")
     for t in range(int(config.offline_iterations) + int(config.online_iterations)):
         if t == config.offline_iterations:
             print("Online tuning")
-            if config.pretrained_policy_path is None:
-                config.curriculum_stage = np.nan
-                if config.guide_heuristic_fn is not None:
-                    actor = getattr(guide_heuristics, config.guide_heuristic_fn)
-                    
-                from variance_learner import VarianceLearner
-                vl = VarianceLearner(state_dim, action_dim, config, None)
-                vl.run_training(eval_env, max_steps)
-                var_est = vl.varf
-                return
-                _, _, init_horizon, _ = eval_actor(env, actor, guide, config)
-                if config.n_curriculum_stages == 1:
-                    init_horizon = 0
-                if config.guide_heuristic_fn is not None:
-                    guide = getattr(guide_heuristics, config.guide_heuristic_fn)
-                else:
-                    guide = trainer.actor
-                    guide_trainer = trainer
-                    #del trainer
-                    guide.eval()
-                kwargs = make_actor(config, state_dim, action_dim, max_action)
-                trainer = ImplicitQLearning(**kwargs)
-                if config.n_curriculum_stages == 1 and config.guide_heuristic_fn is None:
-                    state_dict = guide_trainer.state_dict()
-                    trainer.partial_load_state_dict(state_dict)
-                trainer.total_it = config.offline_iterations # iterations done so far
-                actor = trainer.actor
-                actor.train()
-                config = jsrl.prepare_finetuning(init_horizon, config)
-            if config.new_online_buffer:
-                try:
-                    del replay_buffer
-                except UnboundLocalError:
-                    pass
-                online_replay_buffer = ReplayBuffer(
-                    state_dim,
-                    action_dim,
-                    config.online_buffer_size,
-                    config.device,
-                )
-
-            else:
-                online_replay_buffer = replay_buffer
+            if config.guide_heuristic_fn is not None:
+                actor = getattr(guide_heuristics, config.guide_heuristic_fn)
+            if config.horizon_fn == "variance":
+                config = jsrl.get_var_predictor(env, config, max_steps)
+            trainer, guide, config = jsrl_online_actor(config, env, actor, trainer)
+            actor = trainer.actor
+            online_replay_buffer = get_online_buffer(config, replay_buffer, state_dim, action_dim)
 
         online_log = {}
         if t >= config.offline_iterations:
@@ -375,7 +301,7 @@ def train(config: JsrlTrainConfig):
                 actor,
                 guide,
                 config,
-                kwargs["device"],
+                config.device,
             )
 
             if use_learner:
@@ -411,12 +337,12 @@ def train(config: JsrlTrainConfig):
             state = next_state
             if done:
                 if seed_set:
-                    state, done = env.reset(), False
+                    state = env.reset()
                 else:
                     # just use seed_set to know if it's a gymnasium env,
                     # don't actually need to reseed
                     state, _ = env.reset()
-                    done = False
+                done = False
                 # Valid only for envs with goal, e.g. AntMaze, Adroit
                 if is_env_with_goal:
                     train_successes.append(goal_achieved)
