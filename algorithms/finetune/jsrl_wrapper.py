@@ -48,7 +48,7 @@ class JsrlTrainConfig(TrainConfig):
     downloaded_dataset: str = None
     new_online_buffer: bool = True
     online_buffer_size: int = 10000
-    max_init_horizon: bool = True
+    max_init_horizon: bool = False
     env_config: dict = field(default_factory= lambda: {})
     guide_heuristic_fn: str = None
 
