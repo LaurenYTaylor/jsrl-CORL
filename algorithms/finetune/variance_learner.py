@@ -208,3 +208,18 @@ class StateDepFunction(nn.Module):
     def forward(self, state: torch.Tensor) -> torch.Tensor:
         return self.v(state)
     
+
+if __name__ == "__main__":
+    path = "jsrl-CORL/algorithms/finetune/var_functions/antmaze-umaze-diverse_None_10000.pt"
+
+    env = gym.make("antmaze-umaze-diverse-v2")
+    max_steps = env._max_episode_steps
+    state_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.shape[0]
+
+    vf = StateDepFunction(state_dim)
+    vf = vf.load_state_dict(torch.load(path))
+    variance_learner = VarianceLearner(state_dim, action_dim, None, None).run_training(env, max_steps)
+    variance_learner.vf = vf
+
+    variance_learner.test_model(env, max_steps)

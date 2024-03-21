@@ -51,3 +51,12 @@ build_and_run_antmaze:
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	-v ".:/workspace/jsrl-CORL" \
 	jsrl-corl python $(RUN_FILE) --horizon_fn variance --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --device cpu --name IQL-test ;
+
+run_variance_learner:
+	sudo docker run \
+	-it \
+	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
+	-v ./algorithms/finetune/var_functions:/workspace/jsrl-CORL/algorithms/finetune/var_functions \
+	-v ./algorithms/finetune/wandb:/workspace/wandb \
+	-v ".:/workspace/jsrl-CORL" \
+	jsrl-corl python jsrl-CORL/algorithms/finetune/variance_learner.py
