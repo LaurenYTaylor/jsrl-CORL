@@ -121,7 +121,7 @@ def min_to_max_curriculum(init_horizon, n_curriculum_stages):
 HORIZON_FNS = {
     "time_step": {
         "horizon_fn": timestep_horizon,
-        "accumulator_fn": max_accumulator,
+        "accumulator_fn": mean_accumulator,
         "generate_curriculum_fn": max_to_min_curriculum,
     },
     "goal_dist": {
