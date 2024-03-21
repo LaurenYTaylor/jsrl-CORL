@@ -131,6 +131,7 @@ def make_actor(config, state_dim, action_dim, max_action, device=None, max_steps
 def get_guide_agent(config, trainer, state_dim, action_dim, max_action):
     if config.guide_heuristic_fn is not None:
         guide = getattr(guide_heuristics, config.guide_heuristic_fn)
+        guide_trainer = None
     elif trainer is None:
         guide_trainer = make_actor(config, state_dim, action_dim, max_action)
         guide = load_guide(guide_trainer, Path(config.pretrained_policy_path))
@@ -210,7 +211,7 @@ def min_to_max_curriculum(init_horizon, n_curriculum_stages):
 HORIZON_FNS = {
     "time_step": {
         "horizon_fn": timestep_horizon,
-        "accumulator_fn": max_accumulator,
+        "accumulator_fn": mean_accumulator,
         "generate_curriculum_fn": max_to_min_curriculum,
     },
     "goal_dist": {
@@ -220,7 +221,7 @@ HORIZON_FNS = {
     },
     "variance": {
         "horizon_fn": variance_horizon,
-        "accumulator_fn": max_accumulator,
+        "accumulator_fn": mean_accumulator,
         "generate_curriculum_fn": min_to_max_curriculum,
     }
 }

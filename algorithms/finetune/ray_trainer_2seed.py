@@ -19,7 +19,7 @@ def run_training(seed, train_config):
 
 @pyrallis.wrap()
 def run(train_config: JsrlTrainConfig, extra_config: dict):
-    extra_config["seeds"] = range(train_config["seed"], train_config["seed"]+2)
+    #extra_config["seeds"] = range(train_config["seed"], train_config["seed"]+2)
     rt_w_options = run_training.options(num_gpus=extra_config["gpu_frac"])
     object_references = [
         rt_w_options.remote(seed, train_config) for seed in extra_config["seeds"]
