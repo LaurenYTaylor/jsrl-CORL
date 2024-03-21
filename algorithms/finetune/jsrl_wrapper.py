@@ -119,7 +119,6 @@ def eval_actor(
         horizon = np.max(horizons_reached)
     else:
         horizon = np.mean(horizons_reached)
-    print(horizon)
     
     if isinstance(learner, GaussianPolicy):
         learner.train()
