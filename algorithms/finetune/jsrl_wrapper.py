@@ -51,6 +51,7 @@ class JsrlTrainConfig(TrainConfig):
     max_init_horizon: bool = False
     env_config: dict = field(default_factory= lambda: {})
     guide_heuristic_fn: str = None
+    no_agent_types: bool = False
 
 
 @torch.no_grad()

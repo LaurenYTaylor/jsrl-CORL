@@ -69,7 +69,10 @@ def prepare_finetuning(init_horizon, config):
     curriculum_stages = HORIZON_FNS[config.horizon_fn]["generate_curriculum_fn"](
         init_horizon, config.n_curriculum_stages
     )
-    config.all_agent_types = np.linspace(0, 1, config.n_curriculum_stages)
+    if config.no_agent_types:
+        config.all_agent_types = np.linspace(1, 1, config.n_curriculum_stages)
+    else:
+        config.all_agent_types = np.linspace(0, 1, config.n_curriculum_stages)
     config.all_curriculum_stages = curriculum_stages
     config.curriculum_stage_idx = 0
     config.curriculum_stage = curriculum_stages[config.curriculum_stage_idx]
