@@ -68,7 +68,7 @@ def eval_actor(
     horizons_reached = []
     agent_types = []
     for i in range(config.n_episodes):
-        print(f"Eval {i}/{config.n_episodes}")
+        #print(f"Eval {i}/{config.n_episodes}")
         if i == 0:
             try:
                 env.seed(config.seed)
@@ -131,7 +131,7 @@ def eval_actor(
         np.mean(agent_types),
     )
 
-def jsrl_online_actor(config, env, actor, trainer):
+def jsrl_online_actor(config, env, actor, trainer, max_steps):
     env_info = {"state_dim": env.observation_space.shape[0],
                 "action_dim": env.action_space.shape[0],
                 "max_action": float(env.action_space.high[0])
@@ -140,6 +140,8 @@ def jsrl_online_actor(config, env, actor, trainer):
     if config.n_curriculum_stages == 1:
         init_horizon = 0
     guide, guide_trainer = jsrl.get_guide_agent(config, trainer, **env_info)
+    if config.horizon_fn == "variance":
+        config = jsrl.get_var_predictor(env, config, max_steps, guide)
     _, _, init_horizon, _ = eval_actor(env, guide, None, config)
     trainer, config = jsrl.get_learning_agent(config, guide_trainer, init_horizon, **env_info)
     return trainer, guide, config
@@ -283,9 +285,7 @@ def train(config: JsrlTrainConfig):
             print("Online tuning")
             if config.guide_heuristic_fn is not None:
                 actor = getattr(guide_heuristics, config.guide_heuristic_fn)
-            if config.horizon_fn == "variance":
-                config = jsrl.get_var_predictor(env, config, max_steps)
-            trainer, guide, config = jsrl_online_actor(config, env, actor, trainer)
+            trainer, guide, config = jsrl_online_actor(config, env, actor, trainer, max_steps)
             actor = trainer.actor
             online_replay_buffer = get_online_buffer(config, replay_buffer, state_dim, action_dim)
 
@@ -382,7 +382,7 @@ def train(config: JsrlTrainConfig):
             wandb.log(log_dict, step=trainer.total_it)
             # Evaluate episode
             if (t + 1) % config.eval_freq == 0:
-                print(f"Time steps: {t + 1}")
+                #print(f"Time steps: {t + 1}")
                 if guide is None:
                     config.curriculum_stage = np.nan
                 else:
@@ -416,13 +416,13 @@ def train(config: JsrlTrainConfig):
                     eval_log["eval/d4rl_normalized_score"] = normalized_eval_score
                 else:
                     eval_log["eval/score"] = normalized
-                print("---------------------------------------")
+                #print("---------------------------------------")
                 eval_str = f"Evaluation over {config.n_episodes} episodes: "\
                     f"{eval_score:.3f}"
                 if config.normalize_reward:
                     eval_str += " , D4RL score: {normalized_eval_score:.3f}"
-                print(eval_str)
-                print("---------------------------------------")
+                #print(eval_str)
+                #print("---------------------------------------")
                 if config.checkpoints_path is not None:
                     torch.save(
                         trainer.state_dict(),

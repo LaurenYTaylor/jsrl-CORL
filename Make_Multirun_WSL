@@ -15,12 +15,12 @@ build:
 
 run1:
 	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 1000 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn variance ;
+	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 2000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 1000 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step --n_curriculum_stages 1 ;
 	sh check_stopped.sh ;
 
 run2:
 	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE_2) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 1000 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn variance ;
+	jsrl-corl python $(RUN_FILE_2) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 500000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 1000 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step --n_curriculum_stages 1 ;
 	sh check_stopped.sh ;
 
 run3:
@@ -58,4 +58,4 @@ run9:
 	jsrl-corl python $(RUN_FILE) --horizon_fn variance --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-large-diverse-v2-offline/checkpoint_999999.pt --offline_iterations 0 ;
 	sh check_stopped.sh ;
 
-build_and_run: build run6 run7 run8 run9
+build_and_run: build run1 run2

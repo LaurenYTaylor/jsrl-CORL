@@ -22,6 +22,7 @@ def run_episodes(
 ) -> Tuple[np.ndarray, np.ndarray]:
     states = []
     next_states = []
+    next_dones = []
     rewards = []
     dones = []
 
@@ -31,42 +32,45 @@ def run_episodes(
     else:
         cond = lambda x: x < len(seeds)
         ep = seeds[0]
-    
+    next_done = False
     while cond(ep):
-        done = False
         if isinstance(seeds, list) or ep == seeds:
             try:
                 env.seed(ep)
-                state = env.reset()
+                next_state = env.reset()
             except AttributeError:
-                state, _ = env.reset(seed=ep)
+                next_state, _ = env.reset(seed=ep)
                 env.action_space.seed(ep)
         else:
-            state = env.reset()
-            if isinstance(state, tuple):
-                state, _ = state
+            next_state = env.reset()
+            if isinstance(next_state, tuple):
+                next_state, _ = next_state
         ts = 0
-        while not done:
-            states.append(to_tensor(state))
-            dones.append(done)
+        next_done = False
+        while not next_done:
+            states.append(to_tensor(next_state))
+            dones.append(next_done)
             if actor is None:
                 action = env.action_space.sample()
             else:
-                action = actor(env, state)
+                try:
+                    action = actor(env, next_state)
+                except TypeError:
+                    action = actor.act(next_state, "cpu")
             next_state, reward, next_done, _ = env.step(action)
+            if "antmaze" in env.unwrapped.spec.name:
+                reward -= 1
             real_done = False  # Episode can timeout which is different from done
-            if next_done and ts < max_steps:
+            if next_done and ts < max_steps-1:
                 real_done = True
-            next_done = real_done
             rewards.append(reward)
             next_states.append(to_tensor(next_state))
+            next_dones.append(real_done)
             if batch_size is not None and len(states) == batch_size:
-                return states, rewards, dones, next_states, next_done
-            done = next_done
-            state = next_state
+                return states, rewards, dones, next_states, next_dones
             ts += 1
         ep += 1
-    return states, rewards, dones, next_states, next_done
+    return states, rewards, dones, next_states, next_dones
 
 def nll_loss(pred: torch.Tensor, target: torch.Tensor, var: torch.Tensor) -> torch.Tensor:
     loss = torch.nn.functional.gaussian_nll_loss(pred, target, var)
@@ -90,38 +94,38 @@ class VarianceLearner:
         self.m_optimizer = torch.optim.Adam(self.mf.parameters(), lr=.0001)
         self.mv_optimizer = torch.optim.Adam(self.vf.parameters(), lr=.0001)
 
-    def get_values(self, obs, rewards, next_obs, dones, next_done):
+    def get_values(self, obs, rewards, next_obs, dones, next_dones):
         batch_size = len(obs)
         values_samp = torch.zeros(batch_size)
         values_pred = torch.zeros(batch_size)
         variance_pred = torch.zeros(batch_size)
         for t in reversed(range(batch_size)):
             if t == batch_size - 1:
-                nextnonterminal = 1.0 - next_done
+                nextnonterminal = 1.0 - next_dones[t]
                 next_val = self.mf(next_obs[t])
             else:
-                nextnonterminal = 1.0 - dones[t+1]
+                nextnonterminal = 1.0 - next_dones[t]
                 next_val = values_samp[t+1]
             values_pred[t], variance_pred[t] = self.mf(obs[t]), self.vf(obs[t])
             variance_pred[t] = torch.clip(torch.exp(variance_pred[t]), 1e-4, 100000000)
-            values_samp[t] = rewards[t] + GAMMA * next_val * nextnonterminal
+            values_samp[t] = rewards[t-1] + GAMMA * next_val * nextnonterminal
         return values_samp, values_pred, variance_pred
 
-    def _update_v(self, batch, curr_iter) -> torch.Tensor:
+    def _update_v(self, batch, update_vf) -> torch.Tensor:
         # Update value function
         (
             observations,
             rewards,
             dones,
             next_observations,
-            next_done
+            next_dones
         ) = batch
 
         log_dict = {}
-        values_samp, values_pred, variance_pred = self.get_values(observations, rewards, next_observations, dones, next_done)
+        values_samp, values_pred, variance_pred = self.get_values(observations, rewards, next_observations, dones, next_dones)
         v_loss = nll_loss(values_pred, values_samp, variance_pred)
 
-        if curr_iter > 5000:
+        if update_vf:
             self.mv_optimizer.zero_grad()
             v_loss.backward()
             self.mv_optimizer.step()
@@ -137,12 +141,12 @@ class VarianceLearner:
 
         return log_dict
 
-    def run_training(self, env, max_steps, n_updates=10000, evaluate=False):
+    def run_training(self, env, max_steps, actor, n_updates=10000, evaluate=False):
         vf_losses = []
         log_freq = 10
         for n in range(n_updates):
-            batch = run_episodes(env, max_steps, n, batch_size=self.batch_size)
-            log_dict = self._update_v(batch, n)
+            batch = run_episodes(env, max_steps, n, actor, batch_size=self.batch_size)
+            log_dict = self._update_v(batch, update_vf=(n>n_updates/2))
             if n%log_freq == 0:
                 print(f"Iteration {n}/{n_updates}:")
                 for k,v in log_dict.items():
@@ -159,16 +163,16 @@ class VarianceLearner:
 
         if evaluate:
             plt.plot(vf_losses)
-            plt.savefig(f"{save_path}/losses_vf.png")
-            self.test_model(env, max_steps)
+            plt.savefig(f"{save_path}/losses_vf_{env.unwrapped.spec.name}.png")
+            self.test_model(env, max_steps, actor)
         torch.save(self.vf.state_dict(), f"{save_path}/{env.unwrapped.spec.name}_{self.actor}_{n_updates}.pt")
-
+        torch.save(self.mf.state_dict(), f"{save_path}/{env.unwrapped.spec.name}_{self.actor}_{n_updates}.pt")
         del self.mf
         return self.vf
     
-    def test_model(self, env, max_steps):
-        states, rewards, dones, next_states, next_done = run_episodes(env, max_steps, seeds=[0]*15)
-        values_samp, values_pred, variance_pred = self.get_values(states, rewards, next_states, dones, next_done)
+    def test_model(self, env, max_steps, actor):
+        states, rewards, dones, next_states, next_dones = run_episodes(env, max_steps, actor=actor, seeds=[0]*15)
+        values_samp, values_pred, variance_pred = self.get_values(states, rewards, next_states, dones, next_dones)
         stds_pred = torch.sqrt(variance_pred)
         
         state_keys, val_y_samp, val_y_pred, std_y_pred = {}, {}, {}, {}
@@ -196,8 +200,8 @@ class VarianceLearner:
         true_y = np.array(true_y)
         pred_y = np.array(pred_y)
 
-        np.save("jsrl-CORL/algorithms/finetune/true_y.npy", true_y)
-        np.save("jsrl-CORL/algorithms/finetune/pred_y.npy", pred_y)  
+        np.save(f"jsrl-CORL/algorithms/finetune/true_y_{env.unwrapped.spec.name}.npy", true_y)
+        np.save(f"jsrl-CORL/algorithms/finetune/pred_y_{env.unwrapped.spec.name}.npy", pred_y)  
 
 class StateDepFunction(nn.Module):
     def __init__(self, state_dim: int, hidden_dim: int = 256, n_hidden: int = 2):
@@ -210,16 +214,16 @@ class StateDepFunction(nn.Module):
     
 
 if __name__ == "__main__":
-    path = "jsrl-CORL/algorithms/finetune/var_functions/antmaze-umaze-diverse_None_10000.pt"
+    path = "jsrl-CORL/algorithms/finetune/var_functions/antmaze-umaze_None_10000.pt"
 
-    env = gym.make("antmaze-umaze-diverse-v2")
+    env = gym.make("antmaze-umaze-v2")
     max_steps = env._max_episode_steps
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
 
     vf = StateDepFunction(state_dim)
-    vf = vf.load_state_dict(torch.load(path))
-    variance_learner = VarianceLearner(state_dim, action_dim, None, None).run_training(env, max_steps)
+    vf.load_state_dict(torch.load(path))
+    variance_learner = VarianceLearner(state_dim, action_dim, None, None)
     variance_learner.vf = vf
 
     variance_learner.test_model(env, max_steps)

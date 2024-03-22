@@ -83,16 +83,17 @@ def prepare_finetuning(init_horizon, config):
     config.rolling_mean_rews = deque(maxlen=config.rolling_mean_n)
     return config
 
-def get_var_predictor(env, config, max_steps):
+def get_var_predictor(env, config, max_steps, guide):
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
+    n_updates = 10000
     if config.horizon_fn == "variance":
         var_actor = None
         try:
             vf = StateDepFunction(state_dim)
-            vf.load_state_dict(torch.load(f"jsrl-CORL/algorithms/finetune/var_functions/{env.unwrapped.spec.name}_{var_actor}_10000.pt"))
+            vf.load_state_dict(torch.load(f"jsrl-CORL/algorithms/finetune/var_functions/{env.unwrapped.spec.name}_{var_actor}_{n_updates}.pt"))
         except FileNotFoundError:
-            vf = VarianceLearner(state_dim, action_dim, config, var_actor).run_training(env, max_steps)
+            vf = VarianceLearner(state_dim, action_dim, config, var_actor).run_training(env, max_steps, guide, n_updates=n_updates, evaluate=True)
         config.vf = vf.eval()
     return config
 
@@ -161,7 +162,8 @@ def variance_horizon(_, s, _e, config):
     if np.isnan(config.curriculum_stage):
         return True, var
     if (
-        var <= config.curriculum_stage
+        (var <= config.curriculum_stage
+         or config.curriculum_stage_idx == (config.n_curriculum_stages-1))
         and config.ep_agent_type <= config.agent_type_stage
     ):
         use_learner = True
@@ -172,7 +174,8 @@ def timestep_horizon(step, _s, _e, config):
     if np.isnan(config.curriculum_stage):
         return True, step
     if (
-        step >= config.curriculum_stage
+        (step >= config.curriculum_stage
+         or config.curriculum_stage_idx == (config.n_curriculum_stages-1))
         and config.ep_agent_type <= config.agent_type_stage
     ):
         use_learner = True
@@ -185,7 +188,8 @@ def goal_distance_horizon(_t, s, env, config):
     if np.isnan(config.curriculum_stage):
         return True, goal_dist
     if (
-        goal_dist <= config.curriculum_stage
+        (goal_dist <= config.curriculum_stage
+        or config.curriculum_stage_idx == (config.n_curriculum_stages-1))
         and config.ep_agent_type <= config.agent_type_stage
     ) or (
         goal_dist > config.all_curriculum_stages[-1]

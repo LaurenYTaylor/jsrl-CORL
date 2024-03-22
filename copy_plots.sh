@@ -1,6 +1,9 @@
 #!/bin/bash
-container_id=$(sudo docker container ps -a -q)
-echo $container_id
+container_ids=$(sudo docker container ps -a -q)
+IFS=''
+read -ra container_id_list <<<"$container_ids"
+container_id=${container_id_list[0]}
+echo ${container_id}
 docker cp $container_id:workspace/jsrl-CORL/algorithms/finetune/losses_vf.png plots/
 mv plots/losses_vf.png "plots/${container_id}_losses_vf.png"
 docker cp $container_id:workspace/jsrl-CORL/algorithms/finetune/pred_y.npy plots/
