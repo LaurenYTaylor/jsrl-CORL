@@ -56,7 +56,10 @@ def run_episodes(
                 try:
                     action = actor(env, next_state)
                 except TypeError:
-                    action = actor.act(next_state, "cpu")
+                    try:
+                        action = actor.act(next_state, "cpu")
+                    except RuntimeError:
+                        action = actor.act(next_state, "cuda")
             next_state, reward, next_done, _ = env.step(action)
             if "antmaze" in env.unwrapped.spec.name:
                 reward -= 1
