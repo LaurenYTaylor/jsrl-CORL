@@ -25,7 +25,7 @@ run2:
 
 run3:
 	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 1000 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step ;
+	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 500000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 1000 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step ;
 	sh check_stopped.sh ;
 
 run4:
