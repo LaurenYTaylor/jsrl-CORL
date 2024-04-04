@@ -50,7 +50,7 @@ def run_episodes(
         while not next_done:
             states.append(to_tensor(next_state))
             dones.append(next_done)
-            if actor is None:
+            if actor is None or np.random.random() < 0.1:
                 action = env.action_space.sample()
             else:
                 try:
