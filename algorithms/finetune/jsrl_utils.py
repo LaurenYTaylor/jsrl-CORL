@@ -88,10 +88,18 @@ def get_var_predictor(env, config, max_steps, guide):
     action_dim = env.action_space.shape[0]
     n_updates = 10000
     if config.horizon_fn == "variance":
-        var_actor = None
+        var_actor = guide
         try:
             vf = StateDepFunction(state_dim)
-            vf.load_state_dict(torch.load(f"jsrl-CORL/algorithms/finetune/var_functions/{env.unwrapped.spec.name}_{var_actor}_{n_updates}.pt"))
+            mf = StateDepFunction(state_dim)
+            fn = f"jsrl-CORL/algorithms/finetune/var_functions/{env.unwrapped.spec.name}_guide_{n_updates}_{str(config.variance_learn_frac).replace('.','-')}"
+            #fn = "skfhskd"
+            vf.load_state_dict(torch.load(fn+"_vf.pt"))
+            mf.load_state_dict(torch.load(fn+"_mf.pt"))
+            #v_learner = VarianceLearner(state_dim, action_dim, config, var_actor)
+            #v_learner.vf = vf
+            #v_learner.mf = mf
+            #v_learner.test_model(env, max_steps, guide)
         except FileNotFoundError:
             vf = VarianceLearner(state_dim, action_dim, config, var_actor).run_training(env, max_steps, guide, n_updates=n_updates, evaluate=True)
         config.vf = vf.eval()

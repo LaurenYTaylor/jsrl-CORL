@@ -4,7 +4,7 @@ from copy import deepcopy
 import sys
 
 env = gym.make(
-    'FetchReach-v2',
+    "MiniGrid-DoorKey-16x16-v0",
     render_mode="human"
 )
 

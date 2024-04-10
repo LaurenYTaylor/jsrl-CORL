@@ -52,6 +52,7 @@ class JsrlTrainConfig(TrainConfig):
     env_config: dict = field(default_factory= lambda: {})
     guide_heuristic_fn: str = None
     no_agent_types: bool = False
+    variance_learn_frac: float = 0.5
 
 
 @torch.no_grad()
