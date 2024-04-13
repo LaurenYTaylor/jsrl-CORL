@@ -27,9 +27,11 @@ def add_jsrl_metrics(eval_log, config):
 
 
 def horizon_update_callback(config, eval_reward):
-    config.rolling_mean_rews.append(eval_reward)
-    rolling_mean = np.mean(config.rolling_mean_rews)
-    if config.curriculum_stage == config.all_curriculum_stages[-1]:
+    #config.rolling_mean_rews.append(eval_reward)
+    #rolling_mean = np.mean(config.rolling_mean_rews)
+    rolling_mean = eval_reward
+    #if config.curriculum_stage == config.all_curriculum_stages[-1]:
+    if config.agent_type_stage == 1.0:
         return config
     if not np.isinf(config.best_eval_score):
         prev_best = config.best_eval_score - config.tolerance * config.best_eval_score
@@ -37,16 +39,18 @@ def horizon_update_callback(config, eval_reward):
         prev_best = config.best_eval_score
 
     if (
-        len(config.rolling_mean_rews) == config.rolling_mean_n
-        and rolling_mean >= prev_best
+        rolling_mean >= config.best_eval_score
     ):
-        config.curriculum_stage_idx += 1
-        config.curriculum_stage = config.all_curriculum_stages[
-            config.curriculum_stage_idx
-        ]
-        config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
+        #config.curriculum_stage_idx += 1
+        config.agent_type_stage = min(1.0, config.agent_type_stage+config.learner_frac)
+        #config.curriculum_stage = config.all_curriculum_stages[
+        #    config.curriculum_stage_idx
+        #]
+        #config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
         print(f"curr best: {config.best_eval_score}, rolling mean: {rolling_mean}")
         config.best_eval_score = rolling_mean
+    elif rolling_mean < prev_best:
+        config.agent_type_stage = max(0.0, config.agent_type_stage-config.learner_frac)
     return config
 
 
@@ -65,22 +69,23 @@ def load_guide(trainer, pretrained):
     return guide
 
 
-def prepare_finetuning(init_horizon, config):
-    curriculum_stages = HORIZON_FNS[config.horizon_fn]["generate_curriculum_fn"](
-        init_horizon, config.n_curriculum_stages
-    )
+def prepare_finetuning(init_horizon, mean_return, config):
+    #curriculum_stages = HORIZON_FNS[config.horizon_fn]["generate_curriculum_fn"](
+    #    init_horizon, config.n_curriculum_stages
+    #)
     if config.no_agent_types:
         config.all_agent_types = np.linspace(1, 1, config.n_curriculum_stages)
     else:
         config.all_agent_types = np.linspace(0, 1, config.n_curriculum_stages)
-    config.all_curriculum_stages = curriculum_stages
+    #config.all_curriculum_stages = curriculum_stages
     config.curriculum_stage_idx = 0
-    config.curriculum_stage = curriculum_stages[config.curriculum_stage_idx]
-    config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
+    #config.curriculum_stage = curriculum_stages[config.curriculum_stage_idx]
+    #config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
+    config.agent_type_stage = 0
     if config.n_curriculum_stages == 1:
         config.agent_type_stage = 1
-    config.best_eval_score = -np.inf
-    config.rolling_mean_rews = deque(maxlen=config.rolling_mean_n)
+    config.best_eval_score = mean_return
+    #config.rolling_mean_rews = deque(maxlen=config.rolling_mean_n)
     return config
 
 def get_var_predictor(env, config, max_steps, guide):
@@ -96,10 +101,10 @@ def get_var_predictor(env, config, max_steps, guide):
             #fn = "skfhskd"
             vf.load_state_dict(torch.load(fn+"_vf.pt"))
             mf.load_state_dict(torch.load(fn+"_mf.pt"))
-            #v_learner = VarianceLearner(state_dim, action_dim, config, var_actor)
-            #v_learner.vf = vf
-            #v_learner.mf = mf
-            #v_learner.test_model(env, max_steps, guide)
+            v_learner = VarianceLearner(state_dim, action_dim, config, var_actor)
+            v_learner.vf = vf
+            v_learner.mf = mf
+            v_learner.test_model(env, max_steps, guide)
         except FileNotFoundError:
             vf = VarianceLearner(state_dim, action_dim, config, var_actor).run_training(env, max_steps, guide, n_updates=n_updates, evaluate=True)
         config.vf = vf.eval()
@@ -154,13 +159,13 @@ def get_guide_agent(config, trainer, state_dim, action_dim, max_action):
         guide.eval()
     return guide, guide_trainer
 
-def get_learning_agent(config, guide_trainer, init_horizon, state_dim, action_dim, max_action):
+def get_learning_agent(config, guide_trainer, init_horizon, mean_return, state_dim, action_dim, max_action):
     trainer = make_actor(config, state_dim, action_dim, max_action)
     if config.n_curriculum_stages == 1 and config.guide_heuristic_fn is None:
         state_dict = guide_trainer.state_dict()
         trainer.partial_load_state_dict(state_dict)
     trainer.total_it = config.offline_iterations # iterations done so far
-    config = prepare_finetuning(init_horizon, config)
+    config = prepare_finetuning(init_horizon, mean_return, config)
     return trainer, config
 
 def variance_horizon(_, s, _e, config):
@@ -216,7 +221,7 @@ def mean_accumulator(v):
 
 
 def max_to_min_curriculum(init_horizon, n_curriculum_stages):
-    return np.linspace(init_horizon, 0, n_curriculum_stages)
+    return np.linspace(0, 0, n_curriculum_stages)
 
 
 def min_to_max_curriculum(init_horizon, n_curriculum_stages):
@@ -248,12 +253,14 @@ def accumulate(vals):
 
 def learner_or_guide_action(state, step, env, learner, guide, config, device, eval=False):
     if guide is None:
-        _, horizon = HORIZON_FNS[horizon_str]["horizon_fn"](step, state, env, config)
+        horizon = 0
         use_learner = True
     else:
-        use_learner, horizon = HORIZON_FNS[horizon_str]["horizon_fn"](
-            step, state, env, config
-        )
+        if np.random.random() <= config.agent_type_stage:
+            use_learner = True
+        else:
+            use_learner = False
+        horizon = 0
 
     if use_learner:
         # other than the actual learner, this may also be the training guide policy,

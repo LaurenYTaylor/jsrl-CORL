@@ -42,7 +42,7 @@ import guide_heuristics as guide_heuristics
 class JsrlTrainConfig(TrainConfig):
     n_curriculum_stages: int = 10
     tolerance: float = 0.05
-    rolling_mean_n: int = 5
+    learner_frac: int = 0.05
     pretrained_policy_path: str = None
     horizon_fn: str = "time_step"
     downloaded_dataset: str = None
@@ -143,8 +143,9 @@ def jsrl_online_actor(config, env, actor, trainer, max_steps):
     guide, guide_trainer = jsrl.get_guide_agent(config, trainer, **env_info)
     if config.horizon_fn == "variance":
         config = jsrl.get_var_predictor(env, config, max_steps, guide)
-    _, _, init_horizon, _ = eval_actor(env, guide, None, config)
-    trainer, config = jsrl.get_learning_agent(config, guide_trainer, init_horizon, **env_info)
+    all_returns, _, init_horizon, _ = eval_actor(env, guide, None, config)
+    mean_return = np.mean(all_returns)
+    trainer, config = jsrl.get_learning_agent(config, guide_trainer, init_horizon, mean_return, **env_info)
     return trainer, guide, config
 
 def get_online_buffer(config, replay_buffer, state_dim, action_dim):
@@ -292,6 +293,7 @@ def train(config: JsrlTrainConfig):
 
         online_log = {}
         if t >= config.offline_iterations:
+            print("Iterations: ", t)
             if episode_step == 0:
                 episode_agent_types = []
                 config.ep_agent_type = 0

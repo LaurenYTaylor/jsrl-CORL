@@ -13,6 +13,20 @@ def to_tensor(data: np.ndarray) -> torch.Tensor:
     return torch.tensor(data, dtype=torch.float32)
 
 @torch.no_grad()
+def get_action(env, actor, next_state, random_frac):
+    if actor is None or np.random.random() <= random_frac:
+        action = env.action_space.sample()
+    else:
+        try:
+            action = actor(env, next_state)
+        except TypeError:
+            try:
+                action = actor.act(next_state, "cpu")
+            except RuntimeError:
+                action = actor.act(next_state, "cuda")
+    return action
+
+@torch.no_grad()
 def run_episodes(
     env: gym.Env,
     max_steps: int,
@@ -51,28 +65,20 @@ def run_episodes(
         while not next_done:
             states.append(to_tensor(next_state))
             dones.append(next_done)
-            if actor is None or np.random.random() <= random_frac:
-                action = env.action_space.sample()
-            else:
-                try:
-                    action = actor(env, next_state)
-                except TypeError:
-                    try:
-                        action = actor.act(next_state, "cpu")
-                    except RuntimeError:
-                        action = actor.act(next_state, "cuda")
+            action = get_action(env, actor, next_state, random_frac)
             next_state, reward, next_done, _ = env.step(action)
             if "antmaze" in env.unwrapped.spec.name:
                 reward -= 1
             real_done = False  # Episode can timeout which is different from done
             if next_done and ts < max_steps-1:
                 real_done = True
-            actions.append(action)
+            actions.append(to_tensor(action))
             rewards.append(reward)
             next_states.append(to_tensor(next_state))
             next_dones.append(real_done)
             if batch_size is not None and len(states) == batch_size:
-                return states, actions, rewards, dones, next_states, next_dones
+                next_action = to_tensor(get_action(env, actor, next_state, random_frac))
+                return states, actions, rewards, dones, next_states, next_dones, next_action
             ts += 1
         ep += 1
     return states, actions, rewards, dones, next_states, next_dones
@@ -105,7 +111,7 @@ class StateActionVarianceLearner:
         self.mq_optimizer = torch.optim.Adam(self.mqf.parameters(), lr=.0001)
         self.mvq_optimizer = torch.optim.Adam(self.vqf.parameters(), lr=.0001)
 
-    def get_values(self, obs, actions, rewards, next_obs, dones, next_dones):
+    def get_values(self, obs, actions, rewards, next_obs, dones, next_dones, next_action):
         batch_size = len(obs)
         values_samp = torch.zeros(batch_size)
         values_pred = torch.zeros(batch_size)
@@ -133,11 +139,12 @@ class StateActionVarianceLearner:
             rewards,
             dones,
             next_observations,
-            next_dones
+            next_dones,
+            next_action
         ) = batch
 
         log_dict = {}
-        values_samp, values_pred, variance_pred, q_values_pred, q_variance_pred = self.get_values(observations, actions, rewards, next_observations, dones, next_dones)
+        values_samp, values_pred, variance_pred, q_values_pred, q_variance_pred = self.get_values(observations, actions, rewards, next_observations, dones, next_dones, next_action)
         v_loss = nll_loss(values_pred, values_samp, variance_pred)
         q_loss = nll_loss(q_values_pred, values_samp, q_variance_pred)
 
@@ -200,7 +207,7 @@ class StateActionVarianceLearner:
         return self.vf
     
     def test_model(self, env, max_steps, actor):
-        states, rewards, dones, next_states, next_dones = run_episodes(env, max_steps, actor=actor, seeds=[0], eval=True, random_frac=0)
+        states, rewards, dones, next_states, next_dones, next_action = run_episodes(env, max_steps, actor=actor, seeds=[0,1,2,3,4,5,6,7,8,9,10], eval=True, random_frac=0)
         values_samp, values_pred, variance_pred = self.get_values(states, rewards, next_states, dones, next_dones)
         stds_pred = torch.sqrt(variance_pred)
         
@@ -240,13 +247,13 @@ class VarianceLearner:
         self.batch_size = batch_size
         self.actor=actor
         
-        self.mf = StateDepFunction(state_dim)
-        self.vf = StateDepFunction(state_dim)
+        self.mf = StateDepQFunction(state_dim, action_dim)
+        self.vf = StateDepQFunction(state_dim, action_dim)
 
         self.m_optimizer = torch.optim.Adam(self.mf.parameters(), lr=.0001)
         self.mv_optimizer = torch.optim.Adam(self.vf.parameters(), lr=.0001)
 
-    def get_values(self, obs, rewards, next_obs, dones, next_dones):
+    def get_values(self, obs, actions, rewards, next_obs, dones, next_dones, next_action):
         batch_size = len(obs)
         values_samp = torch.zeros(batch_size)
         values_pred = torch.zeros(batch_size)
@@ -254,11 +261,11 @@ class VarianceLearner:
         for t in reversed(range(batch_size)):
             if t == batch_size - 1:
                 nextnonterminal = 1.0 - next_dones[t]
-                next_val = self.mf(next_obs[t])
+                next_val = self.mf(torch.concat((next_obs[t],next_action)))
             else:
                 nextnonterminal = 1.0 - next_dones[t]
                 next_val = values_samp[t+1]
-            values_pred[t], variance_pred[t] = self.mf(obs[t]), self.vf(obs[t])
+            values_pred[t], variance_pred[t] = self.mf(torch.concat((next_obs[t],actions[t]))), self.vf(torch.concat((next_obs[t],next_action)))
             variance_pred[t] = torch.clip(torch.exp(variance_pred[t]), 1e-4, 100000000)
             values_samp[t] = rewards[t-1] + GAMMA * next_val * nextnonterminal
         return values_samp, values_pred, variance_pred
@@ -271,11 +278,12 @@ class VarianceLearner:
             rewards,
             dones,
             next_observations,
-            next_dones
+            next_dones,
+            next_action
         ) = batch
 
         log_dict = {}
-        values_samp, values_pred, variance_pred = self.get_values(observations, rewards, next_observations, dones, next_dones)
+        values_samp, values_pred, variance_pred = self.get_values(observations, actions, rewards, next_observations, dones, next_dones, next_action)
         v_loss = nll_loss(values_pred, values_samp, variance_pred)
 
         if update_vf:
@@ -328,7 +336,7 @@ class VarianceLearner:
         return self.vf
     
     def test_model(self, env, max_steps, actor):
-        states, actions, rewards, dones, next_states, next_dones = run_episodes(env, max_steps, actor=actor, seeds=[0], random_frac=0)
+        states, actions, rewards, dones, next_states, next_dones, next_action = run_episodes(env, max_steps, actor=actor, seeds=[0,1,2,3,4,5,6,7,8,9,10], random_frac=0)
         values_samp, values_pred, variance_pred = self.get_values(states, rewards, next_states, dones, next_dones)
         stds_pred = torch.sqrt(variance_pred)
         
@@ -370,9 +378,9 @@ class StateDepFunction(nn.Module):
         return self.v(state)
     
 class StateDepQFunction(nn.Module):
-    def __init__(self, state_dim: int, hidden_dim: int = 256, n_hidden: int = 2):
+    def __init__(self, state_dim: int, action_dim: int, hidden_dim: int = 256, n_hidden: int = 2):
         super().__init__()
-        dims = [state_dim+1, *([hidden_dim] * n_hidden), 1]
+        dims = [state_dim+action_dim, *([hidden_dim] * n_hidden), 1]
         self.q = MLP(dims, squeeze_output=True)
 
     def forward(self, state: torch.Tensor) -> torch.Tensor:
