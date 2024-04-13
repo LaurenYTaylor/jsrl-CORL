@@ -29,7 +29,6 @@ def add_jsrl_metrics(eval_log, config):
 def horizon_update_callback(config, eval_reward):
     #config.rolling_mean_rews.append(eval_reward)
     #rolling_mean = np.mean(config.rolling_mean_rews)
-    import pdb;pdb.set_trace()
     rolling_mean = eval_reward
     #if config.curriculum_stage == config.all_curriculum_stages[-1]:
     if config.agent_type_stage == 1.0:
