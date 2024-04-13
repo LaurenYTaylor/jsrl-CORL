@@ -42,7 +42,7 @@ import guide_heuristics as guide_heuristics
 class JsrlTrainConfig(TrainConfig):
     n_curriculum_stages: int = 10
     tolerance: float = 0.05
-    learner_frac: int = 0.05
+    learner_frac: float = 0.05
     pretrained_policy_path: str = None
     horizon_fn: str = "time_step"
     downloaded_dataset: str = None

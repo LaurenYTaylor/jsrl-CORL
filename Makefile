@@ -32,30 +32,6 @@ build_and_run_lunar:
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	-v ".:/workspace/jsrl-CORL" \
 	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --variance_learn_frac 0.0 --guide_heuristic_fn lunar_lander --offline_iterations 0 --env_config '{"continuous": True}' --eval_freq 500 --beta 10 --iql_tau 0.9 --horizon_fn variance --name IQL-test --device cpu --online_iterations 1 ;
-	sudo docker run \
-	-e WANDB_API_KEY=$(WANDB_API_KEY) \
-	-it \
-	--shm-size=10.24gb \
-	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
-	-v ./algorithms/finetune/wandb:/workspace/wandb \
-	-v ".:/workspace/jsrl-CORL" \
-	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --variance_learn_frac 0.1 --guide_heuristic_fn lunar_lander --offline_iterations 0 --env_config '{"continuous": True}' --eval_freq 500 --beta 10 --iql_tau 0.9 --horizon_fn variance --name IQL-test --device cpu --online_iterations 1 ;
-	sudo docker run \
-	-e WANDB_API_KEY=$(WANDB_API_KEY) \
-	-it \
-	--shm-size=10.24gb \
-	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
-	-v ./algorithms/finetune/wandb:/workspace/wandb \
-	-v ".:/workspace/jsrl-CORL" \
-	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --variance_learn_frac 0.5 --guide_heuristic_fn lunar_lander --offline_iterations 0 --env_config '{"continuous": True}' --eval_freq 500 --beta 10 --iql_tau 0.9 --horizon_fn variance --name IQL-test --device cpu --online_iterations 1 ;
-	sudo docker run \
-	-e WANDB_API_KEY=$(WANDB_API_KEY) \
-	-it \
-	--shm-size=10.24gb \
-	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
-	-v ./algorithms/finetune/wandb:/workspace/wandb \
-	-v ".:/workspace/jsrl-CORL" \
-	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --variance_learn_frac 1.0 --guide_heuristic_fn lunar_lander --offline_iterations 0 --env_config '{"continuous": True}' --eval_freq 500 --beta 10 --iql_tau 0.9 --horizon_fn variance --name IQL-test --device cpu --online_iterations 1 ;
 
 build_and_run_antmaze:
 	yes | sudo docker container prune
