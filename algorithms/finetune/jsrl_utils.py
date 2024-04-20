@@ -47,10 +47,11 @@ def horizon_update_callback(config, eval_reward):
         #    config.curriculum_stage_idx
         #]
         #config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
-        print(f"curr best: {config.best_eval_score}, rolling mean: {rolling_mean}")
         config.best_eval_score = rolling_mean
     elif rolling_mean < prev_best:
         config.agent_type_stage = max(0.0, config.agent_type_stage-config.learner_frac)
+        config.best_eval_score = rolling_mean
+    print(f"curr best: {config.best_eval_score}, rolling mean: {rolling_mean}, agent type: {config.agent_type_stage}")
     return config
 
 

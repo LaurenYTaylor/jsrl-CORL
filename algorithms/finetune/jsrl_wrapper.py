@@ -163,6 +163,7 @@ def get_online_buffer(config, replay_buffer, state_dim, action_dim):
     return online_replay_buffer
 
 def train(config: JsrlTrainConfig):
+
     try:
         env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
         eval_env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
@@ -173,7 +174,7 @@ def train(config: JsrlTrainConfig):
         max_steps = env._max_episode_steps
 
     is_env_with_goal = config.env.startswith(ENVS_WITH_GOAL)
-
+    
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
 
@@ -231,7 +232,7 @@ def train(config: JsrlTrainConfig):
         os.makedirs(config.checkpoints_path, exist_ok=True)
         with open(os.path.join(config.checkpoints_path, "config.yaml"), "w") as f:
             pyrallis.dump(config, f)
-
+    
     # Set seeds
     seed = config.seed
     set_seed(seed, None)
@@ -293,7 +294,7 @@ def train(config: JsrlTrainConfig):
 
         online_log = {}
         if t >= config.offline_iterations:
-            print("Iterations: ", t)
+            #print("Iterations: ", t)
             if episode_step == 0:
                 episode_agent_types = []
                 config.ep_agent_type = 0

@@ -1,51 +1,51 @@
 WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
-#RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer_2seed_v2.py"
-RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer.py"
+RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer_2seed_v2.py"
+#RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer.py"
 RUN_FILE_2="jsrl-CORL/algorithms/finetune/ray_trainer_2seed.py"
 RUN_FILE_4SEED="jsrl-CORL/algorithms/finetune/ray_trainer_4seed.py"
 DF=Dockerfile
-DOCKER_EXTRAS=-e WANDB_API_KEY=$(WANDB_API_KEY) -it --shm-size=10.24gb --cpus 16 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb -v .:/workspace/jsrl-CORL
+DOCKER_EXTRAS=--detach -e WANDB_API_KEY=$(WANDB_API_KEY) -i --shm-size=10.24gb --cpus 16 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb -v .:/workspace/jsrl-CORL
 
 build:
-	yes | sudo docker container prune
+	yes | echo password | sudo -S docker container prune
 
-	sudo docker build \
+	echo password | sudo -S docker build \
 	-f $(DF) \
 	-t jsrl-corl \
 	.
 
 run1:
-	sudo docker run $(DOCKER_EXTRAS) \
-	jsrl-corl python $(RUN_FILE) --device cpu --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 1000 --tolerance 0.05 --beta 10 --learner_frac 0.05 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step ;
+	echo password | sudo -S docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE) --device cpu --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 100 --tolerance 0.05 --beta 10 --learner_frac 0.05 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step ;
 	sh check_stopped.sh ;
 
 run2:
-	sudo docker run $(DOCKER_EXTRAS) \
+	echo password | sudo -S docker run $(DOCKER_EXTRAS) \
 	jsrl-corl python $(RUN_FILE) --device cpu --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --learner_frac 0.05 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_999999.pt --offline_iterations 0 --online_iterations 1000000 ;
 	sh check_stopped.sh ;
 
 run3:
-	sudo docker run $(DOCKER_EXTRAS) \
+	echo password | sudo -S docker run $(DOCKER_EXTRAS) \
 	jsrl-corl python $(RUN_FILE) --device cpu --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --learner_frac 0.05 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-diverse-v2-offline/checkpoint_999999.pt --offline_iterations 0 --online_iterations 1000000 ;
 	sh check_stopped.sh ;
 
 run4:
-	sudo docker run $(DOCKER_EXTRAS) \
+	echo password | sudo -S docker run $(DOCKER_EXTRAS) \
 	jsrl-corl python $(RUN_FILE) --device cpu --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-medium-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --learner_frac 0.05 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-medium-play-v2-offline/checkpoint_999999.pt --offline_iterations 0 --online_iterations 1000000 ;
 	sh check_stopped.sh ;
 
 run5:
-	sudo docker run $(DOCKER_EXTRAS) \
+	echo password | sudo -S docker run $(DOCKER_EXTRAS) \
 	jsrl-corl python $(RUN_FILE) --device cpu --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-medium-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --learner_frac 0.05 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-medium-diverse-v2-offline/checkpoint_999999.pt --offline_iterations 0 --online_iterations 1000000 ;
 	sh check_stopped.sh ;
 
 run6:
-	sudo docker run $(DOCKER_EXTRAS) \
+	echo password | sudo -S docker run $(DOCKER_EXTRAS) \
 	jsrl-corl python $(RUN_FILE) --device cpu --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-play-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --learner_frac 0.05 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-large-play-v2-offline/checkpoint_999999.pt --offline_iterations 0 --online_iterations 1000000 ;
 	sh check_stopped.sh ;
 
 run7:
-	sudo docker run $(DOCKER_EXTRAS) \
+	echo password | sudo -S docker run $(DOCKER_EXTRAS) \
 	jsrl-corl python $(RUN_FILE) --device cpu --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --learner_frac 0.05 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-large-diverse-v2-offline/checkpoint_999999.pt --offline_iterations 0 --online_iterations 1000000 ;
 	sh check_stopped.sh ;
 
