@@ -41,7 +41,6 @@ RUN pip install pypatch
 COPY lunarlander.patch lunarlander.patch
 COPY lunarlander-seed.patch lunarlander-seed.patch 
 RUN pypatch apply lunarlander.patch gymnasium
-RUN pip install -i https://test.pypi.org/simple/ combination-lock==0.0.2
 RUN pypatch apply lunarlander-seed.patch gymnasium
 RUN pip list
 
