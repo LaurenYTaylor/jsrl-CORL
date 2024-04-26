@@ -49,8 +49,10 @@ def horizon_update_callback(config, eval_reward):
         #config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
         config.best_eval_score = rolling_mean
     elif rolling_mean < prev_best:
-        config.agent_type_stage = max(0.0, config.agent_type_stage-config.learner_frac)
+        config.agent_type_stage = max(config.learner_frac, config.agent_type_stage-config.learner_frac)
         config.best_eval_score = rolling_mean
+    #else:
+        #config.best_eval_score = rolling_mean
     print(f"curr best: {config.best_eval_score}, rolling mean: {rolling_mean}, agent type: {config.agent_type_stage}")
     return config
 
@@ -82,7 +84,7 @@ def prepare_finetuning(init_horizon, mean_return, config):
     config.curriculum_stage_idx = 0
     #config.curriculum_stage = curriculum_stages[config.curriculum_stage_idx]
     #config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
-    config.agent_type_stage = 0
+    config.agent_type_stage = config.learner_frac
     if config.n_curriculum_stages == 1:
         config.agent_type_stage = 1
     config.best_eval_score = mean_return

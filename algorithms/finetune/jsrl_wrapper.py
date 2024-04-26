@@ -16,7 +16,6 @@ import wandb
 import h5py
 from gymnasium.wrappers import StepAPICompatibility
 
-
 from iql import (
     ENVS_WITH_GOAL,
     GaussianPolicy,
@@ -165,6 +164,12 @@ def get_online_buffer(config, replay_buffer, state_dim, action_dim):
 def train(config: JsrlTrainConfig):
 
     try:
+        #import pdb;pdb.set_trace()
+        #import combination_lock
+        #print(gymnasium.envs.registry.keys())
+        #print(gymnasium.envs.registry.keys())
+        #import pdb;pdb.set_trace()
+        
         env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
         eval_env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
         max_steps = env.spec.max_episode_steps
