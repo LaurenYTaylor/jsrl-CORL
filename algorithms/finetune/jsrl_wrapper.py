@@ -8,6 +8,7 @@ from pathlib import Path
 import d4rl
 import gym
 import gymnasium
+import combination_lock
 import numpy as np
 import pyrallis
 import torch
@@ -100,7 +101,10 @@ def eval_actor(
                 ep_agent_types.append(1)
             else:
                 ep_agent_types.append(0)
-            state, reward, done, env_infos = env.step(action)
+            try:
+                state, reward, done, env_infos = env.step(action)
+            except:
+                import pdb;pdb.set_trace()
             episode_reward += reward
             ts += 1
             if not goal_achieved:
@@ -164,12 +168,6 @@ def get_online_buffer(config, replay_buffer, state_dim, action_dim):
 def train(config: JsrlTrainConfig):
 
     try:
-        #import pdb;pdb.set_trace()
-        #import combination_lock
-        #print(gymnasium.envs.registry.keys())
-        #print(gymnasium.envs.registry.keys())
-        #import pdb;pdb.set_trace()
-        
         env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
         eval_env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
         max_steps = env.spec.max_episode_steps
@@ -182,6 +180,7 @@ def train(config: JsrlTrainConfig):
     
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
+
 
     if config.downloaded_dataset:
         downloaded_data = {}
@@ -293,7 +292,7 @@ def train(config: JsrlTrainConfig):
             print("Online tuning")
             if config.guide_heuristic_fn is not None:
                 actor = getattr(guide_heuristics, config.guide_heuristic_fn)
-            trainer, guide, config = jsrl_online_actor(config, env, actor, trainer, max_steps)
+            trainer, guide, config = jsrl_online_actor(config, eval_env, actor, trainer, max_steps)
             actor = trainer.actor
             online_replay_buffer = get_online_buffer(config, replay_buffer, state_dim, action_dim)
 
