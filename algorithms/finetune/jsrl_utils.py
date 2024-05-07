@@ -246,14 +246,14 @@ def accumulate(vals):
 
 def learner_or_guide_action(state, step, env, learner, guide, config, device, eval=False):
     if guide is None:
-        horizon = 0
+        horizon = step
         use_learner = True
     else:
         if (np.random.random() <= config.agent_type_stage):
             use_learner = True
         else:
             use_learner = False
-        horizon = 0
+        horizon = step
 
     if use_learner:
         # other than the actual learner, this may also be the training guide policy,

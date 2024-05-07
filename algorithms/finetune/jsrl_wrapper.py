@@ -393,6 +393,8 @@ def train(config: JsrlTrainConfig):
             # Evaluate episode
             if (t + 1) % config.eval_freq == 0:
                 #print(f"Time steps: {t + 1}")
+                if t < config.offline_iterations:
+                    guide = None
                 if guide is None:
                     config.curriculum_stage = np.nan
                 else:
