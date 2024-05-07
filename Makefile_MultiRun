@@ -15,37 +15,37 @@ build:
 run1:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 10000 --tolerance 0.05 --beta 10 --learner_frac -1 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step ;
-	sh check_stopped.sh ;
+	sudo sh check_stopped.sh ;
 
 run2:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --learner_frac -1 --iql_tau 0.9 --eval_freq 1000 --offline_iterations 1000000 --online_iterations 1000000 ;
-	sh check_stopped.sh ;
+	sudo sh check_stopped.sh ;
 
 run3:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-diverse-v2 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --learner_frac -1 --iql_tau 0.9 --eval_freq 1000 --offline_iterations 1000000 --online_iterations 1000000 ;
-	sh check_stopped.sh ;
+	sudo sh check_stopped.sh ;
 
 run4:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-medium-play-v2 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --learner_frac -1 --iql_tau 0.9 --eval_freq 1000 --offline_iterations 1000000 --online_iterations 1000000 ;
-	sh check_stopped.sh ;
+	sudo sh check_stopped.sh ;
 
 run5:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-medium-diverse-v2 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --learner_frac -1 --iql_tau 0.9 --eval_freq 1000 --offline_iterations 1000000 --online_iterations 1000000 ;
-	sh check_stopped.sh ;
+	sudo sh check_stopped.sh ;
 
 run6:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-play-v2 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --learner_frac -1 --iql_tau 0.9 --eval_freq 1000 --offline_iterations 1000000 --online_iterations 1000000 ;
-	sh check_stopped.sh ;
+	sudo sh check_stopped.sh ;
 
 run7:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --learner_frac -1 --iql_tau 0.9 --eval_freq 1000 --offline_iterations 1000000 --online_iterations 1000000 ;
-	sh check_stopped.sh ;
+	sudo sh check_stopped.sh ;
 
 
 
