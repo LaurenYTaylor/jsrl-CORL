@@ -219,7 +219,7 @@ def train(config: JsrlTrainConfig):
             dataset["next_observations"], state_mean, state_std
         )
 
-        dataset = dataset[:config.dataset_size]
+        #dataset = dataset[:config.dataset_size]
 
         env = wrap_env(env, state_mean=state_mean, state_std=state_std)
         eval_env = wrap_env(eval_env, state_mean=state_mean, state_std=state_std)
