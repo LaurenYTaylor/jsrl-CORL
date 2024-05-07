@@ -33,8 +33,10 @@ def run(train_config: JsrlTrainConfig, extra_config: dict):
 
 if __name__ == "__main__":
     extra_config = {}
+    seeds = range(10)
 
-    extra_config["seeds"] = range(1)
-    extra_config["gpu_frac"] = 0
+    for seed in seeds:
+        extra_config["seeds"] = [seed]
+        extra_config["gpu_frac"] = 0
 
-    run(extra_config)
+        run(extra_config)

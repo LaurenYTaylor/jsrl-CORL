@@ -46,6 +46,7 @@ class JsrlTrainConfig(TrainConfig):
     pretrained_policy_path: str = None
     horizon_fn: str = "time_step"
     downloaded_dataset: str = None
+    dataset_size: int = 1000000
     new_online_buffer: bool = True
     online_buffer_size: int = 10000
     max_init_horizon: bool = False
@@ -72,10 +73,10 @@ def eval_actor(
         #print(f"Eval {i}/{config.n_episodes}")
         if i == 0:
             try:
-                env.seed(config.seed)
+                env.seed(config.eval_seed)
                 state = env.reset()
             except AttributeError:
-                state, _ = env.reset(seed=config.seed)
+                state, _ = env.reset(seed=config.eval_seed)
             done = False
         else:
             state = env.reset()
@@ -101,10 +102,7 @@ def eval_actor(
                 ep_agent_types.append(1)
             else:
                 ep_agent_types.append(0)
-            try:
-                state, reward, done, env_infos = env.step(action)
-            except:
-                import pdb;pdb.set_trace()
+            state, reward, done, env_infos = env.step(action)
             episode_reward += reward
             ts += 1
             if not goal_achieved:
@@ -112,6 +110,7 @@ def eval_actor(
         # Valid only for environments with goal
         successes.append(float(goal_achieved))
         episode_rewards.append(episode_reward)
+        
 
         if guide is None and config.max_init_horizon:
             horizons_reached.append(np.max(episode_horizons))
@@ -127,7 +126,7 @@ def eval_actor(
     
     if isinstance(learner, GaussianPolicy):
         learner.train()
-    
+
     return (
         np.asarray(episode_rewards),
         np.mean(successes),
@@ -219,6 +218,9 @@ def train(config: JsrlTrainConfig):
         dataset["next_observations"] = normalize_states(
             dataset["next_observations"], state_mean, state_std
         )
+
+        dataset = dataset[:config.dataset_size]
+
         env = wrap_env(env, state_mean=state_mean, state_std=state_std)
         eval_env = wrap_env(eval_env, state_mean=state_mean, state_std=state_std)
         replay_buffer = ReplayBuffer(
@@ -298,7 +300,6 @@ def train(config: JsrlTrainConfig):
 
         online_log = {}
         if t >= config.offline_iterations:
-            #print("Iterations: ", t)
             if episode_step == 0:
                 episode_agent_types = []
                 config.ep_agent_type = 0
@@ -331,6 +332,7 @@ def train(config: JsrlTrainConfig):
 
             action = torch.clamp(max_action * action, -max_action, max_action)
             action = action.cpu().data.numpy().flatten()
+
             next_state, reward, done, env_infos = env.step(action)
 
             if not goal_achieved:
@@ -403,6 +405,7 @@ def train(config: JsrlTrainConfig):
                 ) = eval_actor(eval_env, actor, guide, config)
 
                 eval_score = eval_scores.mean()
+                print(eval_score)
                 eval_log = {}
                 if config.normalize_reward:
                     normalized = eval_env.get_normalized_score(eval_score)
@@ -437,6 +440,7 @@ def train(config: JsrlTrainConfig):
                         os.path.join(config.checkpoints_path, f"checkpoint_{t}.pt"),
                     )
                 wandb.log(eval_log, step=trainer.total_it)
+    wandb.run.finish()
 
 
 if __name__ == "__main__":

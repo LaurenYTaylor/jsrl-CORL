@@ -1,8 +1,10 @@
 import numpy as np
 
 def combination_lock(env, _):
-    next_number = env.unwrapped.combination[env.combo_step]
-    action = int(next_number)
+    next_number = env.unwrapped.combination[env.unwrapped.combo_step]
+    next_num = int(next_number)
+    action = np.zeros(len(env.unwrapped.combination))
+    action[next_num] = 1
     return action
 
 def lunar_lander(env, state):

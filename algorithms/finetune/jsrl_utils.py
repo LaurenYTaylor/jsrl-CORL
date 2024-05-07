@@ -27,33 +27,21 @@ def add_jsrl_metrics(eval_log, config):
 
 
 def horizon_update_callback(config, eval_reward):
-    #config.rolling_mean_rews.append(eval_reward)
-    #rolling_mean = np.mean(config.rolling_mean_rews)
-    rolling_mean = eval_reward
-    #if config.curriculum_stage == config.all_curriculum_stages[-1]:
-    if config.agent_type_stage == 1.0:
-        return config
-    if not np.isinf(config.best_eval_score):
-        prev_best = config.best_eval_score - config.tolerance * config.best_eval_score
-    else:
-        prev_best = config.best_eval_score
+    #if config.agent_type_stage == 1.0:
+        #return config
+    prev_best = -np.inf
+    
+    if config.agent_type_stage in config.best_eval_score:
+        prev_best = config.best_eval_score[config.agent_type_stage]
 
     if (
-        rolling_mean >= config.best_eval_score
+        eval_reward >= config.best_eval_score[0] and eval_reward >= prev_best
     ):
-        #config.curriculum_stage_idx += 1
+        config.best_eval_score[config.agent_type_stage] = eval_reward
         config.agent_type_stage = min(1.0, config.agent_type_stage+config.learner_frac)
-        #config.curriculum_stage = config.all_curriculum_stages[
-        #    config.curriculum_stage_idx
-        #]
-        #config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
-        config.best_eval_score = rolling_mean
-    elif rolling_mean < prev_best:
+    elif eval_reward < config.tolerance or eval_reward < prev_best:
         config.agent_type_stage = max(config.learner_frac, config.agent_type_stage-config.learner_frac)
-        config.best_eval_score = rolling_mean
-    #else:
-        #config.best_eval_score = rolling_mean
-    print(f"curr best: {config.best_eval_score}, rolling mean: {rolling_mean}, agent type: {config.agent_type_stage}")
+    print(f"curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
     return config
 
 
@@ -73,22 +61,20 @@ def load_guide(trainer, pretrained):
 
 
 def prepare_finetuning(init_horizon, mean_return, config):
-    #curriculum_stages = HORIZON_FNS[config.horizon_fn]["generate_curriculum_fn"](
-    #    init_horizon, config.n_curriculum_stages
-    #)
     if config.no_agent_types:
         config.all_agent_types = np.linspace(1, 1, config.n_curriculum_stages)
     else:
         config.all_agent_types = np.linspace(0, 1, config.n_curriculum_stages)
-    #config.all_curriculum_stages = curriculum_stages
     config.curriculum_stage_idx = 0
-    #config.curriculum_stage = curriculum_stages[config.curriculum_stage_idx]
-    #config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
-    config.agent_type_stage = config.learner_frac
+    config.agent_type_stage = 0
     if config.n_curriculum_stages == 1:
         config.agent_type_stage = 1
-    config.best_eval_score = mean_return
-    #config.rolling_mean_rews = deque(maxlen=config.rolling_mean_n)
+    if config.learner_frac < 0:
+        H = int(init_horizon)-1 
+        beta = (mean_return)**(1/H)
+        config.learner_frac = 1-(config.tolerance/beta)**(1/H)
+    config.best_eval_score = {}
+    config.best_eval_score[config.agent_type_stage] = mean_return
     return config
 
 def get_var_predictor(env, config, max_steps, guide):
@@ -259,7 +245,7 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
         horizon = 0
         use_learner = True
     else:
-        if np.random.random() <= config.agent_type_stage:
+        if (np.random.random() <= config.agent_type_stage):
             use_learner = True
         else:
             use_learner = False
