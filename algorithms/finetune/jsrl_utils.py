@@ -20,7 +20,11 @@ horizon_str = ""
 def add_jsrl_metrics(eval_log, config):
     eval_log["eval/jsrl/curriculum_stage_idx"] = config.curriculum_stage_idx
     eval_log["eval/jsrl/curriculum_stage"] = config.curriculum_stage
-    eval_log["eval/jsrl/best_eval_score"] = config.best_eval_score
+    if isinstance(config.best_eval_score, dict):
+        eval_score = max(list(config.best_eval_score.values()))
+    else:
+        eval_score = config.best_eval_score
+    eval_log["eval/jsrl/best_eval_score"] = eval_score
     eval_log["eval/jsrl/mean_horizon_reached"] = config.mean_horizon_reached
     eval_log["eval/jsrl/mean_agent_type"] = config.eval_mean_agent_type
     return eval_log
