@@ -25,7 +25,7 @@ def add_jsrl_metrics(eval_log, config):
     else:
         eval_score = config.best_eval_score
     eval_log["eval/jsrl/best_eval_score"] = eval_score
-    eval_log["eval/jsrl/mean_horizon_reached"] = config.mean_horizon_reached
+    eval_log["eval/jsrl/mean_horizon_reached"] = -config.mean_horizon_reached
     eval_log["eval/jsrl/mean_agent_type"] = config.eval_mean_agent_type
     return eval_log
 

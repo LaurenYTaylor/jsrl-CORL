@@ -106,8 +106,6 @@ def eval_actor(
             else:
                 ep_agent_types.append(0)
             state, reward, done, env_infos = env.step(action)
-            if config.normalize_reward and "antmaze" in config.env:
-                reward -= 1
             episode_reward += reward
             ts += 1
             if not goal_achieved:
