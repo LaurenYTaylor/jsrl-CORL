@@ -1,9 +1,15 @@
 import numpy as np
 
-def combination_lock(env, _):
+
+def combination_lock(env, _, sample_rate):
     next_number = env.unwrapped.combination[env.unwrapped.combo_step]
     next_num = int(next_number)
     action = np.zeros(len(env.unwrapped.combination))
+    if np.random.random() < 1-sample_rate:
+        random_int = np.random.randint(len(env.unwrapped.combination))
+        while random_int==next_num:
+            random_int = np.random.randint(len(env.unwrapped.combination))
+        next_num = random_int
     action[next_num] = 1
     return action
 

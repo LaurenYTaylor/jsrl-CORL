@@ -54,6 +54,9 @@ class JsrlTrainConfig(TrainConfig):
     guide_heuristic_fn: str = None
     no_agent_types: bool = False
     variance_learn_frac: float = 0.5
+    enable_rollback: bool = True
+    sample_rate: float = 1.0
+    correct_learner_action: float = 0.0
 
 
 @torch.no_grad()
@@ -110,7 +113,6 @@ def eval_actor(
         # Valid only for environments with goal
         successes.append(float(goal_achieved))
         episode_rewards.append(episode_reward)
-        
 
         if guide is None and config.max_init_horizon:
             horizons_reached.append(np.max(episode_horizons))
@@ -147,6 +149,7 @@ def jsrl_online_actor(config, env, actor, trainer, max_steps):
         config = jsrl.get_var_predictor(env, config, max_steps, guide)
     all_returns, _, init_horizon, _ = eval_actor(env, guide, None, config)
     mean_return = np.mean(all_returns)
+    import pdb;pdb.set_trace()
     trainer, config = jsrl.get_learning_agent(config, guide_trainer, init_horizon, mean_return, **env_info)
     return trainer, guide, config
 
@@ -317,7 +320,7 @@ def train(config: JsrlTrainConfig):
                 config,
                 config.device,
             )
-
+                
             if use_learner:
                 episode_agent_types.append(1)
                 if not config.iql_deterministic:
@@ -329,6 +332,7 @@ def train(config: JsrlTrainConfig):
                     action += noise
             else:
                 episode_agent_types.append(0)
+            
 
             action = torch.clamp(max_action * action, -max_action, max_action)
             action = action.cpu().data.numpy().flatten()
@@ -407,7 +411,6 @@ def train(config: JsrlTrainConfig):
                 ) = eval_actor(eval_env, actor, guide, config)
 
                 eval_score = eval_scores.mean()
-                print(eval_score)
                 eval_log = {}
                 if config.normalize_reward:
                     normalized = eval_env.get_normalized_score(eval_score)

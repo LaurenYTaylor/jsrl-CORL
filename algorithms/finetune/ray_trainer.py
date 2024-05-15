@@ -8,7 +8,7 @@ import time
 @ray.remote
 def run_training(seed, train_config):
     train_config.seed = seed
-    train_config.group = train_config.env + "_" + train_config.horizon_fn
+    train_config.group = train_config.env + "_" + train_config.horizon_fn+"_test"
     timestr = time.strftime("%d%m%y-%H%M%S")
     train_config.name = f"seed{seed}_{timestr}"
     data_path = "jsrl-CORL/downloaded_data/" + train_config.env + ".hdf5"
@@ -33,7 +33,7 @@ def run(train_config: JsrlTrainConfig, extra_config: dict):
 
 if __name__ == "__main__":
     extra_config = {}
-    seeds = range(10)
+    seeds = range(1)
 
     for seed in seeds:
         extra_config["seeds"] = [seed]

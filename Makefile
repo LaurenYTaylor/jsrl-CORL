@@ -31,13 +31,65 @@ build_and_run_combination:
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	-v ".:/workspace/jsrl-CORL" \
-	jsrl-corl python $(RUN_FILE) --env CombinationLock-v0 --learner_frac 0.022 --buffer_size 10 --guide_heuristic_fn combination_lock --offline_iterations 0 --env_config '{"horizon": 10}' --tolerance 0.75 --n_episodes 100 --eval_freq 1 --batch_size 10 --beta 10 --iql_tau 0.9 --horizon_fn time_step --name IQL-test --device cpu --online_iterations 500 --seed 0 ;
+	jsrl-corl python $(RUN_FILE) --env CombinationLock-v0 --learner_frac 0.0638 --online_buffer_size 64 --guide_heuristic_fn combination_lock --offline_iterations 0 --env_config '{"horizon": 10}' --tolerance 0.75 --n_episodes 250 --eval_freq 1 --batch_size 10 --beta 10 --iql_tau 0.9 --horizon_fn time_step --name IQL-test --device cpu --online_iterations 300 --seed 0 --iql_deterministic True --enable_rollback False --sample_rate 0.9 ;
+
+
+	docker run \
+	-e WANDB_API_KEY=$(WANDB_API_KEY) \
+	-it \
+	--shm-size=10.24gb \
+	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
+	-v ./algorithms/finetune/wandb:/workspace/wandb \
+	-v ".:/workspace/jsrl-CORL" \
+	jsrl-corl python $(RUN_FILE) --env CombinationLock-v0 --learner_frac 0.0638 --online_buffer_size 64 --guide_heuristic_fn combination_lock --offline_iterations 0 --env_config '{"horizon": 10}' --tolerance 0.75 --n_episodes 250 --eval_freq 1 --batch_size 10 --beta 10 --iql_tau 0.9 --horizon_fn time_step --name IQL-test --device cpu --online_iterations 300 --seed 0 --iql_deterministic True --enable_rollback True --sample_rate 0.9 ;
+
+	docker run \
+	-e WANDB_API_KEY=$(WANDB_API_KEY) \
+	-it \
+	--shm-size=10.24gb \
+	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
+	-v ./algorithms/finetune/wandb:/workspace/wandb \
+	-v ".:/workspace/jsrl-CORL" \
+	jsrl-corl python $(RUN_FILE) --env CombinationLock-v0 --learner_frac 0.0638 --online_buffer_size 64 --guide_heuristic_fn combination_lock --offline_iterations 0 --env_config '{"horizon": 10}' --tolerance 0.75 --n_episodes 250 --eval_freq 1 --batch_size 10 --beta 10 --iql_tau 0.9 --horizon_fn time_step --name IQL-test --device cpu --online_iterations 300 --seed 0 --iql_deterministic True --enable_rollback False --sample_rate 0.9 --correct_learner_action 0.5 ;
+
+
+	docker run \
+	-e WANDB_API_KEY=$(WANDB_API_KEY) \
+	-it \
+	--shm-size=10.24gb \
+	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
+	-v ./algorithms/finetune/wandb:/workspace/wandb \
+	-v ".:/workspace/jsrl-CORL" \
+	jsrl-corl python $(RUN_FILE) --env CombinationLock-v0 --learner_frac 0.0638 --online_buffer_size 64 --guide_heuristic_fn combination_lock --offline_iterations 0 --env_config '{"horizon": 10}' --tolerance 0.75 --n_episodes 250 --eval_freq 1 --batch_size 10 --beta 10 --iql_tau 0.9 --horizon_fn time_step --name IQL-test --device cpu --online_iterations 300 --seed 0 --iql_deterministic True --enable_rollback True --sample_rate 0.9 --correct_learner_action 0.5 ;
+
+
+	docker run \
+	-e WANDB_API_KEY=$(WANDB_API_KEY) \
+	-it \
+	--shm-size=10.24gb \
+	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
+	-v ./algorithms/finetune/wandb:/workspace/wandb \
+	-v ".:/workspace/jsrl-CORL" \
+	jsrl-corl python $(RUN_FILE) --env CombinationLock-v0 --learner_frac -1 --online_buffer_size 256 --guide_heuristic_fn combination_lock --offline_iterations 0 --env_config '{"horizon": 10}' --tolerance 0.75 --n_episodes 250 --eval_freq 10 --batch_size 64 --beta 10 --iql_tau 0.9 --horizon_fn time_step --name IQL-test --device cpu --online_iterations 750 --seed 0 --iql_deterministic True --enable_rollback False --sample_rate 1.0 ;
+
+
+	docker run \
+	-e WANDB_API_KEY=$(WANDB_API_KEY) \
+	-it \
+	--shm-size=10.24gb \
+	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
+	-v ./algorithms/finetune/wandb:/workspace/wandb \
+	-v ".:/workspace/jsrl-CORL" \
+	jsrl-corl python $(RUN_FILE) --env CombinationLock-v0 --learner_frac -1 --online_buffer_size 256 --guide_heuristic_fn combination_lock --offline_iterations 0 --env_config '{"horizon": 10}' --tolerance 0.75 --n_episodes 250 --eval_freq 10 --batch_size 64 --beta 10 --iql_tau 0.9 --horizon_fn time_step --name IQL-test --device cpu --online_iterations 750 --seed 0 --iql_deterministic True --enable_rollback True --sample_rate 1.0 ;
+
+
+
 
 
 build_and_run_lunar:
-	yes | sudo docker container prune
+	yes | docker container prune
 
-	sudo docker build \
+	docker build \
 	-f $(DF) \
 	-t jsrl-corl \
 	.
@@ -52,22 +104,21 @@ build_and_run_lunar:
 	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --variance_learn_frac 0.0 --guide_heuristic_fn lunar_lander --offline_iterations 0 --env_config '{"continuous": True}' --eval_freq 500 --beta 10 --iql_tau 0.9 --horizon_fn variance --name IQL-test --device cpu --online_iterations 1 ;
 
 build_and_run_antmaze:
-	yes | sudo docker container prune
+	yes | docker container prune
 
-	sudo docker build \
+	docker build \
 	-f $(DF) \
 	-t jsrl-corl \
 	.
-	sudo docker run \
+
+	docker run \
 	-e WANDB_API_KEY=$(WANDB_API_KEY) \
 	-it \
 	--shm-size=10.24gb \
-	$(DETACH) \
-	--cpus $(CPUS) \
 	-v ./algorithms/finetune/checkpoints:/workspace/checkpoints \
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	-v ".:/workspace/jsrl-CORL" \
-	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_1999999.pt --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --device cpu --name IQL-test --online_iterations 2000 --eval_freq 1000 --learner_frac 0.05 ;
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --learner_frac -1 --iql_tau 0.9 --eval_freq 1000 --offline_iterations 0 --online_iterations 1 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_999999.pt --device cpu ;
 
 run_variance_learner:
 	sudo docker run \

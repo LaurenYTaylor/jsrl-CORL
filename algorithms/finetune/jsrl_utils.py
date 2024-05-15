@@ -37,14 +37,22 @@ def horizon_update_callback(config, eval_reward):
     
     if config.agent_type_stage in config.best_eval_score:
         prev_best = config.best_eval_score[config.agent_type_stage]
-
     if (
-        eval_reward >= config.best_eval_score[0] and eval_reward >= prev_best
+        eval_reward >= config.best_eval_score[0]
     ):
         config.best_eval_score[config.agent_type_stage] = eval_reward
-        config.agent_type_stage = min(1.0, config.agent_type_stage+config.learner_frac)
-    elif eval_reward < config.tolerance or eval_reward < prev_best:
-        config.agent_type_stage = max(config.learner_frac, config.agent_type_stage-config.learner_frac)
+        if config.rolled_back:
+            config.agent_type_stage = max(list(config.best_eval_score.keys()))
+            config.rolled_back = False
+        else:
+            config.agent_type_stage = min(1.0, config.agent_type_stage+config.learner_frac)
+    elif config.enable_rollback and (eval_reward < config.tolerance*config.best_eval_score[0]):
+        config.best_eval_score[config.agent_type_stage] = eval_reward
+        if config.agent_type_stage != min(list(config.best_eval_score.keys())):
+            best_prev = sorted(config.best_eval_score.items(), key=lambda x: x[1])[-1][0]
+            print(f"{best_prev}: {config.best_eval_score}")
+            config.agent_type_stage = best_prev
+            config.rolled_back = True
     print(f"curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
     return config
 
@@ -70,15 +78,18 @@ def prepare_finetuning(init_horizon, mean_return, config):
     else:
         config.all_agent_types = np.linspace(0, 1, config.n_curriculum_stages)
     config.curriculum_stage_idx = 0
-    config.agent_type_stage = 0
     if config.n_curriculum_stages == 1:
         config.agent_type_stage = 1
     if config.learner_frac < 0:
-        H = int(init_horizon)-1 
-        beta = (mean_return)**(1/H)
-        config.learner_frac = 1-(config.tolerance/beta)**(1/H)
+        H = int(init_horizon) 
+        beta = (mean_return)**(1/10)
+        guide_sample = config.sample_rate
+        learner_sample = 1.0
+        config.learner_frac = 1-(((config.tolerance)**(1/10)*guide_sample-(1-learner_sample))/(guide_sample-(1-learner_sample)))
+    config.agent_type_stage = config.learner_frac
     config.best_eval_score = {}
-    config.best_eval_score[config.agent_type_stage] = mean_return
+    config.best_eval_score[0] = mean_return
+    config.rolled_back = False
     return config
 
 def get_var_predictor(env, config, max_steps, guide):
@@ -249,7 +260,8 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
         horizon = step
         use_learner = True
     else:
-        if (np.random.random() <= config.agent_type_stage):
+        if ((np.random.random() <= config.agent_type_stage) and 
+            (config.ep_agent_type <= config.agent_type_stage)):
             use_learner = True
         else:
             use_learner = False
@@ -258,18 +270,30 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
     if use_learner:
         # other than the actual learner, this may also be the training guide policy,
         # or the guide being evaluated before online training starts
-        if not isinstance(learner, GaussianPolicy):
-            action = learner(env, state)
+        if not (isinstance(learner, GaussianPolicy) or isinstance(learner, DeterministicPolicy)):
+            action = learner(env, state, config.sample_rate)
         else:
+            next_number = env.unwrapped.combination[env.unwrapped.combo_step]
+            next_num = int(next_number)
             if eval:
                 action = learner.act(state, device)
+                action_num = np.argmax(action)
+                max_val = np.max(action)
+                next_num_idx = int(next_number)
             else:
                 action = learner(
                     torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
                 )
+                action_num = torch.argmax(action).item()
+                max_val = torch.max(action)
+                next_num_idx = (0,int(next_number))
+            
+            if action_num != next_num:
+                if np.random.random() <= config.correct_learner_action:
+                    action[next_num_idx] = max_val+10
     else:
         if not isinstance(guide, GaussianPolicy):
-            action = guide(env, state)
+            action = guide(env, state, config.sample_rate)
         else:
             action = guide.act(state, device)
         if not eval:

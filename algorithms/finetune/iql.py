@@ -59,7 +59,7 @@ class TrainConfig:
     actor_lr: float = 3e-4  # Actor learning rate
     # Wandb logging
     project: str = "jsrl-CORL-neurips"
-    group: str = "IQL-D4RL"
+    group: str = "IQL-Combo-Basics"
     name: str = "IQL"
 
     def __post_init__(self):
