@@ -106,6 +106,8 @@ def eval_actor(
             else:
                 ep_agent_types.append(0)
             state, reward, done, env_infos = env.step(action)
+            if config.normalize_reward and "antmaze" in config.env:
+                reward -= 1
             episode_reward += reward
             ts += 1
             if not goal_achieved:
@@ -149,7 +151,9 @@ def jsrl_online_actor(config, env, actor, trainer, max_steps):
         config = jsrl.get_var_predictor(env, config, max_steps, guide)
     all_returns, _, init_horizon, _ = eval_actor(env, guide, None, config)
     mean_return = np.mean(all_returns)
-    import pdb;pdb.set_trace()
+    print(f"{config.env}: mean-{mean_return}, max-{np.max(all_returns)}")
+    with open("jsrl-CORL/algorithms/finetune/mean_returns.txt", "a") as f:
+        f.write(f"{config.env}: mean-{mean_return}, max-{np.max(all_returns)}\n")
     trainer, config = jsrl.get_learning_agent(config, guide_trainer, init_horizon, mean_return, **env_info)
     return trainer, guide, config
 

@@ -82,10 +82,9 @@ def prepare_finetuning(init_horizon, mean_return, config):
         config.agent_type_stage = 1
     if config.learner_frac < 0:
         H = int(init_horizon) 
-        beta = (mean_return)**(1/10)
         guide_sample = config.sample_rate
-        learner_sample = 1.0
-        config.learner_frac = 1-(((config.tolerance)**(1/10)*guide_sample-(1-learner_sample))/(guide_sample-(1-learner_sample)))
+        learner_sample = (1-config.correct_learner_action)
+        config.learner_frac = 1-(((config.tolerance)**(1/H)*guide_sample-(1-learner_sample))/(guide_sample-(1-learner_sample)))
     config.agent_type_stage = config.learner_frac
     config.best_eval_score = {}
     config.best_eval_score[0] = mean_return
@@ -273,24 +272,12 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
         if not (isinstance(learner, GaussianPolicy) or isinstance(learner, DeterministicPolicy)):
             action = learner(env, state, config.sample_rate)
         else:
-            next_number = env.unwrapped.combination[env.unwrapped.combo_step]
-            next_num = int(next_number)
             if eval:
                 action = learner.act(state, device)
-                action_num = np.argmax(action)
-                max_val = np.max(action)
-                next_num_idx = int(next_number)
             else:
                 action = learner(
                     torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
                 )
-                action_num = torch.argmax(action).item()
-                max_val = torch.max(action)
-                next_num_idx = (0,int(next_number))
-            
-            if action_num != next_num:
-                if np.random.random() <= config.correct_learner_action:
-                    action[next_num_idx] = max_val+10
     else:
         if not isinstance(guide, GaussianPolicy):
             action = guide(env, state, config.sample_rate)
