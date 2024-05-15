@@ -30,13 +30,17 @@ def add_jsrl_metrics(eval_log, config):
     return eval_log
 
 
-def horizon_update_callback(config, eval_reward):
-    #if config.agent_type_stage == 1.0:
-        #return config
+def horizon_update_callback(config, eval_reward, N):
     prev_best = -np.inf
     
     if config.agent_type_stage in config.best_eval_score:
         prev_best = config.best_eval_score[config.agent_type_stage]
+    
+    if config.best_eval_score[0] < 0:
+        score_with_tolerance = -N-config.tolerance*(-N+config.best_eval_score[0])
+    else:
+        score_with_tolerance = config.tolerance*config.best_eval_score[0]
+    
     if (
         eval_reward >= config.best_eval_score[0]
     ):
@@ -46,14 +50,13 @@ def horizon_update_callback(config, eval_reward):
             config.rolled_back = False
         else:
             config.agent_type_stage = min(1.0, config.agent_type_stage+config.learner_frac)
-    elif config.enable_rollback and (eval_reward < config.tolerance*config.best_eval_score[0]):
+    elif config.enable_rollback and (eval_reward < score_with_tolerance):
         config.best_eval_score[config.agent_type_stage] = eval_reward
         if config.agent_type_stage != min(list(config.best_eval_score.keys())):
             best_prev = sorted(config.best_eval_score.items(), key=lambda x: x[1])[-1][0]
-            print(f"{best_prev}: {config.best_eval_score}")
             config.agent_type_stage = best_prev
             config.rolled_back = True
-    print(f"curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
+    print(f"{N}: curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
     return config
 
 

@@ -425,7 +425,7 @@ def train(config: JsrlTrainConfig):
                         eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
                         eval_log["eval/success_rate"] = success_rate
 
-                    config = jsrl.horizon_update_callback(config, normalized)
+                    config = jsrl.horizon_update_callback(config, normalized, max_steps)
                     eval_log = jsrl.add_jsrl_metrics(eval_log, config)
                 if config.normalize_reward:
                     normalized_eval_score = normalized * 100.0
