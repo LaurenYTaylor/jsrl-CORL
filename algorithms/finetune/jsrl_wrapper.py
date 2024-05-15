@@ -151,9 +151,6 @@ def jsrl_online_actor(config, env, actor, trainer, max_steps):
         config = jsrl.get_var_predictor(env, config, max_steps, guide)
     all_returns, _, init_horizon, _ = eval_actor(env, guide, None, config)
     mean_return = np.mean(all_returns)
-    print(f"{config.env}: mean-{mean_return}, max-{np.max(all_returns)}")
-    with open("jsrl-CORL/algorithms/finetune/mean_returns.txt", "a") as f:
-        f.write(f"{config.env}: mean-{mean_return}, max-{np.max(all_returns)}\n")
     trainer, config = jsrl.get_learning_agent(config, guide_trainer, init_horizon, mean_return, **env_info)
     return trainer, guide, config
 
