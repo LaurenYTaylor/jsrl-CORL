@@ -14,7 +14,7 @@ build:
 
 run1:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --enable_rollback True --iql_deterministic False --beta 10 --learner_frac 0.978 --correct_learner_action 0.9 --iql_tau 0.9 --eval_freq 2200 --n_episodes 100 --offline_iterations 0 --online_iterations 1000000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_999999.pt --;
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --enable_rollback True --iql_deterministic False --beta 10 --learner_frac 0.978 --correct_learner_action 0.9 --iql_tau 0.9 --eval_freq 2200 --n_episodes 100 --offline_iterations 0 --online_iterations 1000000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_999999.pt ;
 
 
 run2:
@@ -28,7 +28,7 @@ run3:
 
 run4:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --enable_rollback False --iql_deterministic False --beta 10 --learner_frac 0.978 --correct_learner_action 0.9 --iql_tau 0.9 --eval_freq 2200 --n_episodes 100 --offline_iterations 0 --online_iterations 1000000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_999999.pt --;
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --enable_rollback False --iql_deterministic False --beta 10 --learner_frac 0.978 --correct_learner_action 0.9 --iql_tau 0.9 --eval_freq 2200 --n_episodes 100 --offline_iterations 0 --online_iterations 1000000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_999999.pt ;
 
 
 run5:
