@@ -57,7 +57,7 @@ def horizon_update_callback(config, eval_reward, N):
             best_prev = sorted(config.best_eval_score.items(), key=lambda x: x[1])[-1][0]
             config.agent_type_stage = best_prev
             config.rolled_back = True
-    print(f"{score_with_tolerance}/{eval_reward}: curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
+    print(f"{config.seed}: {score_with_tolerance}/{eval_reward}: curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
     return config
 
 
