@@ -38,7 +38,7 @@ def horizon_update_callback(config, eval_reward, N):
         prev_best = config.best_eval_score[config.agent_type_stage]
     
     if config.best_eval_score[0] < 0:
-        score_with_tolerance = -N-config.tolerance*(-N+config.best_eval_score[0])
+        score_with_tolerance = -N+config.tolerance*(config.best_eval_score[0]+N)
     else:
         score_with_tolerance = config.tolerance*config.best_eval_score[0]
     
@@ -57,7 +57,7 @@ def horizon_update_callback(config, eval_reward, N):
             best_prev = sorted(config.best_eval_score.items(), key=lambda x: x[1])[-1][0]
             config.agent_type_stage = best_prev
             config.rolled_back = True
-    print(f"{config.best_eval_score[0]}/{N}: curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
+    print(f"{score_with_tolerance}/{eval_reward}: curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
     return config
 
 
