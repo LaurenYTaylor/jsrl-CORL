@@ -1,0 +1,6 @@
+antmaze-umaze-v2: mean--329.382, max--100.0
+antmaze-umaze-diverse-v2: mean--417.972, max--104.0
+antmaze-medium-play-v2: mean--615.645, max--217.0
+antmaze-medium-diverse-v2: mean--629.465, max--222.0
+antmaze-large-play-v2: mean--879.332, max--359.0
+antmaze-large-diverse-v2: mean--942.211, max--446.0
