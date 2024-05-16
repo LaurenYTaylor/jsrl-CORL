@@ -32,6 +32,7 @@ def add_jsrl_metrics(eval_log, config):
 
 def horizon_update_callback(config, eval_reward, N):
     prev_best = -np.inf
+    eval_reward = -config.mean_horizon_reached
     
     if config.agent_type_stage in config.best_eval_score:
         prev_best = config.best_eval_score[config.agent_type_stage]
@@ -56,7 +57,7 @@ def horizon_update_callback(config, eval_reward, N):
             best_prev = sorted(config.best_eval_score.items(), key=lambda x: x[1])[-1][0]
             config.agent_type_stage = best_prev
             config.rolled_back = True
-    print(f"{N}: curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
+    print(f"{config.best_eval_score[0]}/{N}: curr best: {prev_best}, eval rew: {eval_reward}, new agent type: {config.agent_type_stage}")
     return config
 
 
@@ -90,7 +91,7 @@ def prepare_finetuning(init_horizon, mean_return, config):
         config.learner_frac = 1-(((config.tolerance)**(1/H)*guide_sample-(1-learner_sample))/(guide_sample-(1-learner_sample)))
     config.agent_type_stage = config.learner_frac
     config.best_eval_score = {}
-    config.best_eval_score[0] = mean_return
+    config.best_eval_score[0] = -init_horizon
     config.rolled_back = False
     return config
 
