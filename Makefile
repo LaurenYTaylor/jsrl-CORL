@@ -79,7 +79,7 @@ build_and_run_antmaze:
 	-v ./algorithms/finetune/wandb:/workspace/wandb \
 	-v ./algorithms/finetune:/workspace/jsrl-CORL/algorithms/finetune \
 	-v ".:/workspace/jsrl-CORL" \
-	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-medium-play-v2 --normalize True --tolerance 0.9 --normalize_reward True --enable_rollback True --iql_deterministic False --beta 10 --learner_frac 0.1 --correct_learner_action 0.9 --iql_tau 0.9 --eval_freq 1000 --n_episodes 100 --offline_iterations 0 --online_iterations 1000000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-large-play-v2-offline/checkpoint_999999.pt --device cpu ;
+	jsrl-corl python $(RUN_FILE) --horizon_fn time_step --checkpoints_path checkpoints --env antmaze-large-play-v2 --normalize True --tolerance 0.95 --normalize_reward True --enable_rollback True --iql_deterministic False --beta 10 --learner_frac 0.1 --correct_learner_action 0.9 --iql_tau 0.9 --eval_freq 10000 --n_episodes 100 --offline_iterations 0 --online_iterations 1000000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-large-play-v2-offline/checkpoint_999999.pt --device cpu ;
 
 
 run_variance_learner:
