@@ -56,6 +56,7 @@ def horizon_update_callback(config, eval_reward, N):
         if config.agent_type_stage != min(list(config.best_eval_score.keys())):
             best_prevs = sorted(config.best_eval_score.items(), key=lambda x: x[1])[-1]
             best_prev = best_prevs[0]
+            importpdb;pdb.set_trace()
             if best_prev == config.agent_type_stage:
                 best_prev = best_prevs[1]
             config.agent_type_stage = best_prev
