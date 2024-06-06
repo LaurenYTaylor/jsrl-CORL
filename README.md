@@ -1,4 +1,4 @@
-# CORL (Clean Offline Reinforcement Learning)
+# JSRL (Jump-Start Reinforcement Learning)
 
 This is an implementation of Jump-Start Reinforcement Learning (JSRL) (https://arxiv.org/abs/2204.02372) on top of IQL (more algorithms planned) from the Clean Offline Reinforcement Learning library. This is a fork of that library. I am not an author of JSRL.
 
