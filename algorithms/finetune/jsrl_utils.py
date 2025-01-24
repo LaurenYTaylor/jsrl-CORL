@@ -437,11 +437,12 @@ def agent_type_horizon(_st, _s, _e, config):
 
     """
     use_learner = False
+    
     if np.isnan(config.curriculum_stage):
         return True, config.ep_agent_type
     if (config.curriculum_stage_idx == (config.n_curriculum_stages-1) or
-     config.ep_agent_type <= config.agent_type_stage):
-        use_learner = (np.random.sample()<config.agent_type_stage)
+     config.ep_agent_type <= config.curriculum_stage):
+        use_learner = (np.random.sample()<config.curriculum_stage)
     return use_learner, config.ep_agent_type
 
 
@@ -501,7 +502,7 @@ def max_to_min_curriculum(init_horizon, n_curriculum_stages):
 
 def min_to_max_curriculum(init_horizon, n_curriculum_stages):
     """
-    Generates a min to max curriculum (for goal distance and variance).
+    Generates a min to max curriculum (for goal distance, variance and agent type).
     """
     return np.linspace(0, init_horizon, n_curriculum_stages)
 
