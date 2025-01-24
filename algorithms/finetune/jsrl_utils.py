@@ -162,7 +162,7 @@ def prepare_finetuning(init_horizon, config):
     config.rolling_mean_rews = deque(maxlen=config.rolling_mean_n)
     return config
 
-def get_var_predictor(env, config, max_steps, guide, n_updates = 10000):
+def get_var_predictor(env, config, max_steps, guide, n_updates = 1000):
     """
     If the horizon function specified in the configuration is "variance",
     this trains or loads a state variance predictor for use in online fine-tuning,
@@ -414,6 +414,36 @@ def timestep_horizon(step, _s, _e, config):
         use_learner = True
     return use_learner, step
 
+def agent_type_horizon(_st, _s, _e, config):
+    """
+    Determine whether to use the learner or guide based on the current % use of the learner throughout the episode.
+    Unused parameter placeholders ensure the horizon functions have the same signature.
+
+    Parameters
+    ----------
+    _st : int
+        Timestep, not used.
+    _s : Any
+        State, not used.
+    _e : Any
+        Env, not used.
+    config : JsrlTrainConfig
+        The configuration parameters for the JSRL training process.
+
+    Returns
+    -------
+    Tuple[bool, int]
+        A tuple containing a boolean indicating whether to use the learner and the current timestep.
+
+    """
+    use_learner = False
+    if np.isnan(config.curriculum_stage):
+        return True, config.ep_agent_type
+    if (config.curriculum_stage_idx == (config.n_curriculum_stages-1) or
+     config.ep_agent_type <= config.agent_type_stage):
+        use_learner = (np.random.sample()<config.agent_type_stage)
+    return use_learner, config.ep_agent_type
+
 
 def goal_distance_horizon(_t, s, env, config):
     """
@@ -446,9 +476,9 @@ def goal_distance_horizon(_t, s, env, config):
         (goal_dist <= config.curriculum_stage
         or config.curriculum_stage_idx == (config.n_curriculum_stages-1))
         and config.ep_agent_type <= config.agent_type_stage
-    ) or (
-        goal_dist > config.all_curriculum_stages[-1]
-        and config.ep_agent_type <= config.agent_type_stage
+    #) or (
+    #    goal_dist > config.all_curriculum_stages[-1]
+    #    and config.ep_agent_type <= config.agent_type_stage
     ):
         use_learner = True
     return use_learner, goal_dist
@@ -459,6 +489,9 @@ def max_accumulator(v):
 
 def mean_accumulator(v):
     return np.mean(v)
+
+def static_accumulator(v):
+    return 1
 
 def max_to_min_curriculum(init_horizon, n_curriculum_stages):
     """
@@ -479,9 +512,14 @@ HORIZON_FNS = {
         "accumulator_fn": mean_accumulator,
         "generate_curriculum_fn": max_to_min_curriculum,
     },
+    "agent_type": {
+        "horizon_fn": agent_type_horizon,
+        "accumulator_fn": static_accumulator,
+        "generate_curriculum_fn": min_to_max_curriculum
+    },
     "goal_dist": {
         "horizon_fn": goal_distance_horizon,
-        "accumulator_fn": mean_accumulator,
+        "accumulator_fn": max_accumulator,
         "generate_curriculum_fn": min_to_max_curriculum,
     },
     "variance": {

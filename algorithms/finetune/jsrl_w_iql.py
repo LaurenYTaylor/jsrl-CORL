@@ -51,7 +51,7 @@ class JsrlTrainConfig(TrainConfig):
     max_init_horizon: bool = False  # Whether to use the maximum or mean initial horizon (e.g. time step) as curriculum stage 1
     guide_heuristic_fn: str = None  # Name of the guide heuristic function in guide_heuristics.py, if any
     no_agent_types: bool = False  # Whether to restrict agent sampling below a percentage depending on curriculum stage
-    variance_learn_frac: float = 0.5  # if horizon=="variance", how often the variance learner should take a random action
+    variance_learn_frac: float = 0.9  # if horizon=="variance", how often the variance learner should take a random action
     env_config: dict = field(default_factory=lambda: {})  # Environment configuration parameters
     downloaded_dataset: str = None  # Path to downloaded dataset, if any (pre-downloading the dataset is faster)
     pretrained_policy_path: str = None  # Path to pretrained policy file, if any
@@ -542,6 +542,7 @@ def train(config: JsrlTrainConfig):
                         os.path.join(config.checkpoints_path, f"checkpoint_{t}.pt"),
                     )
                 wandb.log(eval_log, step=trainer.total_it)
+    wandb.finish(exit_code=0)
 
 
 if __name__ == "__main__":
