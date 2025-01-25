@@ -80,4 +80,4 @@ run17:
 	jsrl-corl python $(RUN_FILE) --no_agent_types True --horizon_fn agent_type --checkpoints_path checkpoints --env antmaze-large-diverse-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-large-diverse-v2-offline/checkpoint_999999.pt --offline_iterations 0 --online_iterations 1000000 ;
 	
 
-build_and_run: build run15 run16 run17
+build_and_run: build run12
