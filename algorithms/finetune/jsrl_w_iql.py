@@ -17,7 +17,8 @@ import torch
 import torch.nn.functional as F
 import wandb
 import h5py
-from gymnasium.wrappers import StepAPICompatibility
+import gymnasium_robotics
+gymnasium.register_envs(gymnasium_robotics)
 
 from iql import (
     ENVS_WITH_GOAL,
@@ -133,7 +134,11 @@ def eval_actor(
             else:
                 ep_agent_types.append(0)
                 
-            state, reward, done, env_infos = env.step(action)
+            try:
+                state, reward, done, env_infos = env.step(action)
+            except ValueError:
+                state, reward, term, trunc, env_infos = env.step(action)
+                done = term or trunc
             episode_reward += reward
             ts += 1
             
@@ -246,6 +251,20 @@ def get_online_buffer(config, replay_buffer, state_dim, action_dim):
         online_replay_buffer = replay_buffer
     return online_replay_buffer
 
+def process_minari_data(downloaded_data):
+    rearranged_data = {"actions": [], "infos": [], "observations": [],
+                       "rewards": [], "terminals": [], "timeouts": []}
+    for k,v in downloaded_data.items():
+        rearranged_data["observations"].extend(v['observations'])
+        rearranged_data["actions"].extend(v['actions'])
+        rearranged_data["infos"].extend(v['infos'])
+        rearranged_data["rewards"].extend(v['rewards'])
+        rearranged_data["timeouts"].extend(v['truncations'])
+        rearranged_data["terminals"].extend(v['terminations'])
+    for k,v in rearranged_data.items():
+        rearranged_data[k] = np.array(v)
+    return rearranged_data
+
 def train(config: JsrlTrainConfig):
     """
     Train an learning agent using JSRL method (gradual online transfer from pre-trained guide agent to learner).
@@ -265,8 +284,8 @@ def train(config: JsrlTrainConfig):
     
     # Added functionality for handling both Gym/Gymnasium envs
     try:
-        env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
-        eval_env = StepAPICompatibility(gymnasium.make(config.env, **config.env_config), output_truncation_bool=False)
+        env = gymnasium.make(config.env, **config.env_config)
+        eval_env = gymnasium.make(config.env, **config.env_config)
         max_steps = env.spec.max_episode_steps
     except:
         env = gym.make(config.env, **config.env_config)
@@ -290,6 +309,8 @@ def train(config: JsrlTrainConfig):
 
         with h5py.File(config.downloaded_dataset, "r") as f:
             downloaded_data = get_keys(f, {})
+        if 'episode_1' in downloaded_data.keys():
+            downloaded_data = process_minari_data(downloaded_data)
         dataset = d4rl.qlearning_dataset(env, dataset=downloaded_data)
     elif config.guide_heuristic_fn is None:
         dataset = d4rl.qlearning_dataset(env)
@@ -436,7 +457,11 @@ def train(config: JsrlTrainConfig):
 
             action = torch.clamp(max_action * action, -max_action, max_action)
             action = action.cpu().data.numpy().flatten()
-            next_state, reward, done, env_infos = env.step(action)
+            try:
+                next_state, reward, done, env_infos = env.step(action)
+            except ValueError:
+                next_state, reward, term, trunc, env_infos = env.step(action)
+                done = term or trunc
 
             if not goal_achieved:
                 goal_achieved = is_goal_reached(reward, env_infos)
@@ -497,6 +522,8 @@ def train(config: JsrlTrainConfig):
             
             # Evaluate episode
             if (t + 1) % config.eval_freq == 0:
+                if t < config.offline_iterations:
+                    guide = None
                 if guide is None:
                     config.curriculum_stage = np.nan
                 else:

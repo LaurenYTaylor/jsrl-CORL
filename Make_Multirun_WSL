@@ -1,56 +1,55 @@
 WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
-RUN_FILE="jsrl-CORL/algorithms/finetune/ray_trainer_2seed_v2.py"
-RUN_FILE_2="jsrl-CORL/algorithms/finetune/ray_trainer_2seed.py"
-RUN_FILE_4SEED="jsrl-CORL/algorithms/finetune/ray_trainer_4seed.py"
+RUN_FILE1="jsrl-CORL/algorithms/finetune/ray_trainer_2seed-0-1.py"
+RUN_FILE2="jsrl-CORL/algorithms/finetune/ray_trainer_2seed-2-3.py"
+
+
 DF=Dockerfile
-DOCKER_EXTRAS=--detach -e WANDB_API_KEY=$(WANDB_API_KEY) -it --shm-size=10.24gb --cpus 16 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb -v .:/workspace/jsrl-CORL
+DOCKER_EXTRAS=-e WANDB_API_KEY=$(WANDB_API_KEY) -it --shm-size=10.24gb --cpus 16 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb -v .:/workspace/jsrl-CORL
 
 build:
-	yes | sudo docker container prune
+	yes | docker container prune
 
-	sudo docker build \
+	docker build \
 	-f $(DF) \
 	-t jsrl-corl \
 	.
 
 run1:
-	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 500 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step --n_curriculum_stages 5 ;
-	sh check_stopped.sh ;
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE1) --no_agent_types True --horizon_fn agent_type --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --eval_freq 10000 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_999999.pt --offline_iterations 0 --online_iterations 1000 ;
 
-run2:
-	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE_2) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 500 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step --n_curriculum_stages 5 ;
-	sh check_stopped.sh ;
+runpen1:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE1) --device cpu --env AdroitHandPen-v1 --offline_iterations 1000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 100}' --eval_freq 10000 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
+	echo 'password' | sudo python move_offline_agent.py --env AdroitHandPen-v1 
 
-run3:
-	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 500 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn variance --n_curriculum_stages 5 ;
-	sh check_stopped.sh ;
+runhand1:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE1) --device cpu --env AdroitHandDoor-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
+	echo 'password' | sudo python move_offline_agent.py --env AdroitHandDoor-v1 
 
-run4:
-	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE_2) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 500 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn variance --n_curriculum_stages 5 ;
-	sh check_stopped.sh ;
+runhammer1:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE1) --device cpu --env AdroitHandHammer-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
 
-run5:
-	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 500 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step --no_agent_types True --n_curriculum_stages 5 ;
-	sh check_stopped.sh ;
+runrelocate1:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE1) --device cpu --env  AdroitHandRelocate-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
 
-run6:
-	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE_2) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 500 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn time_step --no_agent_types True --n_curriculum_stages 5 ;
-	sh check_stopped.sh ;
+runpen2:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE2) --device cpu --env AdroitHandPen-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 100}' --eval_freq 10000 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
 
-run7:
-	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 500 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn variance --no_agent_types True --n_curriculum_stages 5 ;
-	sh check_stopped.sh ;
+runhand2:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE2) --device cpu --env AdroitHandDoor-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
 
-run8:
-	sudo docker run $(DOCKER_EXTRAS) --gpus all \
-	jsrl-corl python $(RUN_FILE_2) --env LunarLander-v2 --guide_heuristic_fn lunar_lander_perfect --offline_iterations 0 --online_iterations 250000 --env_config '{"continuous": True, "enable_wind": True, "wind_power": 20, "turbulence_power": 2.0}' --eval_freq 500 --rolling_mean_n 5 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn variance --no_agent_types True --n_curriculum_stages 5 ;
-	sh check_stopped.sh ;
+runhammer2:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE2) --device cpu --env AdroitHandHammer-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
 
-build_and_run: build run3 run2 run4 run5 run6 run7 run8
+runrelocate2:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE2) --device cpu --env  AdroitHandRelocate-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
+
+build_and_run: build runpen1

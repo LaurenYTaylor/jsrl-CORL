@@ -43,6 +43,8 @@ COPY lunarlander-seed.patch lunarlander-seed.patch
 RUN pypatch apply lunarlander.patch gymnasium
 RUN pypatch apply lunarlander-seed.patch gymnasium
 
+RUN pip install gymnasium_robotics
+
 RUN mkdir checkpoints
 RUN mkdir wandb
 RUN mkdir jsrl-CORL

@@ -10,6 +10,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import d4rl
 import gym
+import gymnasium
 import numpy as np
 import pyrallis
 import torch
@@ -58,7 +59,7 @@ class TrainConfig:
     qf_lr: float = 3e-4  # Critic learning rate
     actor_lr: float = 3e-4  # Actor learning rate
     # Wandb logging
-    project: str = "jsrl-CORL-agent-type"
+    project: str = "jsrl-CORL-adroit"
     group: str = "IQL-D4RL"
     name: str = "IQL"
 
@@ -91,17 +92,30 @@ def wrap_env(
 ) -> gym.Env:
     # PEP 8: E731 do not assign a lambda expression, use a def
     def normalize_state(state):
-        return (
+        info = None
+        if isinstance(state, tuple):
+            # gymnasium compat
+            state = state[0]
+            info = state[1]
+        state = (
             state - state_mean
         ) / state_std  # epsilon should be already added in std.
+        if info is not None:
+            state = (state, info)
+        return state
 
     def scale_reward(reward):
         # Please be careful, here reward is multiplied by scale!
         return reward_scale * reward
 
-    env = gym.wrappers.TransformObservation(env, normalize_state)
-    if reward_scale != 1.0:
-        env = gym.wrappers.TransformReward(env, scale_reward)
+    if "gymnasium" in str(type(env)):
+        env = gymnasium.wrappers.TransformObservation(env, normalize_state, env.observation_space)
+        if reward_scale != 1.0:
+            env = gymnasium.wrappers.TransformReward(env, scale_reward)
+    else:
+        env = gym.wrappers.TransformObservation(env, normalize_state)
+        if reward_scale != 1.0:
+            env = gym.wrappers.TransformReward(env, scale_reward)
     return env
 
 
