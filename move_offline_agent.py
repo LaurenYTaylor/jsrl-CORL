@@ -12,7 +12,7 @@ newest_to_oldest = sorted(files, key=os.path.getctime, reverse=True)
 
 for folder in newest_to_oldest:
     folder_files = glob.glob(f"{folder}/*.pt")
-    if args.env in folder and f"{folder}/checkpoint_299.pt" in folder_files:
+    if args.env in folder and f"{folder}/checkpoint_999999.pt" in folder_files:
         shutil.move(folder, folder[:-8]+"offline")
         break
     
