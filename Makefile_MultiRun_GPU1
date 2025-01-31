@@ -13,21 +13,21 @@ build:
 
 runhammer1:
 	docker run $(DOCKER_EXTRAS) --gpus device="1" \
-	jsrl-corl python $(RUN_FILE) --env AdroitHandHammer-v1 --offline_iterations 1000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --normalize_reward True ;
+	jsrl-corl python $(RUN_FILE) --env AdroitHandHammer-v1 --offline_iterations 1000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
 	echo 'extra_herbivore' | sudo python3 move_offline_agent.py --env AdroitHandHammer-v1  
 
 runrelocate1:
 	docker run $(DOCKER_EXTRAS) --gpus device="1" \
-	jsrl-corl python $(RUN_FILE) --env  AdroitHandRelocate-v1 --offline_iterations 1000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --normalize_reward True ;
+	jsrl-corl python $(RUN_FILE) --env  AdroitHandRelocate-v1 --offline_iterations 1000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
 	echo 'extra_herbivore' | sudo python3 move_offline_agent.py --env AdroitHandRelocate-v1 
 
 runhammer2:
 	docker run $(DOCKER_EXTRAS) --gpus device="1" \
-	jsrl-corl python $(RUN_FILE) --env AdroitHandHammer-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --normalize_reward True --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandHammer-v1-offline/checkpoint_999999.pt ;
+	jsrl-corl python $(RUN_FILE) --env AdroitHandHammer-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandHammer-v1-offline/checkpoint_999999.pt ;
 
 runrelocate2:
 	docker run $(DOCKER_EXTRAS) --gpus device="1" \
-	jsrl-corl python $(RUN_FILE) --env  AdroitHandRelocate-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --normalize_reward True --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandRelocate-v1-offline/checkpoint_999999.pt ;
+	jsrl-corl python $(RUN_FILE) --env  AdroitHandRelocate-v1 --offline_iterations 1000000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 10000 --tolerance 0.05 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandRelocate-v1-offline/checkpoint_999999.pt ;
 	
 
 build_and_run: build runhammer1 runrelocate1 runhammer2 runrelocate2
