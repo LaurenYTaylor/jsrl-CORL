@@ -1,0 +1,35 @@
+WANDB_API_KEY=b3fb3695850f3bdebfee750ead3ae8230c14ea07
+RUN_FILE1="jsrl-CORL/algorithms/finetune/no_ray_trainer.py"
+
+DF=Dockerfile
+DOCKER_EXTRAS=-e WANDB_API_KEY=$(WANDB_API_KEY) -it --shm-size=10.24gb --cpus 16 -v ./algorithms/finetune/checkpoints:/workspace/checkpoints -v ./algorithms/finetune/wandb:/workspace/wandb -v .:/workspace/jsrl-CORL
+
+build:
+	yes | docker container prune
+
+	docker build \
+	-f $(DF) \
+	-t jsrl-corl \
+	.
+
+run1:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE1) --no_agent_types True --horizon_fn agent_type --checkpoints_path checkpoints --env antmaze-umaze-v2 --normalize True --normalize_reward True --iql_deterministic False --beta 10 --iql_tau 0.9 --eval_freq 100 --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-antmaze-umaze-v2-offline/checkpoint_999999.pt --offline_iterations 0 --online_iterations 1000 ;
+
+runpen:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE1) --device cpu --env AdroitHandPen-v1 --offline_iterations 5000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 100}' --eval_freq 100 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
+
+runhand:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE1) --device cpu --env AdroitHandDoor-v1 --offline_iterations 5000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 100 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
+
+runhammer:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE1) --device cpu --env AdroitHandHammer-v1 --offline_iterations 5000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 100 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
+
+runrelocate:
+	docker run $(DOCKER_EXTRAS) \
+	jsrl-corl python $(RUN_FILE1) --device cpu --env  AdroitHandRelocate-v1 --offline_iterations 5000 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense", "max_episode_steps": 200}' --eval_freq 100 --tolerance 0.05 --beta 10 --iql_tau 0.9 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
+
+build_and_run: build runpen
