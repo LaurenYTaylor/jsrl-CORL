@@ -545,7 +545,7 @@ def train(config: JsrlTrainConfig):
                 # Valid only for envs with goal, e.g. AntMaze, Adroit
                 if is_env_with_goal:
                     eval_successes.append(success_rate)
-                    eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
+                    eval_log["eval/regret"] = np.mean(1 - np.array(eval_successes))
                     eval_log["eval/success_rate"] = success_rate
                 if t >= config.offline_iterations:
                     config = jsrl.horizon_update_callback(config, normalized)
