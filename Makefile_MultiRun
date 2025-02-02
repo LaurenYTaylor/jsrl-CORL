@@ -15,12 +15,12 @@ build:
 runpen1:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --env AdroitHandPen-v1 --offline_iterations 1000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.05 --beta 0.5 --iql_tau 0.7 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
-	echo 'extra_herbivore' | sudo python3 move_offline_agent.py --env AdroitHandPen-v1  
+	sudo python3 move_offline_agent.py --env AdroitHandPen-v1  
 
 runhand1:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
 	jsrl-corl python $(RUN_FILE) --env AdroitHandDoor-v1 --offline_iterations 1000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.05 --beta 0.5 --iql_tau 0.7 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False ;
-	echo 'extra_herbivore' | sudo python3 move_offline_agent.py --env AdroitHandDoor-v1 
+	sudo python3 move_offline_agent.py --env AdroitHandDoor-v1 
 
 runpen2:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
