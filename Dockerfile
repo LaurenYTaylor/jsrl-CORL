@@ -44,6 +44,7 @@ RUN pypatch apply lunarlander.patch gymnasium
 RUN pypatch apply lunarlander-seed.patch gymnasium
 
 RUN pip install gymnasium_robotics
+RUN pip install "gymnasium[other]"
 
 RUN mkdir checkpoints
 RUN mkdir wandb

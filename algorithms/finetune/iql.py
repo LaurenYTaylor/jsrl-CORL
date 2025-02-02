@@ -26,7 +26,7 @@ TensorBatch = List[torch.Tensor]
 EXP_ADV_MAX = 100.0
 LOG_STD_MIN = -20.0
 LOG_STD_MAX = 2.0
-ENVS_WITH_GOAL = ("antmaze", "pen", "door", "hammer", "relocate")
+ENVS_WITH_GOAL = ("antmaze", "pen", "door", "hammer", "relocate", "Adroit")
 
 
 @dataclass
