@@ -543,14 +543,13 @@ def train(config: JsrlTrainConfig):
                     normalized = eval_score
 
                 # Valid only for envs with goal, e.g. AntMaze, Adroit
+                if is_env_with_goal:
+                    eval_successes.append(success_rate)
+                    eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
+                    eval_log["eval/success_rate"] = success_rate
                 if t >= config.offline_iterations:
-                    if is_env_with_goal:
-                        eval_successes.append(success_rate)
-                        eval_log["eval/regret"] = np.mean(1 - np.array(train_successes))
-                        eval_log["eval/success_rate"] = success_rate
-
                     config = jsrl.horizon_update_callback(config, normalized)
-                    eval_log = jsrl.add_jsrl_metrics(eval_log, config)
+                eval_log = jsrl.add_jsrl_metrics(eval_log, config)
                 if config.normalize_reward:
                     normalized_eval_score = normalized * 100.0
                     eval_log["eval/d4rl_normalized_score"] = normalized_eval_score
