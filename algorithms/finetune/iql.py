@@ -228,6 +228,8 @@ def wandb_init(config: dict) -> None:
 def is_goal_reached(reward: float, info: Dict) -> bool:
     if "goal_achieved" in info:
         return info["goal_achieved"]
+    elif "success" in info:
+        return info["success"]
     return reward > 0  # Assuming that reaching target is a positive reward
 
 
