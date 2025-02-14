@@ -23,6 +23,7 @@ gymnasium.register_envs(gymnasium_robotics)
 from iql import (
     ENVS_WITH_GOAL,
     GaussianPolicy,
+    DeterministicPolicy,
     ReplayBuffer,
     TrainConfig,
     Tuple,
@@ -91,7 +92,7 @@ def eval_actor(
     mean_agent_types : float
         The mean type of agent used (learner or guide) over all episodes.
     """
-    if isinstance(learner, GaussianPolicy):
+    if isinstance(learner, GaussianPolicy) or isinstance(learner, DeterministicPolicy):
         learner.eval()
     episode_rewards = []
     successes = []
@@ -99,11 +100,11 @@ def eval_actor(
     agent_types = []
     for i in range(config.n_episodes):
         if i == 0:
-            try:
+            if "gymnasium" not in str(type(env)):
                 # gym
                 env.seed(config.seed)
                 state = env.reset()
-            except AttributeError:
+            else:
                 # gymnasium
                 state, _ = env.reset(seed=config.seed)
             done = False
@@ -128,15 +129,18 @@ def eval_actor(
                 state, ts, env, learner, guide, config, config.device, eval=True
             )
             
+            if config.discrete:
+                if use_learner and guide is not None:
+                    action = np.argmax(action) 
             episode_horizons.append(horizon)
             if use_learner:
                 ep_agent_types.append(1)
             else:
                 ep_agent_types.append(0)
                 
-            try:
+            if "gymnasium" not in str(type(env)):
                 state, reward, done, env_infos = env.step(action)
-            except ValueError:
+            else:
                 state, reward, term, trunc, env_infos = env.step(action)
                 done = term or trunc
             episode_reward += reward
@@ -144,8 +148,9 @@ def eval_actor(
             
             if not goal_achieved:
                 goal_achieved = is_goal_reached(reward, env_infos)
-        
+
         # Valid only for environments with goal
+        print(f"{i}: {episode_reward}")
         successes.append(float(goal_achieved))
         episode_rewards.append(episode_reward)
 
@@ -163,7 +168,7 @@ def eval_actor(
     else:
         horizon = np.mean(horizons_reached)
     
-    if isinstance(learner, GaussianPolicy):
+    if isinstance(learner, GaussianPolicy) or isinstance(learner, DeterministicPolicy):
         learner.train()
     
     return (
@@ -201,9 +206,15 @@ def jsrl_online_actor(config, env, trainer, max_steps):
     config : JsrlTrainConfig
         The updated configuration parameters after initialization.
     """
+    if config.discrete:
+        max_action = 1
+        action_dim = env.action_space.n
+    else:
+        max_action = float(env.action_space.high[0])
+        action_dim = env.action_space.shape[0]
     env_info = {"state_dim": env.observation_space.shape[0],
-                "action_dim": env.action_space.shape[0],
-                "max_action": float(env.action_space.high[0])
+                "action_dim": action_dim,
+                "max_action": max_action
                 }
     
     config.curriculum_stage = np.nan
@@ -295,7 +306,14 @@ def train(config: JsrlTrainConfig):
     is_env_with_goal = config.env.startswith(ENVS_WITH_GOAL)
 
     state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.shape[0]
+    
+    if (type(env.action_space) == gym.spaces.Discrete or
+    type(env.action_space) == gymnasium.spaces.Discrete):
+        action_dim = env.action_space.n
+        config.discrete = True
+    else:
+        action_dim = env.action_space.shape[0]
+            
 
     if config.downloaded_dataset:
         downloaded_data = {}
@@ -346,7 +364,10 @@ def train(config: JsrlTrainConfig):
         )
         replay_buffer.load_d4rl_dataset(dataset)
 
-    max_action = float(env.action_space.high[0])
+    if config.discrete:
+        max_action = 1
+    else:
+        max_action = float(env.action_space.high[0])
 
     if config.checkpoints_path is not None:
         print(f"Checkpoints path: {config.checkpoints_path}")
@@ -385,14 +406,13 @@ def train(config: JsrlTrainConfig):
     
     # Initialise WANDB    
     wandb_init(asdict(config))
-
-    # Initialises env
-    if seed_set:
+        
+    if "gymnasium" not in str(type(env)):
         state, done = env.reset(), False
     else:
         state, _ = env.reset(seed=seed)
-        done = False
-        
+        done = False    
+    
     episode_return = 0
     episode_step = 0
     goal_achieved = False
@@ -412,7 +432,6 @@ def train(config: JsrlTrainConfig):
             print("Online tuning")
             if config.guide_heuristic_fn is not None:
                 actor = getattr(guide_heuristics, config.guide_heuristic_fn)
-                
             # Make the online learning agent, return the pre-trained or loaded guide policy
             trainer, guide, config = jsrl_online_actor(config, env, trainer, max_steps)
             actor = trainer.actor
@@ -422,16 +441,15 @@ def train(config: JsrlTrainConfig):
 
         online_log = {}
         if t >= config.offline_iterations:
-            
             # ep_agent_type == 1 -> 100% use of learner during ep
             # ep_agent_type == 0 -> 100% use of guide during ep
             if episode_step == 0:
+                   # Initialises env
                 episode_agent_types = []
                 config.ep_agent_type = 0
             else:
                 config.ep_agent_type = np.mean(episode_agent_types)
 
-            episode_step += 1
 
             action, use_learner, _ = jsrl.learner_or_guide_action(
                 state,
@@ -445,7 +463,10 @@ def train(config: JsrlTrainConfig):
 
             if use_learner:
                 episode_agent_types.append(1)
-                if not config.iql_deterministic:
+                buffer_action = action.cpu().data.numpy().flatten()
+                if config.discrete:
+                    action = torch.argmax(action)
+                elif not config.iql_deterministic:
                     action = action.sample()
                 else:
                     noise = (torch.randn_like(action) * config.expl_noise).clamp(
@@ -454,36 +475,43 @@ def train(config: JsrlTrainConfig):
                     action += noise
             else:
                 episode_agent_types.append(0)
-
-            action = torch.clamp(max_action * action, -max_action, max_action)
+                if config.discrete:
+                    buffer_action = np.zeros(action_dim,dtype=float)
+                    buffer_action[action] = 1.0
+            if not config.discrete:
+                action = torch.clamp(max_action * action, -max_action, max_action)
+                buffer_action = action
             action = action.cpu().data.numpy().flatten()
-            try:
+            
+            if config.discrete:
+                action = action[0]
+            if "gymnasium" not in str(type(env)):
                 next_state, reward, done, env_infos = env.step(action)
-            except ValueError:
+            else:
                 next_state, reward, term, trunc, env_infos = env.step(action)
                 done = term or trunc
-
+            episode_step += 1
             if not goal_achieved:
                 goal_achieved = is_goal_reached(reward, env_infos)
             episode_return += reward
 
-            real_done = False  # Episode can timeout which is different from done
+            real_done = False  # Episode can timeout which is different from done for gym
             if done and episode_step < max_steps:
                 real_done = True
-
+            
+            #print(f"{episode_step} - term: {term}, trunc: {trunc}, done: {done}, real done: {real_done}")
             if config.normalize_reward:
                 reward = modify_reward_online(reward, config.env, **reward_mod_dict)
 
+            #print(buffer_action)
             online_replay_buffer.add_transition(
-                state, action, reward, next_state, real_done
+                state, buffer_action, reward, next_state, real_done
             )
             state = next_state
             if done:
-                if seed_set:
+                if "gymnasium" not in str(type(env)):
                     state = env.reset()
                 else:
-                    # just use seed_set to know if it's a gymnasium env,
-                    # don't actually need to reseed
                     state, _ = env.reset()
                 done = False
                 # Valid only for envs with goal, e.g. AntMaze, Adroit
@@ -491,6 +519,7 @@ def train(config: JsrlTrainConfig):
                     train_successes.append(goal_achieved)
                     online_log["train/regret"] = np.mean(1 - np.array(train_successes))
                     online_log["train/is_success"] = float(goal_achieved)
+                print(f"{t}: {episode_return}")
                 online_log["train/episode_return"] = episode_return
                 online_log["train/mean_ep_agent_type"] = np.mean(episode_agent_types)
                 if config.normalize_reward:

@@ -403,14 +403,14 @@ class DeterministicPolicy(nn.Module):
     @torch.no_grad()
     def act(self, state: np.ndarray, device: str = "cpu"):
         state = torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
-        return (
-            torch.clamp(
-                self(state) * self.max_action, -self.max_action, self.max_action
+        action = self(state)
+        scaled_action = (torch.clamp(
+                action * self.max_action, -self.max_action, self.max_action
             )
             .cpu()
             .data.numpy()
-            .flatten()
-        )
+            .flatten())
+        return scaled_action
 
 
 class TwinQ(nn.Module):

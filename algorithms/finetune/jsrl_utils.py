@@ -65,6 +65,7 @@ def horizon_update_callback(config, eval_reward):
     JsrlTrainConfig
         The updated configuration parameters after horizon update.
     """
+    print(eval_reward)
     config.rolling_mean_rews.append(eval_reward)
     rolling_mean = np.mean(config.rolling_mean_rews)
     
@@ -76,7 +77,7 @@ def horizon_update_callback(config, eval_reward):
         prev_best = config.best_eval_score - config.tolerance * config.best_eval_score
     else:
         prev_best = config.best_eval_score
-
+    print(f"prev best: {prev_best}, rolling: {rolling_mean}, best eval: {config.best_eval_score}")
     if (
         len(config.rolling_mean_rews) == config.rolling_mean_n
         and rolling_mean >= prev_best
@@ -86,6 +87,8 @@ def horizon_update_callback(config, eval_reward):
             config.curriculum_stage_idx
         ]
         config.agent_type_stage = config.all_agent_types[config.curriculum_stage_idx]
+        
+        #if rolling_mean > config.best_eval_score:
         config.best_eval_score = rolling_mean
     #print(f"Current best: {config.best_eval_score}, Eval score: {rolling_mean}")
     return config
@@ -579,7 +582,7 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
         # other than the actual learner, this may also be the guide policy
         # during its offline pre-training,
         # or the guide being evaluated before online training starts
-        if not isinstance(learner, GaussianPolicy):
+        if not (isinstance(learner, GaussianPolicy) or isinstance(learner, DeterministicPolicy)):
             action = learner(env, state)
         else:
             if eval:

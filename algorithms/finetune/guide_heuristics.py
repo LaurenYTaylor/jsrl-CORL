@@ -1,5 +1,24 @@
 import numpy as np
 
+def cartpole(_, state):
+    _, _, theta, w = state
+    
+    #if w<0.074:
+        #if theta<0.022:
+            #return 0
+        #else:
+            #return 1
+    #else:
+        #return 1
+        
+    if w<0.1:
+        if theta<0.022:
+            return 0
+        else:
+            return 1
+    else:
+        return 1
+
 def lunar_lander(env, state):
     """
     The heuristic for
