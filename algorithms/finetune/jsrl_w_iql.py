@@ -313,6 +313,7 @@ def train(config: JsrlTrainConfig):
         config.discrete = True
     else:
         action_dim = env.action_space.shape[0]
+        config.discrete = False
             
 
     if config.downloaded_dataset:
