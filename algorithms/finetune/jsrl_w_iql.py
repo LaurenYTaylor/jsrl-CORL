@@ -381,9 +381,8 @@ def train(config: JsrlTrainConfig):
     try:
         set_env_seed(env, config.eval_seed)
         set_env_seed(eval_env, config.eval_seed)
-        seed_set = True
     except AttributeError:
-        seed_set = False
+        pass
 
 
     print("----------------------------------------------------")
