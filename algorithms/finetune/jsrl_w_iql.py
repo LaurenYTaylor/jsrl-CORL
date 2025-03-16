@@ -150,7 +150,6 @@ def eval_actor(
                 goal_achieved = is_goal_reached(reward, env_infos)
 
         # Valid only for environments with goal
-        print(f"{i}: {episode_reward}")
         successes.append(float(goal_achieved))
         episode_rewards.append(episode_reward)
 
@@ -519,7 +518,6 @@ def train(config: JsrlTrainConfig):
                     train_successes.append(goal_achieved)
                     online_log["train/regret"] = np.mean(1 - np.array(train_successes))
                     online_log["train/is_success"] = float(goal_achieved)
-                print(f"{t}: {episode_return}")
                 online_log["train/episode_return"] = episode_return
                 online_log["train/mean_ep_agent_type"] = np.mean(episode_agent_types)
                 if config.normalize_reward:

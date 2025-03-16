@@ -586,7 +586,6 @@ class ImplicitQLearning:
 
         self.vf.load_state_dict(state_dict["vf"])
         self.v_optimizer.load_state_dict(state_dict["v_optimizer"])
-
         self.actor.load_state_dict(state_dict["actor"])
         self.actor_optimizer.load_state_dict(state_dict["actor_optimizer"])
         if self.actor_lr_schedule is not None:

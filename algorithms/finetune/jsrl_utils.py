@@ -445,7 +445,7 @@ def agent_type_horizon(_st, _s, _e, config):
         return True, config.ep_agent_type
     if (config.curriculum_stage_idx == (config.n_curriculum_stages-1) or
      config.ep_agent_type <= config.curriculum_stage):
-        use_learner = (np.random.sample()<config.curriculum_stage)
+        use_learner = (np.random.sample() < config.curriculum_stage)
     return use_learner, config.ep_agent_type
 
 
@@ -592,7 +592,7 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
                     torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
                 )
     else:
-        if not isinstance(guide, GaussianPolicy):
+        if not (isinstance(guide, GaussianPolicy) or isinstance(guide, DeterministicPolicy)):
             action = guide(env, state)
         else:
             action = guide.act(state, device)
