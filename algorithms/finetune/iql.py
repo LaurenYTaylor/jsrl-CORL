@@ -187,7 +187,8 @@ class ReplayBuffer:
     ):
         # Use this method to add new data into the replay buffer during fine-tuning.
         self._states[self._pointer] = self._to_tensor(state)
-        self._actions[self._pointer] = self._to_tensor(action)
+        if not isinstance(action, torch.Tensor):
+            self._actions[self._pointer] = self._to_tensor(action)
         self._rewards[self._pointer] = self._to_tensor(reward)
         self._next_states[self._pointer] = self._to_tensor(next_state)
         self._dones[self._pointer] = self._to_tensor(done)

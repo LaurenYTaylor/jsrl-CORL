@@ -12,31 +12,70 @@ build:
 	-t jsrl-corl \
 	.
 
-runpen1:
+runhopper1:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --env AdroitHandPen-v1 --offline_iterations 2000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.05 --beta 0.5 --iql_tau 0.7 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False  --iql_deterministic True ;
-	sudo python3 move_offline_agent.py --env AdroitHandPen-v1  
+	jsrl-corl python $(RUN_FILE1) --no_agent_types True --horizon_fn agent_type --checkpoints_path checkpoints --env Hopper-v5 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --iql_tau 0.9 --eval_freq 10000 --offline_iterations 1000000 --online_iterations 0 ;
+	move_offline_agent.py --env Hopper-v5
+
+runpusher1:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE1) --no_agent_types True --horizon_fn agent_type --checkpoints_path checkpoints --env Pusher-v5 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --iql_tau 0.9 --eval_freq 10000 --offline_iterations 1000000 --online_iterations 0 ;
+	move_offline_agent.py --env Pusher-v5
+
+runinvertedpendulum1:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE1) --no_agent_types True --horizon_fn agent_type --checkpoints_path checkpoints --env InvertedDoublePendulum-v5 --normalize True --normalize_reward False --iql_deterministic False --beta 10 --iql_tau 0.9 --eval_freq 10000 --offline_iterations 1000000 --online_iterations 0 ;
+	move_offline_agent.py --env InvertedDoublePendulum-v5
+
+runhammer1:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --env AdroitHandHammer-v1 --offline_iterations 1000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.05 --beta 0.5 --iql_tau 0.7 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False  ;
+	move_offline_agent.py --env AdroitHandHammer-v1  
 
 runhand1:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --env AdroitHandDoor-v1 --offline_iterations 2000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.05 --beta 0.5 --iql_tau 0.7 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False  --iql_deterministic True ;
-	sudo python3 move_offline_agent.py --env AdroitHandDoor-v1 
+	jsrl-corl python $(RUN_FILE) --env AdroitHandDoor-v1 --offline_iterations 1000000 --online_iterations 0 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.05 --beta 0.5 --iql_tau 0.7 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False  ;
+	move_offline_agent.py --env AdroitHandDoor-v1 
 
-runpen2:
+runhopper2:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --env AdroitHandPen-v1 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False  --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandPen-v1-offline/checkpoint_999999.pt --iql_deterministic True ;
+	jsrl-corl python $(RUN_FILE) --env Hopper-v5 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-Hopper-v5-offline/checkpoint_999999.pt ;
+
+runpusher2:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --env Pusher-v5 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-Pusher-v5-offline/checkpoint_999999.pt ;
+
+runinvertedpendulum2:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --env InvertedDoublePendulum-v5 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-InvertedDoublePendulum-v5-offline/checkpoint_999999.pt ;
+
+runhopper3:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --env Hopper-v5 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn time_step --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-Hopper-v5-offline/checkpoint_999999.pt ;
+
+runpusher3:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --env Pusher-v5 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn time_step --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-Pusher-v5-offline/checkpoint_999999.pt ;
+
+runinvertedpendulum3:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --env InvertedDoublePendulum-v5 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn time_step --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-InvertedDoublePendulum-v5-offline/checkpoint_999999.pt ;
+
+runhammer2:
+	docker run $(DOCKER_EXTRAS) --gpus device="0" \
+	jsrl-corl python $(RUN_FILE) --env AdroitHandHammer-v1 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandHammer-v1-offline/checkpoint_999999.pt ;
 
 runhand2:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --env AdroitHandDoor-v1 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandDoor-v1-offline/checkpoint_999999.pt --iql_deterministic True ;
+	jsrl-corl python $(RUN_FILE) --env AdroitHandDoor-v1 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn agent_type --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandDoor-v1-offline/checkpoint_999999.pt ;
 
-runpen3:
+runhammer3:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --env AdroitHandPen-v1 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn time_step --normalize False  --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandPen-v1-offline/checkpoint_999999.pt --iql_deterministic True ;
+	jsrl-corl python $(RUN_FILE) --env AdroitHandHammer-v1 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn time_step --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandHammer-v1-offline/checkpoint_999999.pt ;
 
 runhand3:
 	docker run $(DOCKER_EXTRAS) --gpus device="0" \
-	jsrl-corl python $(RUN_FILE) --env AdroitHandDoor-v1 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn time_step --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandDoor-v1-offline/checkpoint_999999.pt --iql_deterministic True ;
+	jsrl-corl python $(RUN_FILE) --env AdroitHandDoor-v1 --offline_iterations 0 --online_iterations 1000000 --n_curriculum_stages 10 --env_config '{"reward_type": "dense"}' --eval_freq 10000 --tolerance 0.1 --beta 3 --iql_tau 0.8 --checkpoints_path checkpoints --horizon_fn time_step --normalize False --pretrained_policy_path jsrl-CORL/algorithms/finetune/checkpoints/IQL-AdroitHandDoor-v1-offline/checkpoint_999999.pt ;
 
 
-build_and_run: build runpen1 runhand1 runpen2 runhand2 runhammer3 runrelocate3
+build_and_run: build runhopper1 runpusher1 runinvertedpendulum1 runhopper2 runpusher2 runinvertedpendulum2 runhopper3 runpusher3 runinvertedpendulum3 runhammer1 runhand1 runhammer2 runhand2 runhammer3 runhammer3

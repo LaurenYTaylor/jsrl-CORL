@@ -462,16 +462,17 @@ def train(config: JsrlTrainConfig):
 
             if use_learner:
                 episode_agent_types.append(1)
-                buffer_action = action.cpu().data.numpy().flatten()
                 if config.discrete:
+                    buffer_action = action.cpu().data.numpy().flatten()
                     action = torch.argmax(action)
                 elif not config.iql_deterministic:
-                    action = action.sample()
+                    buffer_action = action = action.sample()
                 else:
                     noise = (torch.randn_like(action) * config.expl_noise).clamp(
                         -config.noise_clip, config.noise_clip
                     )
                     action += noise
+                    buffer_action = action
             else:
                 episode_agent_types.append(0)
                 if config.discrete:
