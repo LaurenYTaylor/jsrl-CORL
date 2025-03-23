@@ -187,8 +187,7 @@ class ReplayBuffer:
     ):
         # Use this method to add new data into the replay buffer during fine-tuning.
         self._states[self._pointer] = self._to_tensor(state)
-        if not isinstance(action, torch.Tensor):
-            self._actions[self._pointer] = self._to_tensor(action)
+        self._actions[self._pointer] = self._to_tensor(action)
         self._rewards[self._pointer] = self._to_tensor(reward)
         self._next_states[self._pointer] = self._to_tensor(next_state)
         self._dones[self._pointer] = self._to_tensor(done)
@@ -550,7 +549,6 @@ class ImplicitQLearning:
             dones,
         ) = batch
         log_dict = {}
-
         with torch.no_grad():
             next_v = self.vf(next_observations)
         # Update value function
@@ -606,6 +604,8 @@ class ImplicitQLearning:
             self.actor_lr_schedule.load_state_dict(state_dict["actor_lr_schedule"])
 
         self.total_it = state_dict["total_it"]
+        
+
 
 @pyrallis.wrap()
 def train(config: TrainConfig):

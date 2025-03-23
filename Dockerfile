@@ -43,6 +43,7 @@ RUN ["python", "-c", "import mujoco_py"]
 #RUN pypatch apply lunarlander-seed.patch gymnasium
 
 RUN pip install "gymnasium[all]" gymnasium-robotics
+RUN pip install stable-baselines3[extra]
 RUN mkdir checkpoints
 RUN mkdir wandb
 RUN mkdir jsrl-CORL

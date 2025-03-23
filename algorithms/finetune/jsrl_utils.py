@@ -10,6 +10,8 @@ from pathlib import PosixPath, Path
 from goal_horizon_fns import goal_dist_calc
 from torch import nn
 import guide_heuristics
+import stable_baselines3
+from stable_baselines3 import SAC
 from variance_learner import StateDepFunction, VarianceLearner
 from iql import (
     DeterministicPolicy,
@@ -65,7 +67,6 @@ def horizon_update_callback(config, eval_reward):
     JsrlTrainConfig
         The updated configuration parameters after horizon update.
     """
-    print(eval_reward)
     config.rolling_mean_rews.append(eval_reward)
     rolling_mean = np.mean(config.rolling_mean_rews)
     
@@ -116,12 +117,19 @@ def load_guide(trainer, pretrained):
     if not isinstance(pretrained, PosixPath):
         return pretrained
     try:
-        trainer.load_state_dict(torch.load(pretrained))
+        if pretrained.suffix == ".pth":
+            guide = SAC.load(pretrained.parent).actor
+        else:
+            trainer.load_state_dict(torch.load(pretrained))
+            guide = trainer.actor
     except RuntimeError:
-        trainer.load_state_dict(
+        if pretrained.suffix == ".pth":
+            guide = SAC.load(pretrained.parent, device="cpu").actor
+        else:
+            trainer.load_state_dict(
             torch.load(pretrained, map_location=torch.device("cpu"))
-        )
-    guide = trainer.actor
+            )
+            guide = trainer.actor
     guide.eval()
     return guide
 
@@ -582,20 +590,33 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
         # other than the actual learner, this may also be the guide policy
         # during its offline pre-training,
         # or the guide being evaluated before online training starts
-        if not (isinstance(learner, GaussianPolicy) or isinstance(learner, DeterministicPolicy)):
+        if not (isinstance(learner, GaussianPolicy) or isinstance(learner, DeterministicPolicy) or isinstance(learner, stable_baselines3.sac.policies.Actor)):
             action = learner(env, state)
         else:
-            if eval:
+            try:
                 action = learner.act(state, device)
-            else:
+            except AttributeError:
                 action = learner(
                     torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
                 )
     else:
-        if not (isinstance(guide, GaussianPolicy) or isinstance(guide, DeterministicPolicy)):
+        if not (isinstance(guide, GaussianPolicy) or isinstance(guide, DeterministicPolicy) or isinstance(guide, stable_baselines3.sac.policies.Actor)):
             action = guide(env, state)
         else:
-            action = guide.act(state, device)
-        if not eval:
+            try:
+                action = guide.act(state, device)
+            except AttributeError:
+                action = guide(
+                    torch.tensor(state.reshape(1, -1), device=device, dtype=torch.float32)
+                )
+        
+        if not eval and not isinstance(action, torch.Tensor):
              action = torch.tensor(action)
+    if (eval and isinstance(action, torch.Tensor)):
+        action = action.numpy().flatten()
+    elif not eval:
+        if isinstance(action, np.ndarray):
+            action = torch.tensor(action)
+        elif len(action.size())>1:
+            action = action.flatten()
     return action, use_learner, horizon

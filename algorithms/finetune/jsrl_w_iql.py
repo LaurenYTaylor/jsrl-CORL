@@ -463,26 +463,30 @@ def train(config: JsrlTrainConfig):
             if use_learner:
                 episode_agent_types.append(1)
                 if config.discrete:
-                    buffer_action = action.cpu().data.numpy().flatten()
                     action = torch.argmax(action)
                 elif not config.iql_deterministic:
-                    buffer_action = action = action.sample()
+                    try:
+                        action = action.sample()
+                    except AttributeError:
+                        # not a Gaussian policy
+                        pass
                 else:
                     noise = (torch.randn_like(action) * config.expl_noise).clamp(
                         -config.noise_clip, config.noise_clip
                     )
                     action += noise
-                    buffer_action = action
             else:
                 episode_agent_types.append(0)
-                if config.discrete:
-                    buffer_action = np.zeros(action_dim,dtype=float)
-                    buffer_action[action] = 1.0
             if not config.discrete:
                 action = torch.clamp(max_action * action, -max_action, max_action)
-                buffer_action = action
             action = action.cpu().data.numpy().flatten()
-            
+            if config.discrete and not use_learner:
+                buffer_action = np.zeros(action_dim,dtype=float)
+                buffer_action[action] = 1.0
+            elif not isinstance(action, np.ndarray):
+                buffer_action = action.cpu().data.numpy().flatten()
+            else:
+                buffer_action = action  
             if config.discrete:
                 action = action[0]
             if "gymnasium" not in str(type(env)):
@@ -502,8 +506,6 @@ def train(config: JsrlTrainConfig):
             #print(f"{episode_step} - term: {term}, trunc: {trunc}, done: {done}, real done: {real_done}")
             if config.normalize_reward:
                 reward = modify_reward_online(reward, config.env, **reward_mod_dict)
-
-            #print(buffer_action)
             online_replay_buffer.add_transition(
                 state, buffer_action, reward, next_state, real_done
             )

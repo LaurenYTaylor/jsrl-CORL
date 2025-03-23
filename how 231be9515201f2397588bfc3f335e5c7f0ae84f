@@ -1,0 +1,2064 @@
+[33mcommit 231be9515201f2397588bfc3f335e5c7f0ae84fc[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: root <root@D047C1650B704.ad.adelaide.edu.au>
+Date:   Thu Mar 13 14:41:38 2025 +1030
+
+    made offline deterministic
+
+[33mcommit bd20f688e7d9bd009f52648c446d0a9e3e8b493e[m
+Author: root <root@D047C1650B704.ad.adelaide.edu.au>
+Date:   Thu Mar 13 14:08:40 2025 +1030
+
+    added no ray trainer
+
+[33mcommit 967edb3cb06041f685890bf384fecbc9c1f22820[m
+Author: root <root@D047C1650B704.ad.adelaide.edu.au>
+Date:   Thu Mar 13 14:05:19 2025 +1030
+
+    added hammer to debug
+
+[33mcommit a7ee7cae30d08d096ccfc01746ccc3a1f433fe40[m
+Author: root <root@D047C1650B704.ad.adelaide.edu.au>
+Date:   Mon Mar 10 11:56:26 2025 +1030
+
+    fixed dicrete bug
+
+[33mcommit facb5fd3c6c3917cefff2a6c733d8b6732e16b8c[m
+Author: root <root@D047C1650B704.ad.adelaide.edu.au>
+Date:   Mon Mar 10 11:54:39 2025 +1030
+
+    makefile changes
+
+[33mcommit a4a42f448e7a63504bf25e927e1690f43f854a51[m
+Author: root <root@D047C1650B704.ad.adelaide.edu.au>
+Date:   Mon Mar 10 11:50:44 2025 +1030
+
+    remobved unnecessary seed set
+
+[33mcommit ed5d1495599148ae67fc2a12d978ebe5cdab62a5[m
+Author: root <root@D047C1650B704.ad.adelaide.edu.au>
+Date:   Mon Mar 10 11:49:25 2025 +1030
+
+    makefile
+
+[33mcommit 83c05dc6b86bd1b8613123156525c334a10b83c5[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 15 04:44:49 2025 +1030
+
+    works with Discrete action space environments
+
+[33mcommit 48943c8d3b90740f17ba34b12836629906f41813[m
+Merge: 02e7426 1d20c9d
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Feb 7 15:38:59 2025 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 02e7426b334cf2e16633e9c8320b46c8123cfcf1[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Feb 7 15:38:44 2025 +1030
+
+    fixed move_offline_agent not overwriting
+
+[33mcommit 1d20c9dcab2e99c08834b7db9f762e0696796915[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 7 15:38:12 2025 +1030
+
+    make file chsanges
+
+[33mcommit 1692281f8587d7cc1414df84f112dcf6dafe30e6[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 6 15:49:19 2025 +1030
+
+    makefile changes
+
+[33mcommit 19983457be8077c062bb72b2e0eee46890447f71[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 6 15:48:55 2025 +1030
+
+    fixed success metric
+
+[33mcommit 8f8ffb5d7a47de2569eec4260fe4893488a7dbc5[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 5 16:10:32 2025 +1030
+
+    fixed move_offline_agwnt bug
+
+[33mcommit e71b619d2264aa176890a21ca626a5062cebb23d[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Mon Feb 3 09:17:38 2025 +1030
+
+    train successes bug
+
+[33mcommit 40cd018edde3a9797c4531ad7292a1f387f98b6d[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Mon Feb 3 09:13:57 2025 +1030
+
+    train successes bug
+
+[33mcommit bc2d2d7987914b8be8a2145499e488d9e246518f[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Mon Feb 3 09:07:43 2025 +1030
+
+    readded success and regret metric to offline
+
+[33mcommit 5cfa02a5d7c469cbf4fe889b0d77c729949b30c8[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Mon Feb 3 07:39:50 2025 +1030
+
+    makefile changes
+
+[33mcommit f18c9e523aae9c4865d8e312958b2958ab7c0d47[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Mon Feb 3 07:27:31 2025 +1030
+
+    changed move offline to copy
+
+[33mcommit ab6863045815ac9074de728f580ee07f4cf33617[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Mon Feb 3 07:20:12 2025 +1030
+
+    added in load and evaluate
+
+[33mcommit 5b74fd33cc9ffe770c2e1a0865b102dca2ede9e3[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 1 06:34:51 2025 +1030
+
+    makefile changes
+
+[33mcommit de878953e93c05cb82a715e986970761a0f566b0[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 1 03:43:15 2025 +1030
+
+    fixed capitalisation error
+
+[33mcommit 69984a9162d15567c9a4dd4fcac4acb583131625[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 1 02:53:06 2025 +1030
+
+    added container name
+
+[33mcommit 17720c0f895002b04776fa060e03c2c84d0974e3[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 1 02:44:58 2025 +1030
+
+    fixed incorrect paths
+
+[33mcommit dc70a1fada9709c47e0c034d8ff8332aaf95cc0b[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 1 02:43:42 2025 +1030
+
+    fixed incorrect paths
+
+[33mcommit 5f388822f906a2ced8a0a4dbdbd03bb262b6899e[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 1 02:39:49 2025 +1030
+
+    added name to docker tag
+
+[33mcommit 554d0e238e8573f296faec688512bfd0103971cf[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 1 02:38:36 2025 +1030
+
+    added print
+
+[33mcommit 6d6259159c5882800a21bad803468d4324fbaff6[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 1 02:37:51 2025 +1030
+
+    fixed move agent bug
+
+[33mcommit 6d70e4c29beeb7d64be422296407bcc006af3b00[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 31 12:49:52 2025 +1030
+
+    removed score normalization
+
+[33mcommit 4064b60d22aa79889823e85cf919a4943a06a281[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 31 12:25:05 2025 +1030
+
+    makefiles changes
+
+[33mcommit 41a04aedaf314bb613bb6cfadfa64906c8fbe1ba[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 29 15:27:53 2025 +1030
+
+    make file typo
+
+[33mcommit 884fdc271aec8999d479172ad46002d3e4c75090[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 29 15:24:59 2025 +1030
+
+    added script to move offline trained agent to guide folder
+
+[33mcommit 7e499c660e49a94ce31a73b9f0d76a1a3fbf3153[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sun Jan 26 06:23:19 2025 +1030
+
+    makefile changes
+
+[33mcommit 9de3757f17ef354b3c2e789fec1f709467bb1f43[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 24 15:38:51 2025 +1030
+
+    fixed agent type bug
+
+[33mcommit 791b498d8566b86fd85e3eb4768d44b31c08cda9[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 24 15:01:41 2025 +1030
+
+    changed Make files
+
+[33mcommit 11aa6a4effd92bbee13349dc188467ced56bb6aa[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 24 14:56:32 2025 +1030
+
+    changed Make files
+
+[33mcommit c7d7393f53bb6cc8adaf47c5aded748352bef08a[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 24 14:51:13 2025 +1030
+
+    added agent type horizon
+
+[33mcommit 7a2f45c8a8dd84a4590485b0d4ef1485a32188eb[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jun 6 12:40:46 2024 +0930
+
+    fixed paths
+
+[33mcommit 663ca0f39e211556d065042b7e239a3be053d741[m
+Merge: f0f15ac 9935b1c
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jun 6 12:39:48 2024 +0930
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit f0f15ac871f5252dc66c0e8e0e9ed4f9551e9221[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jun 6 12:39:40 2024 +0930
+
+    fixed path
+
+[33mcommit 9935b1c1c90ee418e5e1d82a02505b87f4cdaf8a[m
+Author: Lauren Taylor <lauren.y.taylor96@gmail.com>
+Date:   Thu Jun 6 12:28:11 2024 +0930
+
+    Update README.md
+
+[33mcommit 782c45d88ccdd861ee3ed00cfe5f1064bff1a383[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu May 23 15:19:22 2024 +0930
+
+    edited README
+
+[33mcommit d00bd10d548d07718d11fb0771280279581e667d[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu May 23 15:12:56 2024 +0930
+
+    changed jsrl_wrapper name
+
+[33mcommit cca5c3c148d26515aec562732fb7dca7751b3552[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu May 23 15:12:41 2024 +0930
+
+    docstring
+
+[33mcommit 662a80d787009cb14b7085b65489ff7a7ff737d0[m
+Merge: a86fcbd cae9f88
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Apr 11 09:00:43 2024 +0930
+
+    make file merge conflicts
+
+[33mcommit a86fcbd157b187a6a497144da1ae9797e8e3b146[m
+Merge: 83b3a15 0d71546
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Apr 11 08:57:20 2024 +0930
+
+    make file merge conflicts
+
+[33mcommit 0d71546d2639af365d3a0b0a1c2fcad2f244d675[m[33m ([m[1;31morigin/variance_random[m[33m, [m[1;32mvariance_random[m[33m)[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Apr 11 08:55:47 2024 +0930
+
+    added variance learn frac
+
+[33mcommit bb35d4675f7d0e866f501bbddce2a29a51be93ed[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Apr 4 13:44:31 2024 +1030
+
+    random actions
+
+[33mcommit 6eda2f7f6107ceaa890f088ba41ac4642d6566e9[m[33m ([m[1;31morigin/variance_pred[m[33m, [m[1;32mvariance_pred[m[33m)[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Tue Mar 26 21:37:29 2024 +1030
+
+    makefile
+
+[33mcommit cd421eb1cf9915e3149a57a14f35ab905013fcbd[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Mar 22 15:47:53 2024 +1030
+
+    changed device in variance learner
+
+[33mcommit 2a49f5b627cf8aa0ba34a4d3a890e25ff5dce56f[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Mar 22 15:26:11 2024 +1030
+
+    added eval after variance prediction, variance learning done with guide, use of learner for all steps once on final curriculum stage
+
+[33mcommit d921db726ad7c6d51e37e43357a9331396bad1e7[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 18:05:31 2024 +1030
+
+    removed check_stopped
+
+[33mcommit 464f452de679bd288fc18ca5c2e65c6feaed7158[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 17:19:54 2024 +1030
+
+    modified check_stopped.sh
+
+[33mcommit 0bfc253277502523122d72944585ab777d894f62[m
+Merge: f5756cf 90e8ef5
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 17:00:40 2024 +1030
+
+    Merge branch 'variance_pred' of https://github.com/LaurenYTaylor/jsrl-CORL into variance_pred
+
+[33mcommit f5756cf30723601a71332bc613b9deb675701c1f[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 17:00:19 2024 +1030
+
+    removed spaces in makefiles
+
+[33mcommit 90e8ef5100ca33684b23a5807c257b44547e26d9[m
+Merge: 53590c8 e3bf155
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 16:54:27 2024 +1030
+
+    merge conflict
+
+[33mcommit 53590c8eb9270138a36a42cbbdba76d18dad1357[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 16:53:50 2024 +1030
+
+    cstages
+
+[33mcommit e3bf155b6fa63f31a100932dccdedc238177c992[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 16:53:04 2024 +1030
+
+    added agent types
+
+[33mcommit 87f67a2cfa75da2168a17e103fbb2b443c6f888b[m
+Merge: b87ac67 a55f52c
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 15:25:02 2024 +1030
+
+    Merge branch 'variance_pred' of https://github.com/LaurenYTaylor/jsrl-CORL into variance_pred
+
+[33mcommit a55f52c043ea7539ba7681cac593fd21eb0520ef[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 15:24:52 2024 +1030
+
+    makefile gpu change
+
+[33mcommit b87ac672a6d3aa3621b1126a22450585222b2799[m
+Merge: b1f9e80 4f29253
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 15:23:41 2024 +1030
+
+    Merge branch 'variance_pred' of https://github.com/LaurenYTaylor/jsrl-CORL into variance_pred
+
+[33mcommit 4f29253b474e9f83352f5b3226225cf779e327b8[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 15:23:35 2024 +1030
+
+    makefile horizon change
+
+[33mcommit b1f9e803e273ef7bd8008e50a05ad0b17f074258[m
+Merge: 34c0570 a374369
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 15:22:04 2024 +1030
+
+    Merge branch 'variance_pred' of https://github.com/LaurenYTaylor/jsrl-CORL into variance_pred
+
+[33mcommit a3743691e7309d84cad7e492c2f39df516bcc61b[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 15:21:56 2024 +1030
+
+    added new makefile
+
+[33mcommit 34c057047dd12d8c354777aabb30559e06fb427c[m
+Merge: 6ebbbac e504aef
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 15:19:35 2024 +1030
+
+    Merge branch 'variance_pred' of https://github.com/LaurenYTaylor/jsrl-CORL into variance_pred
+
+[33mcommit e504aef92aea2d6da153dba9b0d82cf3195cc209[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 15:19:07 2024 +1030
+
+    added new makefile
+
+[33mcommit 6ebbbac1d250f7fc659968dbd45de3a3369f1a95[m
+Merge: ef3248f 526f4ec
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 14:23:30 2024 +1030
+
+    Merge branch 'variance_pred' of https://github.com/LaurenYTaylor/jsrl-CORL into variance_pred
+
+[33mcommit 526f4ecfeffcb659d171ecc88ec1b1becaf29150[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 14:23:22 2024 +1030
+
+    make max init horizon false
+
+[33mcommit ef3248fc47f35c5f64657bfa4f809b5da154ad8d[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 13:43:01 2024 +1030
+
+    fixed missing quote mark
+
+[33mcommit 548da035a48d4245163ce26727a7b212ca70039b[m
+Merge: 1475f27 5f96fec
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 13:41:51 2024 +1030
+
+    Merge branch 'variance_pred' of https://github.com/LaurenYTaylor/jsrl-CORL into variance_pred
+
+[33mcommit 5f96fecf46aff7abd6758640938723e88d87c3d4[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 13:41:38 2024 +1030
+
+    all_agent_types 1
+
+[33mcommit 1475f27c7e94c5f2d315c92707b51cf750f99aaa[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 13:39:55 2024 +1030
+
+    noagentthresh
+
+[33mcommit c0c2e6a03b937c9d57ee26b8c635680a2f89f5c9[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 21 13:38:13 2024 +1030
+
+    changed acculumator
+
+[33mcommit cae9f88c75242fa67ee68f8b0ed9221b701dfd80[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 21 13:37:55 2024 +1030
+
+    changed accumulator
+
+[33mcommit 83b3a15068fedaf19c9284f83eed4a9c6f3c448b[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Mar 13 10:42:42 2024 +1030
+
+    makefile
+
+[33mcommit 17ecff75123c92908f96b0c18e3c85ae625f44da[m
+Merge: 36d15f2 dfce2b1
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 7 11:33:20 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 36d15f2cff132f7aabf4a7d4a26ee56f9ef47eaf[m
+Merge: f84227b c882817
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 7 11:33:16 2024 +1030
+
+    fixed merge conflict
+
+[33mcommit dfce2b1726bf249298e8229c0a3f84f736d4649f[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 7 11:29:10 2024 +1030
+
+    fixed makefile
+
+[33mcommit f84227bd0317f71e85bf834208387c8e41da0dcf[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Mar 7 11:27:56 2024 +1030
+
+    added all runs
+
+[33mcommit c882817490eab48f2d0901a5cf5c4bdfc7ceae45[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 7 11:27:28 2024 +1030
+
+    fixed makefile
+
+[33mcommit 1efc1fd883c671956bbaf674597f526b6be7a047[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Mar 7 11:24:34 2024 +1030
+
+    antmaze run edit
+
+[33mcommit 3112c5a927589650fb93f70cdf03ef9543a5839d[m
+Merge: ee124c0 0b33235
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Mar 6 17:56:06 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 0b332357d00f127e9908cf0f1fdd73913c5d4956[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Mar 6 17:55:50 2024 +1030
+
+    makefile change
+
+[33mcommit 3c37590ca86dffc084651724705f54008f2f3e0f[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Mar 6 17:55:26 2024 +1030
+
+    fixed guide bug
+
+[33mcommit ee124c0531149b01e71a06be81e921aff859a001[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Mar 6 17:54:29 2024 +1030
+
+    makefile
+
+[33mcommit 3761f887c78a4a961e742f67b59e2c1a70cbf1ed[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Mar 6 17:19:42 2024 +1030
+
+    removed accdientally added files
+
+[33mcommit e1bd57e83ad2631f9c955072d6cdce14c34b0522[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Mar 6 17:15:37 2024 +1030
+
+    moved more code into jsrl_utils
+
+[33mcommit 4c494432918cdf89c3106f85b100dcbef7116826[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Mar 6 17:13:15 2024 +1030
+
+    moved more code into jsrl_utils
+
+[33mcommit b5f3dba56f8750e1c64b2211eade7dc42b0bbbef[m
+Merge: febbe65 77e6888
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Tue Feb 27 20:01:55 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 77e6888c796e81af68f4f3fbbd4bfab4395df840[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Tue Feb 27 20:01:37 2024 +1030
+
+    run jsrl experiments
+
+[33mcommit 7a75a03e82015752d9e1edb7cdfad8916d65927f[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Tue Feb 27 20:01:02 2024 +1030
+
+    variance learner running
+
+[33mcommit 4e2b5b6b71743a85d7794e7f4b84ef0e094d3d62[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 21 16:30:04 2024 +1030
+
+    added variance predictor
+
+[33mcommit febbe650ff19c9337aae5b359548e8f6d8548426[m
+Merge: d654efe 50d2708
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 21 16:00:56 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 50d2708b300148472fc533d17b514fafa651be84[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 21 15:58:52 2024 +1030
+
+    fixed offline to online state dict loading bug
+
+[33mcommit d654efe95d3162b1b642b018c4f2376a14b67a06[m
+Merge: 346be53 2bd38d4
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 21 13:12:24 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 2bd38d4710f4dbe62b4ab7fdc2da29eda8bd7395[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 21 13:12:14 2024 +1030
+
+    changed project name
+
+[33mcommit 346be53b653cad8989c0b0147444b52dee4a2f11[m
+Merge: 1462351 445cfb6
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 21 13:08:02 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 445cfb60995fccefb86d40879be66b6308532e02[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 21 13:07:54 2024 +1030
+
+    new lunar lander patch
+
+[33mcommit 1462351fb766090f7a701d20c4f172556a2c0938[m
+Merge: 7385fb9 06f6aaa
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 21 13:06:06 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 06f6aaa217a8f0b6a85c89f03702e14c36aad96d[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 21 13:05:47 2024 +1030
+
+    makefile changes
+
+[33mcommit 7385fb94352939115a6363d3005169e356f78fa3[m
+Merge: ec3a9b3 9a6cf21
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Feb 16 07:45:51 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 9a6cf21bfbec0e6d7bec3087b3a76421681a0470[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 16 07:45:44 2024 +1030
+
+    fixed diverse bug
+
+[33mcommit ec3a9b38c39ddef80d7a264741ed44c2058524ab[m
+Merge: 30974a7 e35cbc6
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 15 22:02:45 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 30974a754a003452c39cfbc2a53f7de17a8ad1da[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 15 22:02:42 2024 +1030
+
+    make changes
+
+[33mcommit e35cbc600f5279c988a4cf47b30795bb0d15d5a6[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 15 22:02:29 2024 +1030
+
+    make changes
+
+[33mcommit 742e83848e2b81f3356deb348aceb8036e1283b3[m
+Merge: f26f31a bf3c8ce
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 15 20:11:35 2024 +1030
+
+    merge
+
+[33mcommit f26f31aebc9408da951129bab1806d3e8e0e465a[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 15 19:57:48 2024 +1030
+
+    changed runs to ncs=10
+
+[33mcommit bf3c8ce9885b125fe66696d50a7b65332925e8ad[m
+Merge: 1771be0 f42ecdd
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 15 19:57:10 2024 +1030
+
+    fixed gpu devices
+
+[33mcommit 1771be0311e3cf12cf7d44c567b2b569f1bc946d[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 15 17:27:42 2024 +1030
+
+    no debug
+
+[33mcommit f42ecdd53fc2ba63893a8fed2524a69cbf94eed7[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 15 17:27:28 2024 +1030
+
+    makefile
+
+[33mcommit 0b7e62133b05a15d03cd69ea8224ec071c8baf49[m
+Merge: 7572911 fff1c34
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 15 17:18:41 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit fff1c34be5191aceca977ea28f86e5933f2e3fbc[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 15 17:18:35 2024 +1030
+
+    fixed non training actor bug
+
+[33mcommit 7572911b1c1de5cbcfcdbf5f12988d9f6b0477ca[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 15 17:18:21 2024 +1030
+
+    makefile changes
+
+[33mcommit 044eab4d4c5c26376a1d9b1a7f7d5f7a58aa3c7e[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 15 14:32:30 2024 +1030
+
+    fixed horizon_fn bug
+
+[33mcommit 253e8a10f6e8cfd6e07d8a7155b0a76db22ab8ce[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 14 17:23:29 2024 +1030
+
+    added extra runs to makefile
+
+[33mcommit 8779f5b8fc7c68abc2b72e054eb7c599b41bd3f6[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 14 17:18:53 2024 +1030
+
+    moved new traienrs
+
+[33mcommit c7b6d9ea0750dd746a697d808abbbf741ced9e0c[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 14 17:16:12 2024 +1030
+
+    lunar lander heuristic running
+
+[33mcommit c172efbadd6a11c3800ff1762dcb854a32f63e7b[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 14 13:42:01 2024 +1030
+
+    extra trainers
+
+[33mcommit bcbfa1afbe5b01e9eddede3e0763b1d3371648e3[m
+Merge: 2797cc0 100ed38
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 10 13:42:05 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 2797cc08e8b53fd4ae2a4505c8672985894e36f0[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 10 13:41:59 2024 +1030
+
+    4 runs
+
+[33mcommit 100ed38ea82a40a26fe725f9b7483764a7bbaf62[m
+Merge: ef6b27f 20aa9e3
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Sat Feb 10 13:34:58 2024 +1030
+
+    merge conflict
+
+[33mcommit ef6b27f7c7b6f47a9bef1e51f9467e8cdbf03782[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Sat Feb 10 13:33:24 2024 +1030
+
+    edit makefile
+
+[33mcommit 20aa9e38151077193d823725ca5660ec322fbf47[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Sat Feb 10 13:31:44 2024 +1030
+
+    fixed wrong device id
+
+[33mcommit 1ce85dc7221d8087289bc44b9405c117f7554978[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 8 15:27:15 2024 +1030
+
+    move guide to cpu
+
+[33mcommit a212e768d093a9e08c55afd382044db4f75aed55[m
+Merge: 226f9eb 21be7f2
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 8 14:42:35 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 21be7f2e40ab9005f1b44ee47245a5286fea80f1[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 8 14:41:54 2024 +1030
+
+    fixed actor bug, added run once free script
+
+[33mcommit 226f9eb4ab45aecebf0ed45b5a6a8164b0d54d21[m
+Merge: 9eebda1 593071d
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 8 11:47:45 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 593071d4f4a7f728ecf224174a3f2fb4efcd8d70[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 8 11:47:30 2024 +1030
+
+    seed
+
+[33mcommit 9eebda15f7ca7009ad83f6818e2a26f598969d9e[m
+Merge: 9e8a8ce 210e6a0
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 8 11:44:18 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 210e6a0b3a2773fbbe9a8380dd84bbf7ee501932[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 8 11:40:30 2024 +1030
+
+    removed pdb
+
+[33mcommit 9e8a8ceca0dda81560e89cc9d71df26bafa272cb[m
+Merge: a49be20 bb88bcd
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Feb 8 09:44:48 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit bb88bcdbd61de618ae69bd818e520991472e1bd2[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 8 09:44:33 2024 +1030
+
+    fix downloaded data bug
+
+[33mcommit f4f1970906ba568f4bcb78728eb7a6417fad6cc3[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 8 09:13:20 2024 +1030
+
+    fixed trainer bug
+
+[33mcommit a49be20464531ba95704b6d9bb821c196bc80f45[m
+Merge: f5b0910 7880ba5
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 7 20:48:29 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 7880ba585d63a006a9400f4f522ae14e9970ae91[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 7 20:48:06 2024 +1030
+
+    added pretrained paths to makefile_multirun
+
+[33mcommit f5b0910e29e95fa50cb573a486abb893ef66736e[m
+Merge: 0ce62fc e3d3cc5
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 7 20:41:12 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit e3d3cc59508594086c293ada71d7a53c1560eddc[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 7 20:40:50 2024 +1030
+
+    added heuristics
+
+[33mcommit 0ce62fc1ec227fc1c5ada1bae230539384bf0388[m
+Merge: 8af5932 b0436c4
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 7 20:39:17 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit b0436c4ee8a90bdaf17d7220443ee6c5f41c4da8[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 7 20:38:58 2024 +1030
+
+    added heuristics
+
+[33mcommit 88c888b740cb6fe801dbf66bcd8e84a6b097335d[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 7 20:38:38 2024 +1030
+
+    4 seeds
+
+[33mcommit 8af59325440036ee956a3ceea54dee3bd5b6fcde[m
+Merge: 342b3b6 02f38c1
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 7 20:37:36 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 02f38c144688a84e88933ca95fb4e7a097207b34[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Feb 7 20:36:48 2024 +1030
+
+    added heuristic guide in, fixed major bug
+
+[33mcommit 342b3b6cc52d9f598548849a4f316f9ca69378f3[m
+Merge: a4b284b 4629794
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 7 11:40:30 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit a4b284bee545cf08f6c66e5d11bbbc0553992535[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Feb 7 11:40:27 2024 +1030
+
+    makefile
+
+[33mcommit 7a80d8d4f3195ebd759055bad2cb3206edf573d6[m
+Merge: b638be4 4629794
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 2 17:46:10 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit b638be4c17dd4c90fe0542c317a68e9210ed0b13[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 2 17:45:52 2024 +1030
+
+    makefile
+
+[33mcommit 4629794dd5d1b03a0b40d3a12e3f49ba260726d6[m
+Author: Lauren Yvette Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Feb 2 17:45:14 2024 +1030
+
+    makefile
+
+[33mcommit bf00a149d7058b19221d155ff24ffccad0841cd2[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 2 15:45:44 2024 +1030
+
+    change to dockerfile'
+
+[33mcommit 98de8119db598735ef0eb1193005b0da80ec0597[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 2 15:30:33 2024 +1030
+
+    edits to makefile
+
+[33mcommit 3302c1fddd1182eb08a7556bb3b45bcd9946630f[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 2 14:53:51 2024 +1030
+
+    added env config
+
+[33mcommit 5bc566251f117e7bdf50309fd44b71790f2b3ef0[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 2 12:14:59 2024 +1030
+
+    added lunar lander test
+
+[33mcommit e9102021095f20ad80d829aea81238fe27e4d3dd[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 2 12:10:12 2024 +1030
+
+    Saving files before refreshing line endings
+
+[33mcommit 649c9522c56433f1277f3428baf09552a89e62e2[m
+Author: LaurenYTaylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Feb 2 09:55:35 2024 +1030
+
+    skip run 1 multirun short
+
+[33mcommit 8403b498cb60e8f3ba1495f3fbbc6de7250a6d9c[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 1 14:49:00 2024 +1030
+
+    added checkpoint path for diverse
+
+[33mcommit ef7f32de9f8ec5b0608099e4725b1888926ab1fc[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 1 14:28:13 2024 +1030
+
+    replaced space with tab
+
+[33mcommit 613e25c9a4d1d525bbb8022c5417ecc98c0e49d5[m
+Merge: 9f8cd49 36a9d15
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 1 14:20:35 2024 +1030
+
+    skip timestep deleted
+
+[33mcommit 9f8cd4957f41abd51950bd3fe0550678116a1d92[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Feb 1 14:20:00 2024 +1030
+
+    added max init horizon option
+
+[33mcommit 36a9d15516b5ebe8f485d8224d85b25a3a8ed7ac[m
+Merge: 30949d0 a9eedfb
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Jan 31 12:28:04 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 30949d0cfb55cbed3b8240cb70438992002c11c3[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Jan 31 12:28:00 2024 +1030
+
+    spacing fix in makefile
+
+[33mcommit a9eedfb50197d5e4e0dda89bf31a20c84b436c4d[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 31 12:27:36 2024 +1030
+
+    fixed all_curriculum_stages bug
+
+[33mcommit 1b7132aab2d89b2e88b2204271638fa7fbc55f10[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 31 11:28:20 2024 +1030
+
+    added new makefile
+
+[33mcommit 16f0760d3d1529340ec5541d04f5facee24863ba[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 31 11:26:01 2024 +1030
+
+    added new makefile
+
+[33mcommit df5eb1367358695bb2ba8f7aec00e1deb7be0f3f[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 31 11:11:10 2024 +1030
+
+    added all runs to nano
+
+[33mcommit 0375a83271bf0bcaf4be24b61108c14998cda960[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 26 10:47:46 2024 +1030
+
+    added runs to big run
+
+[33mcommit f1e2fa31fcb8a1258a88680cf2e498532204ed4d[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 26 10:24:31 2024 +1030
+
+    del old replay buffer
+
+[33mcommit 0b4cb4375c6d5196105787587383871331daa012[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 26 10:16:27 2024 +1030
+
+    fix to replay buffer
+
+[33mcommit 40270dba36996dc62bcdcba11dca031f393ebd93[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Jan 26 10:16:00 2024 +1030
+
+    check stopped running
+
+[33mcommit 3aa26a341c88de3c1dfbe956e77edc610cc3abcc[m
+Merge: c85f774 0d8f0ec
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 26 09:44:34 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit c85f77458eca30f38019576a45ff79fdede6016b[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 26 09:44:23 2024 +1030
+
+    cedit
+
+[33mcommit 0d9baa17cbe1349610ded9c65a29ef8e0eeb1f56[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 26 09:38:05 2024 +1030
+
+    medit
+
+[33mcommit 0d8f0ec61fb20bb8c78395ba7c072ca21f9c9002[m
+Merge: 6baf830 1ed13c8
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Jan 26 09:34:42 2024 +1030
+
+    merge
+
+[33mcommit 1ed13c897693f56ab20c3e8dac095b3a442453aa[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 26 09:33:59 2024 +1030
+
+    edit
+
+[33mcommit 6baf83051a376940ad86c4dbadbb22d8b96d4558[m
+Merge: a7acf4a c49aa04
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Jan 26 09:31:38 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit c49aa049f686b8b302d87a968b43e3b52176a913[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 26 09:31:30 2024 +1030
+
+    edit
+
+[33mcommit a7acf4af9240862b5258cfeacf1785dec17b5911[m
+Merge: c7e10e6 03a9d7c
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Jan 26 09:24:43 2024 +1030
+
+    merge
+
+[33mcommit c7e10e62ad4dbaa1839b74a5d1ecb498a1804eb3[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Jan 26 09:24:07 2024 +1030
+
+    added full path
+
+[33mcommit 03a9d7c0ed5afebabeccf33f793fe90ea6462c30[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 26 09:23:35 2024 +1030
+
+    edit
+
+[33mcommit 64d5c9b25e3d8683937efd652b2f26efa4d206f1[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 18:08:15 2024 +1030
+
+    edit
+
+[33mcommit b81b7a0c3f02d60396206fc13b3f037cbafa086a[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 18:04:06 2024 +1030
+
+    added bash script'
+    '
+
+[33mcommit 31763d2427d823ededc25119039c1760f9d8a6ca[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 16:48:30 2024 +1030
+
+    split up runs
+
+[33mcommit 4779b22a82db5cbb5832efbfb4bddde8388b2f55[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 16:47:20 2024 +1030
+
+    split up runs
+
+[33mcommit 3f263760b53c7c27a473452a0434e974bff3c286[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 16:34:40 2024 +1030
+
+    typo
+
+[33mcommit d578832995b4598b7037e871d79bd0e2890a8247[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 16:32:44 2024 +1030
+
+    typo
+
+[33mcommit 380b411c0ccadb4441ef4f9d67a0a0b45ea32426[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 16:31:02 2024 +1030
+
+    specify gpu device
+
+[33mcommit 79a5a34c30b2de7b0a99077703c8fd032b778150[m
+Merge: 1e216df 3de7a50
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 16:28:46 2024 +1030
+
+    specify gpu device
+
+[33mcommit 1e216dfee3e37853d84f0fc8c4a07d2f7695be97[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 16:23:06 2024 +1030
+
+    changes
+
+[33mcommit 3de7a50f6e03c44118bf1b4b27e7916a41cc61a4[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 16:22:02 2024 +1030
+
+    makefile changes
+
+[33mcommit 380f088c3db37d559a5835272fe4eaa689418cac[m
+Merge: 0b21ed8 137100b
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:54:18 2024 +1030
+
+    merge
+
+[33mcommit 0b21ed82ffb54df91df7948bb03c1d73189624e7[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:53:11 2024 +1030
+
+    merge
+
+[33mcommit 137100b3da769ccb0baa7817e50b16aa7c04236c[m
+Merge: 9606849 a16cf8d
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 15:53:01 2024 +1030
+
+    merge
+
+[33mcommit 960684986c4d394a923c4bf785714474874b57de[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 15:52:21 2024 +1030
+
+    changed ;
+
+[33mcommit a16cf8d48e898deec69010c4f65f213cf67fb673[m
+Merge: 477825c 0e40630
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:40:27 2024 +1030
+
+    merge
+
+[33mcommit 0e40630665a14f48420a09436ccdd5d1e99bc0b2[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 15:39:33 2024 +1030
+
+    added ; to makefile
+
+[33mcommit 477825c588631624aa3382591ffc44ce4be329c1[m
+Merge: 7e13168 e79d5c4
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:37:33 2024 +1030
+
+    merge
+
+[33mcommit 7e13168ee20e86c42a5c759e49f53092494449d8[m
+Merge: 97ab713 e4256ca
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:36:19 2024 +1030
+
+    merge
+
+[33mcommit e79d5c49054341a8bfc5b15824fd07b7e49842b4[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 15:36:09 2024 +1030
+
+    added ; to makefile
+
+[33mcommit 97ab713fb7b742406984f0da4aa8af47a24bf952[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:22:08 2024 +1030
+
+    MAKEFILE
+
+[33mcommit e4256ca2c06687d0385f0fdc3976649c1c28e025[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 15:21:45 2024 +1030
+
+    new makefile edits
+
+[33mcommit 568dd453c626851e5c263cb603e17cbd00594c6b[m
+Merge: 623e082 9bf7328
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:15:16 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 9bf732848efc8ffb4f05aa5215892bc9dff17175[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 15:15:09 2024 +1030
+
+    wrapped var in quotes
+
+[33mcommit 623e082a621eab56d42eda490e6129be4941d86e[m
+Merge: 0bea410 a72c0f4
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:09:25 2024 +1030
+
+    merge
+
+[33mcommit 0bea410dd0858f7c677b4f8c5d9510de77dcc7f0[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:08:25 2024 +1030
+
+    readded DF
+
+[33mcommit a72c0f480b65d92ffa46235ab9193c56c3d009e9[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 15:07:55 2024 +1030
+
+    fixed new makefile error
+
+[33mcommit d56c24455617aa8b031dc2c9e46a3ce2aadc250a[m
+Merge: 01d3776 7dd48d4
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:05:16 2024 +1030
+
+    merge
+
+[33mcommit 01d377695ea288fe609e0ff037d85a2877924908[m
+Merge: c00b866 0448b08
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 15:04:31 2024 +1030
+
+    merge
+
+[33mcommit 7dd48d40df6f1be2fa3380a6a5f167e73b500074[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 15:04:17 2024 +1030
+
+    new makefile
+
+[33mcommit c00b866231f7ceeb06eb29d04f4f8157aaa85da8[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 25 14:46:22 2024 +1030
+
+    fixed makefile gpuc calc bug
+
+[33mcommit 0448b081ff7ff23f0d2a803e0c4463669df3c86b[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 25 14:44:29 2024 +1030
+
+    added agent types
+
+[33mcommit e4e5b8f1daa95b7456ae7e8ab107573d85632393[m
+Merge: 1f5e4c6 a9debf3
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Jan 24 15:55:33 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 1f5e4c6b2f986ac3a87a4d36197d17486a19e7a5[m
+Merge: daabc67 b94ecfd
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Jan 24 15:55:29 2024 +1030
+
+    merge
+
+[33mcommit a9debf396257b3f6dcec348b186a6c5cce15d841[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 24 15:55:04 2024 +1030
+
+    trainer config
+
+[33mcommit b94ecfdc402d38912f12bc72dc2d2ee5b11ce42b[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 24 15:46:15 2024 +1030
+
+    added ray training
+
+[33mcommit daabc67ff9fdd9148a25a40d37d53ae3efc2b3b5[m
+Merge: ef14e8b eea67e3
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Jan 24 12:46:18 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit eea67e3497ba7ff854af6ba8cadae21a6c8f2608[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 24 12:46:05 2024 +1030
+
+    fixed bug with trainer.total_iterations
+
+[33mcommit ef14e8b5bf3ba46a41308d248e9805056ed8037f[m
+Merge: 25418be fb704c7
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Jan 24 10:03:26 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit fb704c75f2132ad0ea4eaa2d9fc3b27c33e600e3[m
+Merge: 68cdf07 bd3acd6
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 24 10:03:06 2024 +1030
+
+    Merge branch 'main' of https://github.com/LaurenYTaylor/jsrl-CORL
+
+[33mcommit 68cdf0710e71cec5c88b90c57e7d1584695158cc[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 24 10:02:29 2024 +1030
+
+    added downloaded dataset option
+
+[33mcommit 25418beb9d2f1983d94d7170250916ae8edae5a3[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Jan 24 10:02:02 2024 +1030
+
+    added pruning to makefile
+
+[33mcommit bd3acd610711d60973ec199ed335d62fe4eda831[m
+Merge: 2b3170b cbff7b5
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Jan 19 18:23:21 2024 +1030
+
+    fixed merge conflict
+
+[33mcommit 2b3170b8b328fe33990a19db25f7c3ed63dc7df8[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Jan 19 18:21:43 2024 +1030
+
+    makefile changes
+
+[33mcommit cbff7b5b1323b8427b850bcf413cc55b741a4129[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 19 18:21:03 2024 +1030
+
+    added goal dist
+
+[33mcommit df256fb73471251e8057207dc060201dd172d70c[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 19 13:01:56 2024 +1030
+
+    added goal dist
+
+[33mcommit ca5e59ebd6dee25177bc23ec79e23146c21dea17[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 19 11:12:34 2024 +1030
+
+    fixed action policy bug
+
+[33mcommit 91e23b29c9836c09c912d7db9a90789a143ce480[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 19 11:05:17 2024 +1030
+
+    black
+
+[33mcommit 0db18c9214208238e8bd5a27a1455d31a7b741ac[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 19 10:23:28 2024 +1030
+
+    fixed jsrl_config bug
+
+[33mcommit b8ce70c5350ea83431f80e63c3b3e1a588fdb6ca[m
+Merge: 25e18cb 48e10de
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Jan 19 10:09:49 2024 +1030
+
+    fixed merge conflict
+
+[33mcommit 48e10de12542263648ca39f2b10ce101f2430048[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Fri Jan 19 10:05:17 2024 +1030
+
+    black
+
+[33mcommit 25e18cb3aa096b4320797da0e8a5ea99ce943e0a[m
+Merge: 7809f51 0c180ee
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Fri Jan 19 10:04:09 2024 +1030
+
+    makefile
+
+[33mcommit 0c180ee4519e47be77124b89d7962ad021d790b2[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 18 14:03:54 2024 +1030
+
+    precommit
+
+[33mcommit 77f123f26dde8b5cc5c4b9a81a28aa61fa4db85f[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Thu Jan 18 14:01:23 2024 +1030
+
+    added jsrl functionality, added makefile
+
+[33mcommit 7809f5190e3d19ef8a86719d06ce00992b226a67[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Thu Jan 18 14:00:55 2024 +1030
+
+    changes to makefile
+
+[33mcommit 3c7e9dcae0e3eb944dd6f258e522fd72314158ec[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 17 13:43:52 2024 +1030
+
+    added makefile
+
+[33mcommit 9371dfd030ef197985667d39b05648c2a613167b[m
+Author: Lauren Taylor <lauren.taylor@adelaide.edu.au>
+Date:   Wed Jan 17 12:42:43 2024 +1030
+
+    added cpu-only dockerfile
+
+[33mcommit 6410072024f51ccca9c80b377a6e5c5501e82b04[m
+Author: Lauren Taylor <a1899783@adelaide.edu.au>
+Date:   Wed Jan 17 11:46:07 2024 +1030
+
+    new Dockerfile with cython fix and compile
+
+[33mcommit 9aa6be9aa474914b84dad36d3f961a544d48d1e3[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Wed Dec 6 23:46:31 2023 +0100
+
+    ReBRAC finetune (#9)
+    
+    * ReBRAC finetune
+    
+    * Fix
+    
+    * linter
+    
+    * fix linter
+    
+    * Fix
+    
+    * Fix configs
+    
+    * Fix umaze config
+    
+    * Add scoring
+    
+    * Change arrows in README
+    
+    * Update get_finetune_scores.py
+    
+    * Update rebrac.py
+    
+    * Update get_finetune_urls.py
+    
+    * Update get_finetune_scores.py
+    
+    * Update rebrac.py
+    
+    * Update README.md
+    
+    ---------
+    
+    Co-authored-by: Denis Tarasov
+
+[33mcommit 14abd6eaaaae7fcfe3fe2bc3e12b9791afb5ca60[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Thu Nov 30 13:16:20 2023 +0100
+
+    Update wandb reports (#10)
+    
+    * Update wandb reports
+    
+    * Update CQL report in cods
+    
+    * Update DT report in docs
+
+[33mcommit 2424df1020c8cb3cccdc54921ac6cf05ae9ac8b0[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Thu Aug 17 13:00:43 2023 +0300
+
+    fix cql latex equations (#8)
+
+[33mcommit 79294fa4ff2c5b9b5d7ff7d3b1bd2abaff6f2544[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Thu Aug 17 09:24:32 2023 +0300
+
+    CQL and Cal-QL docs (#7)
+    
+    * documentation wip
+    
+    * fix error
+    
+    * fix bibtex
+    
+    * fix workflow
+    
+    * docs assets added
+    
+    * fix linter
+    
+    * fix linter
+    
+    * update readme
+    
+    * sac-n documentation
+    
+    * more comments for configs
+    
+    * update readme
+    
+    * merge main, update docs benchmark scores
+    
+    * linter fix
+    
+    * CQL and Cal-QL docs
+    
+    ---------
+    
+    Co-authored-by: Howuhh <hsehowuhh@gmail.com>
+    Co-authored-by: Denis Tarasov <d.tarasov@instadeep.com>
+
+[33mcommit 23f8b2e46abf5aef73db268cd1c5a42eb8ef45dc[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Thu Aug 17 00:04:04 2023 +0300
+
+    Documentation (#6)
+    
+    * documentation wip
+    
+    * fix error
+    
+    * fix bibtex
+    
+    * fix workflow
+    
+    * docs assets added
+    
+    * fix linter
+    
+    * fix linter
+    
+    * update readme
+    
+    * sac-n documentation
+    
+    * more comments for configs
+    
+    * update readme
+    
+    * merge main, update docs benchmark scores
+    
+    * linter fix
+    
+    * fix docs typos
+
+[33mcommit 2a30bc20a24265972dfec7688f8c33209f22544e[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Wed Aug 16 19:18:02 2023 +0300
+
+    Small fixes (#4)
+    
+    Co-authored-by: Denis Tarasov <d.tarasov@instadeep.com>
+
+[33mcommit 44a9da4e3bcedce2e788cf57abbf028a26647b66[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Wed Aug 16 19:12:31 2023 +0300
+
+    Fix AWAC results (#5)
+    
+    * Fix AWAC results
+    
+    * Update README
+    
+    ---------
+    
+    Co-authored-by: Denis Tarasov <d.tarasov@instadeep.com>
+
+[33mcommit e9768f90a95c809a5587dd888e203d0b76b07a39[m
+Author: Vladislav Kurenkov <castielblak@gmail.com>
+Date:   Fri Aug 11 12:43:03 2023 +0300
+
+    Update README.md
+
+[33mcommit 6ae17ea726921e2f3fdac52157c1bc445551ef75[m
+Author: Vladislav Kurenkov <castielblak@gmail.com>
+Date:   Thu Aug 10 17:59:01 2023 +0300
+
+    Update README.md
+
+[33mcommit 6afec90484bbf47dee05fdf525e26a3ebe028e9b[m
+Author: Ilya Zisman <ilyazisman@gmail.com>
+Date:   Tue Aug 1 23:57:35 2023 +0300
+
+    Fix reward scale for DT configs (#75)
+
+[33mcommit 876791257e78f176b94dbc551a62d92ad60b009b[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Thu Jul 27 04:00:26 2023 +0300
+
+    Fix config merge (#73)
+    
+    Co-authored-by: Denis Tarasov <d.tarasov@instadeep.com>
+
+[33mcommit 339f068db0772e5e6dcdff5e9ca477e5892cfce8[m
+Author: Vladislav Kurenkov <v.kurenkov@tinkoff.ru>
+Date:   Thu Jul 20 18:20:20 2023 +0300
+
+    Add ruff badge (#72)
+
+[33mcommit 42c9793d74a44c6bd925bd57395268813f73facc[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Thu Jul 20 17:14:44 2023 +0300
+
+    Add ReBRAC algorithm (#59)
+
+[33mcommit cc7f36f90cfbe2b54da591496d32e12dff5cfbb6[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Wed Jul 19 17:42:18 2023 +0300
+
+    CODEOWNERS fix (#71)
+    
+    * fix
+    
+    * fix
+
+[33mcommit 2b6cde3f156ebae67141ed3a76a0142c6b6f914c[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Wed Jul 19 17:16:46 2023 +0300
+
+    Ruff linter and contribution guide (#69)
+    
+    * ruff linter support wip
+    
+    * change target python version
+    
+    * src?
+    
+    * linter fixes
+    
+    * fix workflow
+    
+    * manual checking
+    
+    * add default path
+    
+    * show sources
+    
+    * show diff in action
+    
+    * linter fix
+    
+    * revert action
+    
+    * new simplified workflow, changed linter settings
+    
+    * install dev dependencies in the workflow
+    
+    * fix ruff version
+    
+    * fix python setup job name
+    
+    * add contrib guide wip
+    
+    * fix some typos
+    
+    * note about reports
+    
+    * updated ruff target version
+
+[33mcommit 962688b405f579a1ce6ec1b57e6369aaf76f9e69[m
+Author: Mitsuhiko Nakamoto <37328136+nakamotoo@users.noreply.github.com>
+Date:   Tue Jul 11 00:58:12 2023 +0900
+
+    Fix discounted returns calculation for Cal-QL (#63)
+    
+    * fix discounted_returns calculation for Cal-QL
+    
+    * Update README.md
+    
+    * Update results
+    
+    ---------
+    
+    Co-authored-by: Denis Tarasov <d.tarasov@instadeep.com>
+
+[33mcommit 6c5488fd8de775d3808cec131f3f69d9ffd9c8ed[m
+Author: Vladislav Kurenkov <v.kurenkov@tinkoff.ru>
+Date:   Thu Jun 15 18:31:05 2023 +0300
+
+    Update README.md (#62)
+
+[33mcommit d8872e6ff26d85065d10f70350cd09d4262a3da6[m
+Author: Vladislav Kurenkov <v.kurenkov@tinkoff.ru>
+Date:   Thu Jun 15 17:56:36 2023 +0300
+
+    Update README.md (#61)
+
+[33mcommit 8bcd68239a8c60901ab74b4318688266b32fcb7f[m
+Author: Vladislav Kurenkov <v.kurenkov@tinkoff.ru>
+Date:   Thu Jun 15 10:19:45 2023 +0300
+
+    Update README.md (#60)
+    
+    * Update README.md
+    
+    - Fix best scores for the Maze2d datasets
+    
+    * Minor change in algorithms table
+    
+    * Update README.md
+    
+    * Update README.md
+    
+    ---------
+    
+    Co-authored-by: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+
+[33mcommit 33eba944ae4ba869946c0dea25572a209fe5647d[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Wed Jun 14 14:04:49 2023 +0300
+
+    Logs processing and README update (#58)
+
+[33mcommit 52aa3cfb3f467248aaf6bc495353152b01781b9c[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Wed Jun 14 14:03:34 2023 +0300
+
+    CQL: Add Finetune + Offline Fixes (#50)
+
+[33mcommit f099ccae0e0b4b8bff15b0c8801c9c97b277c115[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Wed Jun 14 01:02:40 2023 +0300
+
+    Offline-CQL Refactor + Finetune Cal-QL (#53)
+
+[33mcommit a220ecbd4fc6212084aa8ce18a78d7c57c11f1a5[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Wed Jun 14 00:57:17 2023 +0300
+
+    Offline + Finetune: IQL (#46)
+    
+    - Implement IQL for finetune
+    - Separate learning rate for offline IQL (and update the configs)
+
+[33mcommit 3e0dfd3cbdc8342903918517ab1b8d2fbef315fa[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Wed Jun 14 00:52:45 2023 +0300
+
+    Finetune: SPOT (#47)
+
+[33mcommit 457db3b158654ba4b163f6fa0de30750d4b94366[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Wed Jun 14 00:52:23 2023 +0300
+
+    Finetune: AWAC (#49)
+
+[33mcommit 76ef2a021d32ed83b0edc509fb85fe9d7f7b390f[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Tue Jun 13 17:41:26 2023 +0300
+
+    Make CQL work on AntMaze-v2 #56
+
+[33mcommit d81e7ecc7da8de44080b457eb705552474b06155[m
+Author: Vladislav Kurenkov <v.kurenkov@tinkoff.ru>
+Date:   Sat Jun 10 19:37:05 2023 +0300
+
+    Offline: Benchmark AntMaze-v2 and Adroit-v1 datasets  (#52)
+
+[33mcommit dc077cc25ef986a28cae572a8a02c450926021a1[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Fri Jun 9 19:42:56 2023 +0300
+
+    IQL: Cosmetic changes (#42)
+
+[33mcommit 57e403729a74e485a9cedde825f76802c23e527e[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Wed May 24 14:47:37 2023 +0300
+
+    DT: Fix trajectories lens counting (#48)
+
+[33mcommit a89ebb5fb7fe1f024abc157714484524417e0405[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Tue May 23 15:37:24 2023 +0300
+
+    Refactor: Separate offline and finetuning algorithms (#51)
+    
+    * Move offline training to separate folders
+    
+    * Update refs in README
+
+[33mcommit b62fa28e44a6cd1bd258ec91c09592fb7fe1200d[m
+Author: typoverflow <typoverflow@outlook.com>
+Date:   Thu Mar 30 01:46:54 2023 +0800
+
+    fix: squash the mean before gaussian for stability (#41)
+    
+    * fix: squash the mean before gaussian for stability
+    
+    * make the linter happy
+    
+    * make the linter happy
+    
+    * delete whitespace
+
+[33mcommit 2a7b88cfa8e25fbda77e2d3e55e4ee4267eeb431[m
+Author: Vladislav Kurenkov <v.kurenkov@tinkoff.ru>
+Date:   Tue Mar 21 18:59:39 2023 +0300
+
+    Prettify AWAC (#37)
+    
+    * Update awac.py
+    
+    - Disable deterministic torch (run may fail because of it)
+    - Add check for checkpoints_path when saving a model
+    - Remove unnecessary logging of the rewards
+
+[33mcommit 2606205205a9e4ed4d724d96374b471fbef43a5e[m
+Author: Vladislav Kurenkov <v.kurenkov@tinkoff.ru>
+Date:   Fri Mar 17 17:04:25 2023 +0300
+
+    Update README.md (#36)
+    
+    - Fix docker flag for gpus
+
+[33mcommit ca1a949c4ddc68a77ed83fe7d8859dc6f6c535c5[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Wed Mar 1 21:41:00 2023 +0300
+
+    LB-SAC implementation (#31)
+    
+    * lb-sac algo and configs from paper
+    
+    * fix linter
+    
+    * add edac init
+    
+    * fix config
+    
+    * updated readme and tables
+    
+    * linter fix
+    
+    * default device to cuda
+
+[33mcommit f6cc8b6b5e1590a5d4262c919b1911d2a5365390[m
+Author: Adam Jelley <47476156+AdamJelley@users.noreply.github.com>
+Date:   Mon Jan 16 23:58:02 2023 +0000
+
+    Fix SAC-N walker2d configs (#30)
+    
+    * Fix SAC-N walker2d configs
+    
+    Use walker2d instead of hopper in walker2d config.
+    
+    * Fix codestyle check
+
+[33mcommit 7e3077d03d4b4767843643ffe30a9fb7b1aa501e[m
+Author: typoverflow <typoverflow@outlook.com>
+Date:   Mon Jan 16 20:13:28 2023 +0800
+
+    bugfix: cql takes learning rate as bool (#29)
+    
+    * fix: cql takes learning rate as bool; add check for checkpoint path
+    
+    * fix: make the format checker happy
+
+[33mcommit cf82e9443cee9c6e0088d0b46866d495469b7cce[m
+Author: levilovearch <congzhou821@gmail.com>
+Date:   Sun Dec 18 01:18:38 2022 +0800
+
+    Add checking checkpoints_path for None in IQL (#27)
+
+[33mcommit ef80957ec14b64c0482055d1334c987834a9fd22[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Tue Nov 29 12:29:23 2022 +0300
+
+    fixed late padding mask creation (#26)
+
+[33mcommit 61f4f041bf9fc9dbeb051ac13ae838a2bc18696b[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Mon Nov 7 15:48:04 2022 +0300
+
+    Unified wandb groups naming, disabled saving checkpoints by default (#20)
+
+[33mcommit 26cd34088b8cba16eea0b6eed2a74d27e5877aca[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Sun Nov 6 23:46:00 2022 +0300
+
+    Change to full SAC-N, EDAC, DT configs for reproducibility (#19)
+    
+    * returned full configs for reproducibility
+    
+    * lowercase dt group name as in other configs
+
+[33mcommit aa3b5ae84b8c2b58786d4995cbbc90598b605e11[m
+Author: Sergey Kolesnikov <scitator@gmail.com>
+Date:   Thu Oct 27 20:52:55 2022 +0800
+
+    Update CODEOWNERS (#17)
+
+[33mcommit 8bc9b9fb460f771ff22c0144aee9748cbe99e41c[m
+Author: CherryPie <interga@post-hardcore.ru>
+Date:   Wed Oct 26 09:36:41 2022 +0300
+
+    remove use_wandb parameter from config, fix checkpoints path (#15)
+
+[33mcommit 65ca62a78ae028f9b70ea1645fb467691fca358e[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Mon Oct 24 16:51:00 2022 +0300
+
+    sac-n correct configs, fix default num epochs (#10)
+
+[33mcommit 12a5fc1af3fecd836f2ce3edcf49567ce5e13a70[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Mon Oct 24 16:28:25 2022 +0300
+
+    CQL refactoring and re-benchmarking (#12)
+    
+    * Fix antmaze configs for IQL, CQL and TD3 + BC
+    
+    * CQL refactoring and rebenchmarking
+    
+    * Fix linter
+    
+    * Change underperformance comment
+
+[33mcommit c35522724fd7ce82a7ce3c6384bd7ff7b1b06910[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Mon Oct 24 09:50:45 2022 +0300
+
+    Update citing (#13)
+    
+    * Update citing
+    
+    * Change reference
+    
+    * Update formating
+
+[33mcommit 87b7387ca1d87767af626a326b02519587f2d98f[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Sat Oct 22 05:11:04 2022 +0300
+
+    Added missing configs, changed default config for EDAC (#9)
+    
+    * added configs, correct default for edac
+    
+    * antmaze fix umaze config
+
+[33mcommit 86ceaddb3fabefe34762cad10c592d6265ca6910[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Thu Oct 20 04:36:32 2022 +0300
+
+    Fix antmaze configs for IQL, CQL and TD3 + BC (#8)
+
+[33mcommit e462ae1bc649d0daa5dd542ddd10c611c5402210[m
+Author: Sergey Kolesnikov <scitator@gmail.com>
+Date:   Mon Oct 17 20:09:08 2022 +0800
+
+    codeowners (#6)
+    
+    * codeowners
+    
+    * typo
+
+[33mcommit cabbf3ce4f1da459bfb3040c523ccf04d7c896e3[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Mon Oct 17 14:52:44 2022 +0300
+
+    Fix BC-10%
+    
+    * There was a wrong argument passed (discount instead of the fraction)
+    * Re-benchmark BC-10% (now the results match the ones reported in the papers)
+
+[33mcommit e4f6175504ed963c62298448d3ec0f730c6a1500[m
+Author: Alexander Nikulin <hsehowuhh@gmail.com>
+Date:   Thu Oct 13 10:22:28 2022 +0300
+
+    Fixing Decision Transformer underperformance (#3)
+    
+    * fixing dt underperformance, bug in sequence concat
+    
+    * linter warn fix
+    
+    * updated gitignore, new default config values
+    
+    * new configs added, fix dtype error on antmaze
+    
+    * updated tables
+    
+    * remove comments in configs
+
+[33mcommit 9069495537c9e22fb6a0c8abe7925f2bfa9b8a81[m
+Author: Denis Tarasov <39963896+DT6A@users.noreply.github.com>
+Date:   Sun Oct 2 15:55:57 2022 +0300
+
+    Add AntMaze benchmark for SAC-N and EDAC (#2)
+    
+    - They were not originally benchmarked on these datasets, so further hyperparam search is certainly needed
+
+[33mcommit 0be50c0dee4629d0fbfe7aed94f6c4d394856c59[m
+Author: Vladislav Kurenkov <v.kurenkov@tinkoff.ru>
+Date:   Fri Sep 30 20:27:46 2022 +0300
+
+    Release 1 (#1)
+    
+    * Release 1
+    
+    - Support algorithms (BC, BC-10, CQL, TD3+BC, AWAC, SAC-N, EDAC, IQL, DT)
+    - Benchmark subset of D4RL (Gym-MuJoCo, Maze2D, AntMaze)
+    - Wandb reports
+    
+    * remove links for BCs
+    
+    * kudos to cleanrl
+    
+    Co-authored-by: Vladislav Kurenkov <>
+
+[33mcommit 2c606fa06f038fb41a54cdc18fe4c2a9b8069898[m
+Author: Sergey Kolesnikov <scitator@gmail.com>
+Date:   Fri Sep 23 11:43:55 2022 +0300
+
+    Initial commit
