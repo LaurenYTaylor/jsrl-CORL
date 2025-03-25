@@ -613,7 +613,7 @@ def learner_or_guide_action(state, step, env, learner, guide, config, device, ev
         if not eval and not isinstance(action, torch.Tensor):
              action = torch.tensor(action)
     if (eval and isinstance(action, torch.Tensor)):
-        action = action.numpy().flatten()
+        action = action.cpu().numpy().flatten()
     elif not eval:
         if isinstance(action, np.ndarray):
             action = torch.tensor(action)
