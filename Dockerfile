@@ -44,6 +44,7 @@ RUN ["python", "-c", "import mujoco_py"]
 
 RUN pip install "gymnasium[all]" gymnasium-robotics
 RUN pip install stable-baselines3[extra]
+RUN pip install "ray[tune]"
 RUN mkdir checkpoints
 RUN mkdir wandb
 RUN mkdir jsrl-CORL

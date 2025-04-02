@@ -17,6 +17,7 @@ import torch
 import torch.nn.functional as F
 import wandb
 import h5py
+from ray import tune
 import gymnasium_robotics
 gymnasium.register_envs(gymnasium_robotics)
 
@@ -275,6 +276,9 @@ def process_minari_data(downloaded_data):
         rearranged_data[k] = np.array(v)
     return rearranged_data
 
+def train_dict(config: dict):
+    train(JsrlTrainConfig(**config))
+
 def train(config: JsrlTrainConfig):
     """
     Train an learning agent using JSRL method (gradual online transfer from pre-trained guide agent to learner).
@@ -324,7 +328,6 @@ def train(config: JsrlTrainConfig):
                 except TypeError:
                     dataset[k] = get_keys(f[k], {})
             return dataset
-
         with h5py.File(config.downloaded_dataset, "r") as f:
             downloaded_data = get_keys(f, {})
         if 'episode_1' in downloaded_data.keys():
@@ -583,8 +586,10 @@ def train(config: JsrlTrainConfig):
                 if config.normalize_reward:
                     normalized_eval_score = normalized * 100.0
                     eval_log["eval/d4rl_normalized_score"] = normalized_eval_score
+                    tune.report({"eval_return": normalized_eval_score})
                 else:
                     eval_log["eval/score"] = normalized
+                    tune.report({"eval_return":normalized})
                 #print("---------------------------------------")
                 eval_str = f"Evaluation over {config.n_episodes} episodes: "\
                     f"{eval_score:.3f}"

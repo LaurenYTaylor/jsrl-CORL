@@ -1,6 +1,6 @@
 import pyrallis
 import os
-from jsrl_w_iql import JsrlTrainConfig, train
+from jsrl_w_iql import JsrlTrainConfig
 import time
 import wandb
 
@@ -14,7 +14,7 @@ def run(train_config: JsrlTrainConfig, seed: int):
     data_path = "jsrl-CORL/downloaded_data/" + train_config.env + ".hdf5"
     if os.path.exists(data_path):
         train_config.downloaded_dataset = data_path
-    return train(train_config)
+    return train_config
 
 if __name__ == "__main__":
     extra_config = {}
