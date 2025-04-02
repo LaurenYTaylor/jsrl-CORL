@@ -14,7 +14,7 @@ from dataclasses import asdict
 def get_config(train_config: JsrlTrainConfig, extra_config: dict, seed: int):
     train_config.seed = seed
     train_config.group = train_config.env + "_" + train_config.horizon_fn
-    train_config.project = "debug"
+    train_config.project = "ray-hyperparam"
     timestr = time.strftime("%d%m%y-%H%M%S")
     train_config.name = f"seed{seed}_{timestr}"
     data_path = "/workspace/jsrl-CORL/downloaded_data/" + train_config.env + ".hdf5"
