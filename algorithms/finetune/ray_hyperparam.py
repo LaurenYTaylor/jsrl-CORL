@@ -34,7 +34,7 @@ if __name__ == "__main__":
     #config_dict["eval_freq"] = tune.randint(15000, 25000)
     config_dict["beta"] = tune.uniform(1.0, 10.0)
     config_dict["iql_tau"] = tune.uniform(0.1, 3)
-    config_dict["batch_size"] = tune.sample([64, 128, 256, 512])
+    config_dict["batch_size"] = tune.choice([64, 128, 256, 512])
     config_dict["vf_lr"] = tune.loguniform(1e-5, 1e-2)
     config_dict["qf_lr"] = tune.loguniform(1e-5, 1e-2)
     config_dict["actor_lr"] = tune.loguniform(1e-5, 1e-2)
